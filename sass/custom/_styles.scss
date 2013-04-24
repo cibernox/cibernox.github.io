@@ -1,0 +1,25 @@
+// This File is imported last, and will override other styles in the cascade
+// Add styles here to make changes without digging in too much
+
+.gravatar-section{
+  @include clearfix;
+  .bio {
+    padding-top: 1.2em;
+    float: left;
+    width: 65%;
+    .messages{
+      float: right;
+      width: 75%;
+      p, a{
+        display: block;
+        text-align: right;
+        margin: 0 1em 0 0;
+      }
+    }
+  }
+  .gravatar {
+    float: left;
+    width: 35%;
+    padding-top: 1em;
+  }
+}

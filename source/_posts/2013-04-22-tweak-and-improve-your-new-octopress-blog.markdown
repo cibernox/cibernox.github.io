@@ -56,7 +56,7 @@ will get an ID number like _AB-12345678-9_.
 
 Go and edit your the config file and add this id to the google analytics key.
 
-{% codeblock /_config.yml %}
+{% codeblock _config.yml %}
 ---
 # ---------------------------------- #
 #   Google Analytics Configuration   #
@@ -118,7 +118,7 @@ in the posts, and there is no keywords for the blog level. A few lines fixed tha
 {% endraw %}
 {% endcodeblock %}
 
-The general keywords and description for your blog should be placed in **/_config.yml**
+The general keywords and description for your blog should be placed in **_config.yml**
 
 ##### Categorize your posts
 

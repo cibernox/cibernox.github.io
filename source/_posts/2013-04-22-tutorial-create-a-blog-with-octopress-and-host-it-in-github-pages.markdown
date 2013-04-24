@@ -98,7 +98,7 @@ Current master branch _(octopress 2.0)_ only has a single configuration file (`_
 
 Let's fill only the minimum information.
 
-{% codeblock _config/defaults/theme.yml lang:yaml%}
+{% codeblock _config.yml %}
 
 url: fake.coderblog.com
 title: Coder blog

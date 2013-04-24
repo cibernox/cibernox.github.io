@@ -6,7 +6,7 @@ comments: true
 external-url:
 categories: [ruby,octopress,seo]
 published: true
-keywords: tutorial,octopress,2.1,github pages,seo,own domain
+keywords: tutorial,octopress,github pages,seo,own domain
 description: "These are the first steps I would follow after create an octopress blog."
 ---
 

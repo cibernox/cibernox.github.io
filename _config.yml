@@ -60,9 +60,9 @@ default_asides: [asides/gravatar.html, asides/recent_posts.html, asides/github.h
 
 # Github repositories
 github_user: cibernox
-github_repo_count: 0
+github_repo_count: 6
 github_show_profile_link: true
-github_skip_forks: true
+github_skip_forks: false
 
 # Twitter
 twitter_user: miguelcamba

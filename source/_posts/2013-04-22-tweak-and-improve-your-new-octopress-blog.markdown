@@ -56,7 +56,7 @@ will get an ID number like _AB-12345678-9_.
 
 Go and edit your the config file and add this id to the google analytics key.
 
-{% codeblock /_config/google-analytics.yml lang:yaml mark:6 %}
+{% codeblock /_config/google-analytics.yml lang:yaml %}
 ---
 # ---------------------------------- #
 #   Google Analytics Configuration   #
@@ -83,13 +83,12 @@ The description is also important for google, since it's the phase that will sho
 is listed as a search result.
 
 You can these information in the comments section at the beginning of each _.markdown_ file, like the posts.
-{% codeblock mark:8,9 %}
+{% codeblock %}
 ---
 layout: post
-title: "Tutorial: Create a blog with octopress 2.1 and host it in github pages"
+title: "Tutorial: Create a blog with octopress and host it in github pages"
 date: 2013-04-22T21:24:21+02:00
 comments: true
-external-url:
 categories: [ruby,octopress]
 keywords: tutorial,create,octopress,host,github pages,deploy
 description: What is octopress and how create and deploy your blog in github pages
@@ -101,7 +100,7 @@ The keywords and the description will be added automatically to the `<head>` tag
 But there is still a things that can be improved. At the time of writting this, the description was missing
 in the posts, and there is no keywords for the blog level. A few lines fixed that problem.
 
-{% codeblock /source/_includes/head.html mark:12-15 %}
+{% codeblock /source/_includes/head.html %}
 {% raw %}
 <!DOCTYPE html>
 <!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
@@ -111,8 +110,6 @@ in the posts, and there is no keywords for the blog level. A few lines fixed tha
   <meta charset="utf-8">
   <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
   <meta name="author" content="{{ site.author }}">
-  {% if site.googleplus_user %}<link href="https://plus.google.com/{{ site.googleplus_user }}" rel="author">{% endif %}
-  <meta name="Generator" content="Jekyll & Octopress (http://octopress.org)">
 
   {% capture description %}{% if page.description %}{{ page.description }}{% elsif site.description %}{{ site.description }}{% endif %}{% endcapture %}
   <meta name="description" content="{{ description }}">

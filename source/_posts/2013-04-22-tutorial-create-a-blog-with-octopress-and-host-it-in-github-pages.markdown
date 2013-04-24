@@ -1,9 +1,8 @@
 ---
 layout: post
-title: "Tutorial: Create a blog with octopress 2.1 and host it in github pages"
+title: "Tutorial: Create a blog with octopress and host it in github pages"
 date: 2013-04-22T21:24:21+02:00
 comments: true
-external-url:
 categories: [ruby,octopress]
 keywords: tutorial,create,octopress,host,github pages,deploy
 description: What is octopress and how create and deploy your blog in github pages
@@ -70,16 +69,8 @@ The fist step is to get octopress, cloning the repo and give it the name you wan
 git clone git://github.com/imathis/octopress.git coder_blog
 {% endcodeblock %}
 
-At this point you have to make a choice. Use the master branch **(Octropress 2.0)** or the edge version
-**(v2.1)** that has several improvements and tricks. I like to live on the edge, so let's go.
-
-{% codeblock %}
-# Checkout to the 2.1 branch
-git checkout 2.1
-{% endcodeblock %}
-
-You'll see that octopress has a `.ruby-version` file in the root folder that specify ruby 1.9.3-p194 as the desired version.
-Maybe you want to update that file to the fresh ruby `2.0.0-p0` as I did. It's totally compatible. More edge.
+You'll see that octopress has a `.rbenv-version` file in the root folder that specify ruby 1.9.3-p194 as the desired version.
+Maybe you want to update that file to the fresh ruby `2.0.0-p0` as I did. It's totally compatible. Living on the edge.
 
 Now you can install all dependencies with bundler and run our first rake task to install a theme.
 
@@ -100,19 +91,12 @@ $ rake generate
 
 You can see a list with some available themes [here](https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes) but there is a lot more.
 
-Maybe not all themes are compatible with the edge version, but I haven't found any issue yet.
-
 ### Configuration
 
-
 The next step is to configure the basics of your blog.
-While _octopress 2.0_ only has a single configuration file (`_config.yml`), _octopress 2.1_ has divided
-the configuration among many files in the **/_config** folder, but the options are more or less the same.
+Current master branch _(octopress 2.0)_ only has a single configuration file (`_config.yml`)
 
-Now the basic information of your blog (title, author, description...) is placed in the configuration file
-of the chosen theme.
-
-Let's set only the minimum information.
+Let's fill only the minimum information.
 
 {% codeblock _config/defaults/theme.yml lang:yaml%}
 
@@ -127,8 +111,6 @@ description: Simple blog built with octopress
 # Lots of configuration parameters.
 {% endcodeblock %}
 
-All the other files have a very descriptive name, so no problem here.
-
 ### The first post
 
 Now we can create our first post. The naming convention is explained perfectly in the official documentation:
@@ -141,10 +123,9 @@ of this very post.
 {% codeblock 2013-04-15-tutorial-create-an-octopress-blog-and-host-it-in-github-pages.markdown lang:yaml%}
 ---
 layout: post
-title: "Tutorial: Create an octopress blog and host it in github pages"
-date: 2013-04-15 23:14
+title: "Tutorial: Create a blog with octopress and host it in github pages"
+date: 2013-04-22T21:24:21+02:00
 comments: true
-external-url:
 categories: [ruby,octopress]
 ---
 {% endcodeblock %}

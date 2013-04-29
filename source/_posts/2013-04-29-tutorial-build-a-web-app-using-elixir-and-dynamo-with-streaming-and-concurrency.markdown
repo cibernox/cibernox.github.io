@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Tutorial: Build a web app with Elixir and Dynamo with streaming and concurrency"
+title: "Tutorial: Build a web app using Elixir and Dynamo with streaming and concurrency"
 date: 2013-04-29 03:38
 comments: true
 published: true
@@ -9,7 +9,7 @@ keywords: elixir,erlang,dynamo,concurrent,streaming,server-side events,chunk
 description: We are going to build step by step a simple web app that reads to fairy tales through streaming connections and handles multiple simultaneus conections.
 ---
 
-Althoug I am mostly a Ruby developer, I like to play with crazy things from time to time, and
+Althoug I am mostly a Ruby developer, I like to play with unusual (to me) things from time to time, and
 concurrent programming is one of them.
 
 Is well known that Ruby is not a good language to build concurrent code. MRI, the main ruby interpreter,
@@ -298,7 +298,10 @@ Let's test it in the browser:
 
 Cool, ah?
 
-I encourage you to play with both, elixir and dynamo.
+I encourage you to play with both, elixir and dynamo. Is maybe more suitable for concurrency newbies
+(as I am) than stand alone elixir, and allows your to build read things in a snap.
+
+You can find the application in [my github](https://github.com/cibernox/storyteller). Fork it!
 
 
 

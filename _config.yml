@@ -70,11 +70,11 @@ twitter_tweet_button: true
 
 # Google +1
 google_plus_one: true
-google_plus_one_size: medium
+google_plus_one_size: small
 
 # Google Plus Profile
 # Hidden: No visible button, just add author information to search results
-googleplus_user: miguel.camba@gmail.com
+googleplus_user: 104848632337303003619
 googleplus_hidden: false
 
 # Pinboard

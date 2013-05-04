@@ -21,41 +21,41 @@ but I didn't want to do it manually. I googled for a script but I didn't found a
 
 The problem I found was to download files from an **HTTPS** source that was behind a login form. My first
 idea was to use a pure ruby solution like the `HTTParty` gem, but after a few failed attemps I realized that
-`curl` had all that I need.
+`curl` already has all that I need.
 
 ### The idea
 
-I used Curl with SSL a few times, but always with public documents, not with files that was behind an authentication
+I've used curl with https a few times, but always with public documents, not with files that was behind an authentication
 form, but curl has built-in support for cookies.
 
 To save a cookie you pass the **-c** option for specify the file where to save the cookie, and the **-d**
-option for pass a query string with the authetication params.
+option for pass a query string with the authentication params.
 
 {% codeblock %}
 curl -c file_name_of_the_cookie.txt -d "username=example@mail.com&password=myPassword123" http://rubytapas.dpdcart.com/subscriber/login?__dpd_cart=8f511233-b72b-4a8c-8c37-fadc74fbc3a1
 {% endcodeblock %}
 
-After that you'll have the cookie saved in a file. Loading that cookie with the **-b** option you can
+After that, you'll have the cookie saved in a file. Loading that cookie with the **-b** option you can
 download files behind the authetication process.
 
 {% codeblock %}
 curl -o episode.mp4 -b cookie-file.txt -d "username=my-email@example.com&password=myPassword123" https://rubytapas.dpdcart.com/subscriber/download?file_id=446
 {% endcodeblock %}
 
-It works! It's time to make make the script.
+It works! It's time to write the script.
 
 ### The solution
 
 First of all we need to know how many episodes have been published and the files we want to download for each one.
 If only there was a place from where to obtain the basic information that is published in a compact and organized way!
-Oh, there is. The RSS!
+Oh, there is one. The RSS!
 
 The rss can be easily obtained with a get request. It requires basic authentication, but doesn't need to
 set a cookie since there is no need to keep alive any session, so use your favorite http client. Mine is HTTParty,
 _mainly because of its cool name_.
 
 {% codeblock lang:ruby %}
-rss = HTTParty.get(https://rubytapas.dpdcart.com/feed, basic_auth: { username: "my@email.com", password: "myPassword123" })
+rss = HTTParty.get("https://rubytapas.dpdcart.com/feed", basic_auth: { username: "my@email.com", password: "myPassword123" })
 {% endcodeblock %}
 
 The rss file is an XML file that can be parsed and inspected with [nokogiri](http://nokogiri.org/).
@@ -83,7 +83,7 @@ Each episode in the rss looks like this:
 </item>
 {% endcodeblock %}
 
-Each `<item></item>` is an episodes. Its title is inside a `<title></title>` and the `<description></desctiption>` contains some html
+Each `<item></item>` is an episode. Its title is inside a `<title></title>` and the `<description></desctiption>` contains some html
 with one link for each file. The file's url is in the _href_ attribute and the name in the text of the link.
 
 That was all I needed to know. Here is the script.

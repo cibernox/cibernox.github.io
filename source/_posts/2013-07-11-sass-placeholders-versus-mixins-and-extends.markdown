@@ -3,6 +3,7 @@ layout: post
 title: "SASS placeholders versus mixins and extends"
 date: 2013-07-11 21:32
 comments: true
+published: true
 categories: [sass,frontend]
 keywords: sass,mixins,placeholders,extend,scss,differences,versus
 description: "A quick summary pointing out the differences between mixins, extends and placeholders"

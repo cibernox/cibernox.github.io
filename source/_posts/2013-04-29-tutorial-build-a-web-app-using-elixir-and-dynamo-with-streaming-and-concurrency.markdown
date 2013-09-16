@@ -53,7 +53,7 @@ Jose Valim, a ruby hero and well known programmer ([simple_form](https://github.
 [Devise](https://github.com/plataformatec/devise)...) created [**Elixir**](http://elixir-lang.org/),
 a language that compiles to erlang bytecode with a cleaner syntax, clearly inspired by its ruby background,
 and day by day is gaining popularity because it makes more pleasant to build Erlang applications.
-Besides, it can cohexist with pure erlang and you can call any erlan function without any perfomance
+Besides, it can cohexist with pure erlang and you can call any erlang function without any perfomance
 penalty.
 
 ## Dynamo

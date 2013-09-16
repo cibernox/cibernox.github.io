@@ -30,7 +30,7 @@ So I piped the output of the tail command to grep
   tail -f logs/production.log | grep "500 Internal Server Error"
 {% endcodeblock %}
 
-Fail again. I see all the errors but I don't see the the context, so I don't know what action fails of what parameters had the request.
+Fail again. I see all the errors but I don't see the the context, so I can't know which action failed or what parameters made the request fail.
 
 But unix always surprises me.
 
@@ -62,7 +62,7 @@ OPTIONS
               Print NUM lines of output context.  Places a line containing -- between contiguous groups of matches.
 {% endcodeblock %}
 
-There is much more options, but the important options here are `-A`, `-B` and `-C`. With this options you can show the context around the grep matches.
+There is many more options, but the important options here are `-A`, `-B` and `-C`. With this options you can show the context around the matchings.
 
 {% codeblock %}
   tail -f logs/production.log | grep "500 Internal Server Error" -B 2 -A 5

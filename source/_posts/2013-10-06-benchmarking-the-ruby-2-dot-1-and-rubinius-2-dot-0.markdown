@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Benchmarking the ruby 2.1 and rubinius 2.0"
+title: "Benchmarking ruby 2.1 and rubinius 2.0"
 date: 2013-10-05 20:33
 comments: true
 published: true
@@ -44,7 +44,7 @@ Just to clarify some details about how I performed the calculation in the bottom
 victories I just count the victories of each implementation, so raising an exception is a failure, but when measuring the total
 time, if any of the implementations failed on that benchmark then its time is not computed in the total time of any implemetation.
 
-Thesee are the results of the three MRI implementations:
+These are the results of the three MRI implementations:
 
 <div id="table-ruby-mri-benchmark-placeholder"></div>
 
@@ -60,9 +60,9 @@ Probably in real word examples the performance gain will be around 5%, which is 
 But it turns out that 2 days ago, while I was writting this post rubinius 2.0 [was released](http://rubini.us/2013/10/04/rubinius-2-0-released/).
 
 Rubinius is by far my favourite alternative ruby implementation and I was excited about that anouncement.
-How will rubinius perform agains the other implementations? And jruby?
+How will rubinius perform against the other implementations? And jruby?
 
-I've run the same benchmark against `rbx-2.0.0` working in ruby 2.1 mode and also agains `jruby 1.7.4` running on java 1.7.0_40-b43,
+I've run the same benchmark on `rbx-2.0.0` working in ruby 2.1 mode and also agains `jruby 1.7.4` running on java 1.7.0_40-b43,
 but in this case in ruby 2.0 mode.
 
 All the cutting edge versions avaliable right now.
@@ -73,12 +73,12 @@ Wow!! I didn't expect that. Rubinius wins in twice as many tests as the second o
 in all the multithreaded tests.
 
 Both, jruby and rubinius outperforms MRI's implementations by an order of magnitude when it comes to parallel processing, that
-was expected, but rubinius also doubles the performance on other matematicas tasks.
+was expected, but rubinius also doubles the performance on other math tasks.
 And jruby also performs very well, and probably would perform better in a computer with more than 2 cores.
 
-Even if ruby 2.1 has the lower total time, this benchmark suite was written 4 years go. The computer world have changed since then.
+Even if ruby 2.1 has the lower total time, this benchmark suite was written 4 years ago. The computer world have changed since then.
 Parallel computing is now the present, and I think that both rubinius and jruby have a brilliang future when it comes
-to scale our application to the multi-core world we live now.
+to scale our applications to the multi-core world we live now.
 
 
 

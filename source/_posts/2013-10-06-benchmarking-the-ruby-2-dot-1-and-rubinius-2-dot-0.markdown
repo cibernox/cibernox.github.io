@@ -23,7 +23,7 @@ It has many interesting improvements in the language, but the key ones are:
 * Named captures in StringScanner
 
 
-Some of this improvements are more exciting than others (thubs up to fronzen string, thumbs down to refinements),
+Some of this improvements are more exciting than others (thumbs up to frozen string, thumbs down to refinements),
 but as Yukuhiro Matsumoto said in his talk at the [Baruco](http://baruco.org/), which I attended, the main changes in this new release are
 internal, with the new generational garbage collector as the king of the party.
 

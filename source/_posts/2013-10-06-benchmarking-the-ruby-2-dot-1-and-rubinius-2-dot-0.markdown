@@ -62,7 +62,7 @@ But it turns out that 2 days ago, while I was writting this post rubinius 2.0 [w
 Rubinius is by far my favourite alternative ruby implementation and I was excited about that anouncement.
 How will rubinius perform against the other implementations? And jruby?
 
-I've run the same benchmark on `rbx-2.0.0` working in ruby 2.1 mode and also agains `jruby 1.7.4` running on java 1.7.0_40-b43,
+I've run the same benchmark on `rbx-2.0.0` working in ruby 2.1 mode and also against `jruby 1.7.4` running on java 1.7.0_40-b43,
 but in this case in ruby 2.0 mode.
 
 All the cutting edge versions avaliable right now.
@@ -77,7 +77,7 @@ was expected, but rubinius also doubles the performance on other math tasks.
 And jruby also performs very well, and probably would perform better in a computer with more than 2 cores.
 
 Even if ruby 2.1 has the lower total time, this benchmark suite was written 4 years ago. The computer world have changed since then.
-Parallel computing is now the present, and I think that both rubinius and jruby have a brilliang future when it comes
+Parallel computing is now the present, and I think that both rubinius and jruby have a brilliant future when it comes
 to scale our applications to the multi-core world we live now.
 
 

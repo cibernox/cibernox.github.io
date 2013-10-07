@@ -8,7 +8,119 @@ categories: ruby
 keywords: ruby,mri,rubinius,jruby,ruby 2.1,benchmark,performance
 description: "Benchmark the latests versions of the main ruby implementations. Battle: ruby-2.0 vs ruby-2.1 vs jruby-1.7.4 vs rbx-2.0"
 ---
-<script src="{{ root_url }}/javascripts/ruby-benchmark-table.js" type="text/javascript"> </script>
+<script type="text/javascript">
+  (function(){
+
+    var buildTable = function(data){
+      var header = data.shift();
+
+      var scoreboard = data[0].map(function(){ return 0; });
+      var totalTime = data[0].map(function(){ return 0; });
+
+      html = "";
+
+      html += '<table class="compact benchmark">'
+        html += '<thead>'
+          html += '<tr>'
+            header.forEach(function(e){
+              html += '<th>' + e + '</th>'
+            });
+          html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+          data.forEach(function(row){
+            html += '<tr>'
+              row.forEach(function(cell, index, array){
+                var cellClass = '';
+
+                if (index >= 2){
+                  var parsedValue = parseFloat(cell);
+                  var valuesArray = array.slice(2, array.length)
+                  var parsedArray = valuesArray
+                    .map(function(e){ return parseFloat(e) })
+                    .filter(function(e){ return !!e; })
+                  var allValuesAreCorrect = parsedArray.length == valuesArray.length;
+
+                  cellClass += 'value '
+
+                  if (!parsedValue){
+                    cellClass += 'wrong '
+                  } else {
+                    cell = parsedValue.toFixed(6)
+                    if (allValuesAreCorrect){ totalTime[index] += parsedValue }
+                    var isMaxValue = Math.max.apply(null, parsedArray) == parsedValue;
+                    if (isMaxValue){
+                      cellClass += 'slowest '
+                    } else {
+                      var isMinValue = Math.min.apply(null, parsedArray) == parsedValue;
+                      if (isMinValue){
+                        cellClass += 'fastest '
+                        scoreboard[index] += 1
+                      }
+                    }
+                  }
+                }
+
+                html += '<td class="'+cellClass+'">'
+                html += cell + '</td>'
+                html += '</td>'
+              });
+            html += '</tr>'
+          });
+        html += '</tbody>'
+        html += '<tfoot>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Victories</strong></td>'
+            scoreboard.slice(2,scoreboard.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'fastest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'slowest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e+'</td>'
+            });
+          html += '</tr>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Total time</strong></td>'
+            totalTime.slice(2,totalTime.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'slowest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'fastest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e.toFixed(6)+'</td>'
+            });
+          html += '</tr>'
+        html += '</tfoot>'
+      html += '</table>'
+
+      return html;
+    }
+
+    $(function(){
+
+      $.get("{{ root_url }}/javascripts/mri-rubies.json").success(function(json){
+        $('#table-ruby-mri-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+
+      $.get("{{ root_url }}/javascripts/all-rubies.json").success(function(json){
+        $('#table-ruby-all-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+      $.get("{{ root_url }}/javascripts/all-rubies-v2.json").success(function(json){
+        $('#table-ruby-all-benchmark-v2-placeholder').replaceWith(buildTable(json));
+      });
+    })
+
+  })();
+</script>
 
 A few days ago a the first preview version of ruby 2.1 was released.
 
@@ -79,6 +191,33 @@ And jruby also performs very well, and probably would perform better in a comput
 Even if ruby 2.1 has the lower total time, this benchmark suite was written 4 years ago. The computer world have changed since then.
 Parallel computing is now the present, and I think that both rubinius and jruby have a brilliant future when it comes
 to scale our applications to the multi-core world we live now.
+
+## Update
+
+After some controversy yesterday, I've repeated the benchmark with some minor changes to make the bechmark more realistic.
+As always, is impossible to a syntetic benchmark like this to be trustworthy when it comes to reproduce the real performance that you
+will get in your applications.
+
+I've updated the input size of many benchamarks that runned too fast (in less than a second) to make then more long living. Not in every test, because
+sometimes it was not straightforward.
+I also set the flag `JRUBY_OPTS=-X+C` which forces jruby to use the JIT compiler even if the script is very simple.
+
+<div id="table-ruby-all-benchmark-v2-placeholder"></div>
+
+First of all, notice that with the new input sizes some tests that did not fail in the first run failed in some implementations.
+
+With the new benchmark the landscape changed a bit, but no so much. And the alternative implementations shine even more.
+
+Rubinius still is the implementation that wins in more tests, but ruby 2.1 is not longer the second one. Now jruby has the honor.
+And also jruby wins an almost all the macro benchmarks, which are the most complex and generic ones.
+
+On the other handle, ruby 2.1 still has the lower total time but jruby is just behind, very close. The diference of time between jruby and
+rubinius has increased so the longer tests and the JIT compiler favor jruby more than rbx.
+
+I want to emphasize this because I feel that the more complex and long-living the applications are, the more advantage will the alternative
+implementations take from that situation.
+
+
 
 
 

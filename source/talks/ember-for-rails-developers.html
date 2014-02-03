@@ -1,0 +1,393 @@
+---
+title: "slides-ember-for_rails_developers"
+date: 2014-02-03 22:36
+comments: true
+sharing: true
+footer: true
+---
+<!DOCTYPE html>
+
+<!--
+  Google HTML5 slide template
+
+  Authors: Luke Mahé (code)
+           Marcin Wichary (code and design)
+
+           Dominic Mazzoni (browser compatibility)
+           Charles Chen (ChromeVox support)
+
+  URL: http://code.google.com/p/html5slides/
+-->
+
+<html>
+  <head>
+    <title>Presentation</title>
+
+    <meta charset='utf-8'>
+    <script
+      src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script>
+  </head>
+
+  <style>
+    /* Your individual styles here, or just use inline styles if that’s
+       what you want. */
+
+    .icon{
+      display: inline-block;
+      vertical-align: middle;
+      width: 60px;
+    }
+    .social-icons{
+      line-height: 90%;
+      font-size: 70%;
+      padding-left: 20px
+    }
+
+    small{
+      font-size: 75%;
+      color: #888;
+    }
+
+    h3{
+      font-size: 45px !important;
+    }
+
+    li.good{ color: green; }
+    li.bad{ color: red; }
+
+    .rotated{
+      display: inline-block;
+      position: absolute;
+      top: 230px;
+      -webkit-transform: rotate(-9deg);
+      margin-left: -140px;
+      color: red;
+      font-style: bolder;
+      font-size: 120%;
+    }
+
+    .lot-of-code-samples pre{
+      margin-top: 30px !important;
+      margin-bottom: 30px !important;
+    }
+    .text-center{
+      text-align: center;
+    }
+
+  </style>
+
+  <body style='display: none'>
+
+    <section class='slides layout-regular template-default'>
+      <article class="nobackground">
+        <h1>
+          Ember.js for Rails <span class="build"><div class="rotated">backend</div></span> developers
+          <br>
+        </h1>
+        <p>
+          Miguel Camba
+          <div class="social-icons">
+            <br>
+            <span class="icon"><img src="/images/twitter-logo.png" height="35" width="44"/></span>@miguelcamba
+            <br>
+            <span class="icon"><img src="/images/github-logo.png" height="50" width="50"/></span>@cibernox
+          </div>
+        </p>
+      </article>
+
+      <article class="nobackground">
+        <h3>
+          About me
+          <br>
+        </h3>
+        <ul>
+          <li>Backend developer turned into a fontend lately</li>
+          <li>Rails developer for 3+ years</li>
+          <li>Experienced with JS libraries <small>(jQuery, underscore, ...)</small></li>
+          <li>Relatively newbie to frontend frameworks <small>(some pet projects with Backbone and AngularJS)</small></li>
+        </ul>
+      </article>
+
+      <article>
+        <h3> From Rails to Ember. </h3>
+        <h4> Yehuda Kats, it's creator, is also member of the Rails Core Team and the jQuery Core Team.  </h4>
+        <h4> Ember has borrowed many ideas from Rails and applied them on the frontend development, but with a different twist. </h4>
+      </article>
+
+      <article class='nobackground'>
+        <h3> The good parts </h3>
+        <ul class="build">
+          <li class="good"> Both are MVC frameworks. </li>
+          <li class="good"> Both embrace convention over configuration <i>à la Rails</i>. </li>
+          <li class="good"> Both are Open Source and community-diven. </li>
+        </ul>
+        <br>
+        <br>
+        <h3 class="build"> The bad parts </h3>
+        <ul class="build">
+          <li class="bad"> But MVC are understood in a very different way. </li>
+          <li class="bad"> There is some false-friends you must be aware of. </li>
+          <li class="bad"> It might be a serious mind gap to change the way you solve problems. </li>
+        </ul>
+      </article>
+
+      <article class='nobackground'>
+        <h3>Rails MVC</h3>
+        <img src="/images/mvc-rails.png" class="centered">
+      </article>
+
+      <article class="nobackground">
+        <h3> Rails MVC flow</h3>
+        <ol class="build">
+          <li> <strong>One</strong> router recognises the url. </li>
+          <li> <strong>One</strong> controller handles the request. </li>
+          <li> <strong>One</strong> controller read/creates/modifies models. </li>
+          <li> Models store the <strong>state</strong> of your application into the models. </li>
+          <li> <strong>One</strong> Controller renders views and send back the resulting html. </li>
+          <p class="build">And the we forget everything and start over again.</p>
+          <br>
+          <p class="build">The keywords here are <strong>one</strong> and <strong>state</strong> </p>
+        </ol>
+      </article>
+
+      <article class='nobackground'>
+        <h3>Ember MVC </h3>
+        <div class="build">
+          <img src="/images/mvc-ember.png" class="centered">
+        </div>
+      </article>
+
+      <article class='nobackground'>
+        <h3>Ember MVC <small>(aka Ember WTF?!)</small> </h3>
+        <img src="/images/wtf.jpg" class="centered">
+        <div class="build">
+          <p>I know that feeling.</p>
+        </div>
+      </article>
+
+      <article class='nobackground'>
+        <h3> The issue here: Naming </h3>
+        <h4>Forget everything you know. MVC is not longer MVC</h4>
+        <table class="build">
+          <tr class="build">
+            <th> Rails </th>
+            <th> Ember </th>
+          </tr>
+          <tr class="build">
+            <td> Router </td>
+            <td> Router </td>
+          </tr>
+          <tr class="build">
+            <td> Models </td>
+            <td> Models </td>
+          </tr>
+          <tr class="build">
+            <td> Routes </td>
+            <td> Controllers (meeeh) </td>
+          </tr>
+          <tr class="build">
+            <td> Controllers </td>
+            <td> Controllers/Decorators (barely) </td>
+          </tr>
+          <tr class="build">
+            <td> Views </td>
+            <td> ::not found:: </td>
+          </tr>
+          <tr class="build">
+            <td> Templates </td>
+            <td> Views </td>
+          </tr>
+        </table>
+      </article>
+
+      <article class="nobackground">
+        <h3> Ember: Managing long-living state</h3>
+        <br>
+        <p> Backend MVC is all about separation of concerns and HTTP (stateless protocol).</p>
+        <br>
+        <p> Frontend MVC is all about handing user interaction and managing state.</p>
+        <br>
+      </article>
+
+      <article class="nobackground">
+        <h3>2 kind of state</h3>
+        <h4>Persistent state</h4>
+        <ul>
+          <li>Stored in the models</li>
+          <li>Persisted somewhere (usually in the backend thought an API)</li>
+        </ul>
+        <h4>Local/application state</h4>
+        <ul>
+          <li>The URL is the foundation of framework.</li>
+          <li>Controllers store its own non-persistent state</li>
+        </ul>
+      </article>
+
+      <article class="nobackground">
+        <h3> Routes </h3>
+        <ul>
+          <li>Prepare the context for the controllers</li>
+          <li>Handle high-level actions/transitions</li>
+        </ul>
+        <pre>
+      App.TrainingsRoute = Ember.Route.extend({
+        // Find the record(s) and injects them into the controller
+        model: function() {
+          return this.get('store').find('training');
+        },
+
+        // Several hooks for control the application state's flow.
+        afterModel: function(trainings, transition) {
+          if (posts.length === 0) {
+            this.transitionTo('trainings.new');
+          }
+        }
+      })</pre>
+      </article>
+
+      <article class="nobackground">
+        <h3> Controllers </h3>
+        <ul>
+          <li> Store/Handle application state. </li>
+          <li> Decorate the models with display logic. </li>
+          <li> Define actions to manipulate theis state. </li>
+        </ul>
+        <pre>
+    App.AwardsController = Ember.ArrayController.extend({
+      minSlots: 6,
+      sortProperties: ['date'],
+      leagueAwards: Em.computed.filterBy('content','type', 'league'),
+      actions: {
+        shareOnFacebook: function(){ /**/ }
+      }
+    })</pre>
+      </article>
+
+      <article class="nobackground">
+        <h3> Views </h3>
+        <ul>
+          <li> Store/Handle the widget's state. </li>
+          <li> Views are responsable of transform user-events into application-events. </li>
+          <li> Usually you don't need them. </li>
+        </ul>
+        <pre>
+    App.BidderView = Ember.View.extend({
+      classNameBindings: ['isFriend:friend', 'isMe:me', 'isWinning:winner'],
+      classNames: ['bidder'],
+      label: function() {
+        return this.get('isWinning') ? I18n.t('market.winning_short') : this.get('index') + 1;
+      }.property('isWinning', 'index'),
+      click: function() {
+        this.get('controller').send('showReport');
+        return false;
+      }
+    });</pre>
+      </article>
+
+      <article class="nobackground">
+        <h3> Models </h3>
+        <p> No surprises here, they work as you would expect. </p>
+        <p> Ember-data =~ ActiveRecord. <small>(the "official" adapters)</small></i></p>
+        <pre>
+  App.Player = DS.Model.extend({
+    // Attributes
+    name:               DS.attr('string'),
+    surname:            DS.attr('string'),
+    club:               DS.attr('string'),
+    birthdate:          DS.attr('date'),
+    // Computed properties
+    fullName: function() {
+      var  name = this.get('name'),
+        surname = this.get('surname');
+      if (name && surname) { return name + " " + surname; }
+    }.property('name', 'surname')
+  }</pre>
+      </article>
+
+      <article class='nobackground'>
+        <h3> Templates </h3>
+        <p> Build the markup of your views loading data from views or controllers. </p>
+        <p> Keep your views updated with bindings. </p>
+        <p> Handlebars is the official template engine, like ERB for Rails. </p>
+        <pre>
+  &lt;div class=&quot;texts&quot;&gt;
+    &lt;div class=&quot;player-flag&quot;&gt;
+      {{flagFor player.flagName}}
+    &lt;/div&gt;
+    &lt;div class=&quot;name&quot;&gt;{{player.fullName}}&lt;/div&gt;
+    &lt;div class=&quot;location-age&quot;&gt;
+      &lt;span class=&quot;muted&quot;&gt;{{t &quot;common.age&quot;}}&lt;/span&gt;:
+      &lt;span&gt;{{player.age}}&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;</pre>
+      </article>
+
+      <article class="nobackground">
+        <h3> Convention over configuration </h3>
+        <section>
+        <div class="build lot-of-code-samples">
+        <pre class="smaller">
+App.Router.map(function(){
+  this.route('dashboard');
+  this.resource('config', function(){
+    this.route('notifications');
+  });
+});
+</pre>
+        <pre class="smaller">
+App.IndexRoute = Ember.Route.extend({ ... })
+App.DashboardRoute = Ember.Route.extend({ ... })
+App.ConfigRoute = Ember.Route.extend({ ... })
+App.ConfigIndexRoute = Ember.Route.extend({ ... })
+App.ConfigNotificationsRoute = Ember.Route.extend({ ... })
+</pre>
+        <pre class="smaller">
+App.IndexController = Ember.Controller.extend({ ... })
+App.DashboardController = Ember.Controller.extend({ ... })
+App.ConfigController = Ember.Controller.extend({ ... })
+App.ConfigIndexController = Ember.ObjectController.extend({ ... })
+App.ConfigNotificationsController = Ember.ObjectController.extend({ ... })
+</pre>
+        </div>
+      </article>
+
+      <article class="nobackground">
+        <h3> Convention over configuration </h3>
+        <div class="build">
+        <pre class="smaller">
+App.Router.map(function(){
+  this.resource('config', function(){
+    this.route('notifications');
+  });
+});
+</pre>
+        <pre class="smaller">
+&lt;script data-template-name=&quot;config&quot;&gt;&lt;/script&gt;
+&lt;script data-template-name=&quot;config/index&quot;&gt;&lt;/script&gt;
+&lt;script data-template-name=&quot;config/notifications&quot;&gt;&lt;/script&gt;
+</pre>
+        </div>
+      </article>
+
+      <article class="nobackground">
+        <h1 class="centered text-center">
+          <a href="http://jsbin.com/eJADeMAt/2/edit">Demo!</a>
+        </h1>
+      </article>
+
+      <article class="nobackground">
+        <h1 class="centered text-center">
+          Thank you!
+        </h1>
+      </article>
+
+      <article class="nobackground">
+        <h1 class="centered text-center">
+          Q&A
+          </h1>
+      </article>
+
+    </section>
+
+  </body>
+</html>

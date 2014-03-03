@@ -331,6 +331,44 @@
 				</section>
 
 				<section>
+					<h3>The router</h3>
+					<br>
+					<p>Foundational URL: Each unique resource has a uniq identifier.</p>
+					<br>
+					<p>The router links that URL with the state hander reponsable of that section.</p>
+					<pre>
+						<code data-trim class="js no-limits">
+App.Router.map(function(){
+  this.resource('posts', function() {
+    // Url: NA              Route name: "posts"          Route: App.PostsRoute
+    // and also..
+    // Url: "/posts"        Route name: "posts.index"    Route: App.PostsIndexRoute
+
+    this.route('new');
+    // Url: "/posts/new"    Route name: "posts.new"      Route: App.PostsNewRoute
+  });
+
+  this.route('about');
+  // Url: "/about"          Route name: "about"          Route: App.AboutRoute
+
+});
+						</code>
+					</pre>
+					<aside class="notes">
+						I say "the router" because in this case there is only one. The router is
+						the piece of software that determines which route must be invoked when the application
+						transitions between urls.
+
+						As I've said before, the URL is foundational for ember. The answer for questions
+						like "is the user logged in?" or "which match is the user playing?" should have
+						a unique representation in the system, and the URL is just designed for that.
+
+						The router is the manifest that links url with the state handlers of the application:
+						the routes.
+					</aside>
+				</section>
+
+				<section>
 					<h3>Routes</h3>
 					<br>
 					<p>Populate and setup the controllers of the current section of the application</p><br>
@@ -403,7 +441,38 @@ App.MessagesRoute = Ember.Router.extend({
 						</code>
 					</pre>
 					<aside class="notes">
-						TODO:
+						But most of the time you don't need any of this flexibility. 95% of the
+						time the route only populates the content of a controller with some data
+						and that only takes a few lines of code.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Controllers</h3>
+					<br>
+					<p>Expose and decorate the underlying data with contextual information.</p>
+					<br>
+					<p>React to user actions modifying data and store contextual state.</p>
+					<br>
+					<p>You can extend 3 kinds of controllers depending on your needs:
+					<p><code class="yellow-text">Ember.Controller</code></p>
+					<p><code class="yellow-text">Ember.ObjectController</code></p>
+					<p><code class="yellow-text">Ember.ArrayController</code></p>
+					<aside class="notes">
+						The next item in the ember's toolchaing are the controllers.
+
+						Again, controllers are a bit different to what backend developers are used to.
+
+						They are responsable of expose and decorate the underlaying data, ofter
+						with information that is dependent of the application state.
+
+						By example, in out game, a played match is the same for you and for your rival,
+						but depending of you being the manager of the home team or the away team, you will
+						see the same goal as a success or a failure.
+
+						Also, controllers have the responsability of modify the data reacting to user
+						actions and store contextual state that does not need to be persisted in the
+						backend.
 					</aside>
 				</section>
 

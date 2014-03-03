@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js - The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link href='http://fonts.googleapis.com/css?family=Creepster' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/night.css" id="theme">
+		<link rel="stylesheet" href="css/theme/my-customizations.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+		<script src="lib/js/jquery-2.1.0.min.js"></script>
+		<script src="lib/js/handlebars.js"></script>
+		<script src="lib/js/ember-1.4.0.js"></script>
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Meet Ember.js</h1>
+					<h3>Not just another js framework.</h3>
+					<img src="images/ember-logo.png" alt="Ember's logo" height="300px" width="300px">
+					<p class="text-right bigger-text">Miguel Camba</p>
+					<div class="text-right big-text low-height">
+						<img src="images/twitter-logo.png" alt="twitter-logo" height="40px" width="48px" class="inline-icon">
+						@miguelcamba
+					</div>
+					<div class="text-right big-text low-height">
+						<img src="images/github-logo.png" alt="github-logo" height="52px" width="52px" class="inline-icon">
+						@cibernox &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					</div>
+				</section>
+
+				<section>
+					<img src="images/kerad-logo.png" alt="kerad-logo">
+				  <aside class="notes">
+						I work on Kerad Games, a games company based here in Barcelona...
+					</aside>
+				</section>
+
+				<section>
+					<img src="images/goldenmanager-logo.png" alt="kerad-logo" width="549px" height="513px">
+					<aside class="notes">
+						and our first game is "Golden Manager" an online footbal manager where you can
+						train, decide your strategy, buy better players, manage your finances and build
+						the better team.
+					</aside>
+				</section>
+
+				<section>
+					<img src="images/html-logo.png" alt="kerad-logo" style="width: 186px; height: 255px; max-height: none; max-width: none; position: absolute; z-index: 4; left: 68px; top: 19px;">
+					<img src="images/css-logo.png" alt="kerad-logo" style="width: 186px; height: 255px; max-height: none; max-width: none; position: absolute; z-index: 4; left: 707px; top: 22px;">
+					<img src="images/js-logo.png" alt="kerad-logo" style="width: 186px; height: 255px; max-height: none; max-width: none; position: absolute; z-index: 4; left: 378px; top: 403px;">
+					<img class="fragment" data-fragment="0" src="images/tomster-under-construction.png" alt="kerad-logo" style="width: 286.12856058310507px; height: 321.5406823646365px; max-height: none; max-width: none; position: absolute; z-index: 4; left: 363px; top: 80px;">
+					<aside class="notes">
+						<p>It is build using just web technologies, html5, css, and javascript, and ember acts as the glue for all of them.</p>
+
+						<p>Right now we have about 1M of registered users, which is a lot of people to handle,
+						and as any game we need to build a highly responsive and snappy UI experience, so
+						we have moved from a classic web structure to a API + web-client approach that is
+						proving itself like a huge success</p>
+
+						<p>In fact our ember app is becoming more and more complex. We are delegating more and
+						more work to our clients browser and this is allowing us to scale easier.</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>What is <img src="images/ember-word-logo.png" alt="ember-word-logo" width="229px" height="87px" class="sub-icon"></h2>
+					<br>
+					<br>
+					<ul class="spaced-list">
+						<li>A new MVC framework designed to build ambitious web apps.</li>
+						<li>It does a lot of job for you, so you can focus on what really matters.</li>
+						<li>Reduces boilerplate code.</li>
+						<li>Keeps your views updated with a powerful binding mechanism.</li>
+					</ul>
+					<aside class="notes">
+						<p>Soooo, what is ember?</p>
+						<ul>
+							<li>new mvc.... : I don't know if any you have used it already, but I'm sure many are familiar to web frameworks and web apps.</li>
+							<li>it does a lot...</li>
+							<li>reduces boiler.....</li>
+							<li>keeps your views......</li>
+						</ul>
+					</aside>
+				</section>
+
+				<section>
+					<h2 style="position: absolute;">Oh really?</h2>
+					<img src="images/true-story.png" alt="true-story">
+					<aside class="notes">
+						<p>...Humm, that sounds familiar to me.</p>
+						<br>
+						<p>Every framework claims more or less the same.</p
+						<p>And that is because we all as developers want the same. We want to buil faster apps, with less code</p>
+						<p>and focus of our specific business logic without reinvent the wheel.</p>
+					</aside>
+				</section>
+
+				<section>
+					<h2>Options in the wild.</h2>
+					<img src="images/knockout-logo.png" class="absolute-element fragment" style="position: absolute; width: 482.50656167979px; height: 157px; z-index: 4; left: 478px; top: 554px; max-height: none; max-width: none;">
+					<img src="images/canjs-white-logo.png" class="absolute-element fragment" style="position: absolute; max-height: none; max-width: none; width: 412px; height: 168px; z-index: 4; left: 491px; top: 126px;" data-fragment-index="0">
+					<img src="images/angular-logo.png" class="absolute-element fragment" style="position: absolute; max-height: none; max-width: none; width: 305.96237965247553px; height: 306.5762216611604px; z-index: 4; left: 84px; top: 98px;" data-fragment-index="1">
+					<img src="images/react-logo.png" class="absolute-element fragment" style="position: absolute; max-height: none; max-width: none; width: 387px; height: 155px; z-index: 4; left: 75px; top: 484px;" data-fragment-index="2">
+					<img src="images/backbone-logo-lighter.png" class="absolute-element fragment" style="width: 547px; height: 97px; max-height: none; max-width: none; position: absolute; z-index: 4; left: 360px; top: 362px;">
+					<aside class="notes">
+						<p>There is a lot of alternatives out there. These are just some of the most popular ones.
+						Some of them are sponsored by big corporations, like google or facebook, so, what makes ember interesting?</p>
+						<p>If we think about those frameworks, all of them have something in common. The problem they
+						try to solve is the same....</p>
+					</aside>
+				</section>
+
+				<section>
+					<h1 class="creepster" style="margin-bottom:0;">User interfaces</h1>
+					<h4 class="gray-text text-right"><small><i>(Scary words that deserve a scary font)</i></small></h4>
+					<br>
+					<h3>User interfaces are hard</h3>
+					<br>
+					<ul class="spaced-list">
+						<li>Display data from a source</li>
+						<li>Keep that information updated when source changes</li>
+						<li>React to user interaction</li>
+						<li>Store contextual state</li>
+					</ul>
+					<aside class="notes">
+						**BUILD USER INTERFACES**
+
+						They try to provide some foundations and patters to build UI's on a platform (the browser)
+						that was not originally designed to it.
+
+						The problem is that UI's **are hard**.
+						* They need to react to events
+						* show information from a source data
+						* keep that information updated when the inner data changes
+						* store contextual state (where am it? How I came here? Where i was before? What was my previous action?)
+
+						Although that problem is new to us (web developers), it has been solved for a while
+						in desktop and mobile applications, so what ember's team said was:
+
+						Why not pick the solutions that have been there for a while and are battle-tested in desktop/mobile
+						apps and bring those patters to the web?
+
+						And that's what they did
+					</aside>
+				</section>
+
+				<section>
+					<h2>A bit of history</h2>
+					<img src="images/tomster-release.png" alt="tomster-release" width="356.4px" height="473.4px">
+				</section>
+
+				<section>
+					<ul class="spaced-list">
+						<li class="fragment"><i class="gray-text">2007</i> - SproutCore is released.</li>
+						<li class="fragment"><i class="gray-text">2008</i> - Apple announces MobileMe & iWork (built with sproutcore)</li>
+						<li class="fragment"><i class="gray-text">2010</i> - SproutCore team leaves Apple and starts Strobe Inc.</li>
+						<li class="fragment"><i class="gray-text">2011 (May)</i> - SproutCore 2.0 announced</li>
+						<li class="fragment"><i class="gray-text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Nov)</i> - Apple builds Strobe in a talent adquisition.</li>
+						<li class="fragment"><i class="gray-text">2012</i> - Tom Dale (ex-apple) and Yehuda Kats leave Strobe, Tilde and made a fork of SproutCore that is later renamed to Ember</li>
+						<li class="fragment"><i class="gray-text">7 months ago</i> - 1.5 Years later Ember hits 1.0</li>
+					</ul>
+					<aside class="notes">
+						As you see, it has been a looong way so far. But during that time ember extracted
+						knowledge from multiple sources. One that is specially present Apple DNA. Many of the
+						design principles and patterns that ember uses are inspired by cocoa's internals and
+						the way Mac and iOS app interfaces are built.
+					</aside>
+				</section>
+
+				<section>
+					<h2><img src="images/ember-structure.png" alt="ember-eiffel-tower" style="vertical-align: -75%"> Ember's Architecture</h2>
+					<br>
+					<ul class="spaced-list">
+						<li class="fragment">MVC framework (with Ember's own flavour)</li>
+						<li class="fragment">The URL is foundational for Ember</li>
+						<li class="fragment">Convention over configuration. Highly opinionated <i class="gray-text">à la rails</i></li>
+						<li class="fragment">Enforces simple UI design</li>
+					</ul>
+					<aside class="notes">
+						* MVC framework (with Ember's flafour)
+						_Ember is a MVC framework as you would expect. It has its own flavour of MVC that takes many concepts from cocoa and rails._
+
+						* The URL is foundational for Ember.
+						_Ember guys don't like very much the term: "Single page application". Even if the browser doesn't reloads the URL's map your resources_
+
+						* Convention over configuration. Highly opinionated _à la rails_.
+						_Although some people might argue against this approach, it has proben itself very convenient. Big applications need architecture._
+						_In that sense, Ember is quite different to Angular. Angular has been described as a framework to build your one framework_
+						_In ember everything has a predefined place and name by convention._
+						_There is no route without controller, controller without view or view without template_
+
+						* Enforces simple UI design.
+						_Ember relies on Handlebars for its templates. Handlebars is an superset of moustache templating language, and so, it logicless_
+						_Remember those angular directives that perform some kind of javascript evaluation? You won't find that here._
+
+						I'll expand this points in reverse order. Lets start by the last one. The templates.
+					</aside>
+				</section>
+
+				<section>
+					<h2><img src="images/ember-handlebars.png" alt="ember-eiffel-tower" style="vertical-align: -75%"> Handlebars templates</h2>
+					<pre>
+						<code data-trim class="html">
+&lt;script id=&quot;player&quot; type=&quot;text/x-handlebars-template&quot;&gt;
+    &lt;div class=&quot;player-profile&quot;&gt;
+        &lt;img alt=&quot;player-image&quot; {{bind-attr src=&quot;imageUrl&quot;}}&gt;
+        &lt;p class=&quot;name&quot;&gt;{{name}}&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/script&gt;
+						</code>
+					</pre>
+					<p class="fragment"><code class="yellow-text">name</code> and the <code class="yellow-text">src</code> attribute are bound!</p>
+					<aside class="notes">
+						Handlebars is a text-based template engine.
+
+						That's how a handlebars template looks like.
+
+						You can interpolate expressions into the html with `{{}}` or bind attributes
+						with the build-in `bind-attr` helper.
+
+						The cool thing there is that those interpolated stuff is always bound. Whenever the name
+						or picture of this player changes, the template will be updated too.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Live example</h3>
+					<div id="handlebars-live-example"></div>
+					<script>
+						(function() {
+							var App = Ember.Application.create({
+								rootElement: '#handlebars-live-example'
+							});
+							App.Router.reopen({
+							  location: 'none'
+							});
+							App.Router.map(function() {});
+							App.IndexRoute = Ember.Route.extend({
+							  model: function() {
+							    return { imageUrl: "images/ember-logo.png", name: "Tomster" };
+							  }
+							});
+							Ember.TEMPLATES['index'] = Ember.Handlebars.compile('{{textarea value=text rows="7" class="live-example"}}<br>{{partial tpl}}');
+							App.IndexController = Ember.ObjectController.extend({
+							  tpl: 'first',
+							  text: '<div class="player-profile">\n    <img alt="player-image" {{bind-attr src="imageUrl"}}>\n    <p class="name">Name: {{name}}</p>\n</div>',
+
+							  textDidChange: function() {
+							    var text = this.get('text');
+							    var hash = CryptoJS.MD5(text);
+							    try {
+							      var templateName = "tmpl-" + hash;
+							      Ember.TEMPLATES[templateName] = Ember.Handlebars.compile(text);
+							      this.set('tpl', templateName);
+							    } catch(e){ }
+							  }.observes('text').on('init')
+							});
+						})();
+					</script>
+				</section>
+
+				<section>
+					<h3>Convention over configuration</h3>
+					<ul class="spaced-list">
+						<li>URL: <code class="yellow-text">/messages</code></li>
+						<li>Will be routed to the <code class="yellow-text">App.MessagesRoute</code></li>
+						<li>that populates the <i>model</i> of the <code class="yellow-text">App.MessagesController</code></li>
+						<li>which has a view named <code class="yellow-text">App.MessagesView</code></li>
+						<li>and renders a templated named <code class="yellow-text">messages.hbs</code></li>
+					</ol>
+					<aside class="notes">
+						One of the minds behind ember is Yehuda Katz. Yehuda is part of Ruby on Rails,
+						and one of its footprints in ember's design is the omnipresence of the "convention
+						over configuration" mantra.
+
+						Tipically in ember a given section of your all will have this elements:
+						[route, controller, view and template]
+						That structure is always the same. But you should not be afraid of all this elements
+						interacting between them, because the good part is...
+					</aside>
+				</section>
+
+				<section>
+					<h3>You don't have to write them!</h3>
+					<br>
+					<p>If any of these elements is not defined, ember creates it for us.</p>
+					<br>
+					<p>Those anonymous elements have many default behaviors built in.</p>
+					<br>
+					<p>You only need to write what makes your app special.</p>
+					<aside class="notes">
+						And even if you want any custom behavior, most of the time 90% of the
+						default behavior is just fine.
+						Lets take a look into an example with the routes.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Routes</h3>
+					<br>
+					<p>Populate and setup the controllers of the current section of the application</p><br>
+					<p>Manage the transition between the different routes (the top-level state)</p><br>
+					<p>Fortunatelly, 99% percent of the time, ember does all the hard work for you</p><br>
+					<aside class="notes">
+						First of all... ¿What is a route?
+						Routes as are understood by ember were quite a new concept for me when I first
+						meet ember. And controllers too. Probably because I am also a Rails developer and
+						that made me fall into the trap of identify those elements with Rails' homonims, but
+						their roles are quite different to what backend developers are used to.
+
+						Routes are not the matching between the url and the controllers. Those matchings
+						are specified in the <i>Router</i>.
+
+						The routes are the objects what are responsable of, on the one hand,
+						populate and prepare the models of the controllers (usually talking
+						with and external API) and on the other hand, manage the state transition
+						that your application suffers.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Route's full behavior</h3>
+					<pre>
+						<code data-trim class="js no-limits">
+App.MessagesRoute = Ember.Router.extend({
+  activate: function(){
+    /* Hook called when entering the route. */
+  },
+  redirect: function(){
+    /* Hook for redirect to another route right away. */
+  },
+  beforeModel: function(transition){
+    /* Hook usefull to perform any async operation needed before loading the model. */
+  },
+  model: function(params, transition){
+    /* Hook to fetch/build the content of the route's controller. */
+  },
+  afterModel: function(resolvedModel, transition){
+    /* Hook to perform any operation with the model before it is injected in the controller. */
+  },
+  setupController: function(controller, model){
+    /* By default, injected the given model in the given controller. */
+  },
+  renderTemplate: function(controller, model){
+    /* By default renders the route's template with the route's controller as context. */
+  },
+  deactivate: function(){
+    /* Hook for perform any teardown if needed. */
+  }
+});
+						</code>
+					</pre>
+					<aside class="notes">
+						TODO:
+					</aside>
+				</section>
+
+				<section>
+					<h3>Average route code</h3>
+					<p>95% of the time, the average route has 5 lines that look like this:</p>
+					<pre class="fragment">
+						<code data-trim class="js no-limits">
+App.MessagesRoute = Ember.Router.extend({
+  model: function(params, transition){
+    return this.get('store').find('message');
+  }
+});
+						</code>
+					</pre>
+					<aside class="notes">
+						TODO:
+					</aside>
+				</section>
+
+
+				<section data-markdown>
+					<script type="text/template">
+						## Markdown support
+
+						For those of you who like that sort of thing. Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
+
+						```
+						<section data-markdown>
+						  ## Markdown support
+
+						  For those of you who like that sort of thing.
+						  Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
+						</section>
+						```
+					</script>
+				</section>
+
+				<section id="themes">
+					<h2>Themes</h2>
+					<p>
+						Reveal.js comes with a few themes built in: <br>
+						<a href="?#/themes">Default</a> -
+						<a href="?theme=sky#/themes">Sky</a> -
+						<a href="?theme=beige#/themes">Beige</a> -
+						<a href="?theme=simple#/themes">Simple</a> -
+						<a href="?theme=serif#/themes">Serif</a> -
+						<a href="?theme=night#/themes">Night</a> <br>
+						<a href="?theme=moon#/themes">Moon</a> -
+						<a href="?theme=solarized#/themes">Solarized</a>
+					</p>
+					<p>
+						<small>
+							* Theme demos are loaded after the presentation which leads to flicker. In production you should load your theme in the <code>&lt;head&gt;</code> using a <code>&lt;link&gt;</code>.
+						</small>
+					</p>
+				</section>
+
+				<section>
+					<h2>Global State</h2>
+					<p>
+						Set <code>data-state="something"</code> on a slide and <code>"something"</code>
+						will be added as a class to the document element when the slide is open. This lets you
+						apply broader style changes, like switching the background.
+					</p>
+				</section>
+
+				<section data-state="customevent">
+					<h2>Custom Events</h2>
+					<p>
+						Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
+					</p>
+					<pre><code data-trim contenteditable style="font-size: 18px; margin-top: 20px;">
+Reveal.addEventListener( 'customevent', function() {
+	console.log( '"customevent" has fired' );
+} );
+					</code></pre>
+				</section>
+
+				<section>
+					<section data-background="#007777">
+						<h2>Slide Backgrounds</h2>
+						<p>
+							Set <code>data-background="#007777"</code> on a slide to change the full page background to the given color. All CSS color formats are supported.
+						</p>
+						<a href="#" class="image navigate-down">
+							<img width="178" height="238" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
+						</a>
+					</section>
+					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png">
+						<h2>Image Backgrounds</h2>
+						<pre><code>&lt;section data-background="image.png"&gt;</code></pre>
+					</section>
+					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" data-background-repeat="repeat" data-background-size="100px">
+						<h2>Repeated Image Backgrounds</h2>
+						<pre><code style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
+					</section>
+				</section>
+
+				<section data-transition="linear" data-background="#4d7e65" data-background-transition="slide">
+					<h2>Background Transitions</h2>
+					<p>
+						Pass reveal.js the <code>backgroundTransition: 'slide'</code> config argument to make backgrounds slide rather than fade.
+					</p>
+				</section>
+
+				<section data-transition="linear" data-background="#8c4738" data-background-transition="slide">
+					<h2>Background Transition Override</h2>
+					<p>
+						You can override background transitions per slide by using <code>data-background-transition="slide"</code>.
+					</p>
+				</section>
+
+				<section>
+					<h2>Clever Quotes</h2>
+					<p>
+						These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
+						&ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
+					</p>
+					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
+						&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
+						reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
+					</blockquote>
+				</section>
+
+				<section>
+					<h2>Pretty Code</h2>
+					<pre><code data-trim contenteditable>
+function linkify( selector ) {
+  if( supports3DTransforms ) {
+
+    var nodes = document.querySelectorAll( selector );
+
+    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
+      var node = nodes[i];
+
+      if( !node.className ) {
+        node.className += ' roll';
+      }
+    }
+  }
+}
+					</code></pre>
+					<p>Courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
+				</section>
+
+				<section>
+					<h2>Intergalactic Interconnections</h2>
+					<p>
+						You can link between slides internally,
+						<a href="#/2/3">like this</a>.
+					</p>
+				</section>
+
+				<section>
+					<section id="fragments">
+						<h2>Fragmented Views</h2>
+						<p>Hit the next arrow...</p>
+						<p class="fragment">... to step through ...</p>
+						<ol>
+							<li class="fragment"><code>any type</code></li>
+							<li class="fragment"><em>of view</em></li>
+							<li class="fragment"><strong>fragments</strong></li>
+						</ol>
+
+						<aside class="notes">
+							This slide has fragments which are also stepped through in the notes window.
+						</aside>
+					</section>
+					<section>
+						<h2>Fragment Styles</h2>
+						<p>There's a few styles of fragments, like:</p>
+						<p class="fragment grow">grow</p>
+						<p class="fragment shrink">shrink</p>
+						<p class="fragment roll-in">roll-in</p>
+						<p class="fragment fade-out">fade-out</p>
+						<p class="fragment highlight-red">highlight-red</p>
+						<p class="fragment highlight-green">highlight-green</p>
+						<p class="fragment highlight-blue">highlight-blue</p>
+						<p class="fragment current-visible">current-visible</p>
+						<p class="fragment highlight-current-blue">highlight-current-blue</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Spectacular image!</h2>
+					<a class="image" href="http://lab.hakim.se/meny/" target="_blank">
+						<img width="320" height="299" src="http://s3.amazonaws.com/hakim-static/portfolio/images/meny.png" alt="Meny">
+					</a>
+				</section>
+
+				<section>
+					<h2>Export to PDF</h2>
+					<p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, below is an example that's been uploaded to SlideShare.</p>
+					<iframe id="slideshare" src="http://www.slideshare.net/slideshow/embed_code/13872948" width="455" height="356" style="margin:0;overflow:hidden;border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen> </iframe>
+					<script>
+						document.getElementById('slideshare').attributeName = 'allowfullscreen';
+					</script>
+				</section>
+
+				<section>
+					<h2>Take a Moment</h2>
+					<p>
+						Press b or period on your keyboard to enter the 'paused' mode. This mode is helpful when you want to take distracting slides off the screen
+						during a presentation.
+					</p>
+				</section>
+
+				<section>
+					<h2>Stellar Links</h2>
+					<ul>
+						<li><a href="http://slid.es">Try the online editor</a></li>
+						<li><a href="https://github.com/hakimel/reveal.js">Source code on GitHub</a></li>
+						<li><a href="http://twitter.com/hakimel">Follow me on Twitter</a></li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>THE END</h1>
+					<h3>BY Hakim El Hattab / hakim.se</h3>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

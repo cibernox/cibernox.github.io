@@ -1,0 +1,52 @@
+/* Fonts */
+.reveal section .creepster{
+  font-family: 'Creepster', sans-serif;
+  color: red;
+}
+/* Other */
+.reveal section img {
+  border: none;
+  background: none;
+}
+.reveal section .low-height{
+  height: 45px;
+  line-height: 45px;
+}
+.reveal section .spaced-list li{
+  line-height: 250%;
+}
+.reveal section .bigger-text{
+  font-size: 40px;
+}
+.reveal section .big-text{
+  font-size: 36px;
+}
+.reveal section .text-right{
+  text-align: right;
+}
+.reveal section .gray-text{
+  color: #abacad;
+}
+.reveal section .inline-icon{
+  display: inline-block;
+  vertical-align: middle;
+}
+.reveal section .sub-icon{
+  display: inline-block;
+  vertical-align: sub;
+}
+.reveal section .yellow-text{
+  color: #efef8f;
+}
+.reveal section textarea.live-example{
+  width: 100%;
+  font-size: 25px;
+}
+.reveal section #handlebars-live-example input{
+  height: 40px;
+  width: 320px;
+  font-size: 25px;
+}
+.reveal pre code.no-limits {
+  max-height: 800px;
+}

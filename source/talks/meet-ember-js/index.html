@@ -202,22 +202,23 @@
 				<section>
 					Template:
 					<pre>
-						<code>
-<div class="name">{{user.name}}</div>
-<div class="location">{{user.aproximateLocation}}</div>
-						</code>
+<code class="html"><div class="name">{{user.name}}</div>
+<div class="location">{{user.aproximateLocation}}</div></code>
 					</pre>
 					Somewhere in the app:
 					<pre>
-						<code class="javascript">
-App.User = Ember.Object.extend({
+<code class="javascript">App.User = Ember.Object.extend({
   aproximateLocation: function(){
     return someExpensiveCalculation();
   }.property()
 });
 
-var user = App.User.create({name: "Wilson"});
-						</code>
+var user = App.User.create({name: "Wilson"});</code>
+					</pre>
+					<p>Generated HTML:</p>
+					<pre>
+<code class="html"><div class="name">Wilson</div>
+<div class="location">BCN, Spain</div></code>
 					</pre>
 					<p class="fragment">No matter if <code class="yellow-text">name</code> or <code class="yellow-text">aproximateLocation</code>
 					are a properties that are just read or function that perform complex calculations, they are  accessed in the same way.</p>
@@ -228,13 +229,15 @@ var user = App.User.create({name: "Wilson"});
 				</section>
 
 				<section data-background="images/all-the-things-alpha.png">
-					<h3>State. Machine. All. The. Things.</h3>
+					<h3><span class="fragment">State.</span> <span class="fragment">Machine.</span> <span class="fragment">All.</span> <span class="fragment">The.</span> <span class="fragment">Things.</span></h3>
 					<br>
-					<p>Express your business logic declaratively.</p>
+					<p class="fragment">Express your business logic declaratively.</p>
 					<br>
-					<p>Define dependencies and calculations.</p>
+					<p class="fragment">Define dependencies and calculations between properties.</p>
 					<br>
-					<p>Let the state be propagated all the way around.</p>
+					<p class="fragment">React to user actions modifying some value in your underlying data.</p>
+					<br>
+					<p class="fragment">All properties that had dependencies on it gets recomputed automatically.</p>
 				</section>
 
 				<section>
@@ -251,13 +254,15 @@ var user = App.User.create({name: "Wilson"});
 					<br>
 					<br>
 					<p class="fragment">How do we express that business logic?</p>
+					<aside class="notes">
+						TODO
+					</aside>
 				</section>
 
 				<section>
 					<h3>Computed properties to the rescue.</h3>
 					<pre>
-						<code class="javascript">
-App.Question = Ember.Object.extend({
+<code class="javascript">App.Question = Ember.Object.extend({
   solutions: [],
   answered: function(){
     return this.get('answers.length') > 0;
@@ -276,16 +281,14 @@ App.Question = Ember.Object.extend({
   hot: function(){
     return this.get('popular') && !this.get('solved');
   }.property('popular', 'solved')
-});
-						</code>
+});</code>
 					</pre>
 				</section>
 
 				<section>
 					<h3>Computed properties to the rescue.</h3>
 					<pre>
-						<code class="javascript">
-question.get('answers')  // => []
+<code class="javascript">question.get('answers')  // => []
 question.get('answered') // => false
 question.get('hot')      // => false
 
@@ -304,25 +307,28 @@ question.get('hot')      // => true
 question.get('answers.lastObject').set('accepted', true)
 
 question.get('hot')      // => false
-question.get('solved')   // => true
-						</code>
+question.get('solved')   // => true</code>
 					</pre>
 				</section>
 
 				<section>
-					<h2>Ember basics: Part 1. </h2>
-					<p>Ember apps are declarative territory</p>
-					<p>Computed properties make your changes to be pro</p>
-
-					<aside class="notes">
-						One of the mantras of ember is that user interfaces should be declarative. In a classical
-						jquery spagetti app, most of the code is focused on update content in the view. Hide that element,
-						enable a button and that kind of stuff.
-						It doesn't scale.
-
-						In ember, UI's are build as huge state machines. You declare the dependencies between the properties and
-						the calculation needed, and you let to ember to propagate the changes.
-					</aside>
+					<pre class="no-margin">
+<code class="html">&lt;article {{bind-attr class=&quot;:question answered hot solved&quot;}}&gt;
+  &lt;div class=&quot;excerpt&quot;&gt;{{excerpt text}}&lt;/div&gt;&lt;span class=&quot;answers-counter&quot;&gt;{{answers.length}}&lt;/span&gt;
+&lt;/article&gt;</code>
+					</pre>
+					<p>When it receives 6 answers the html will look like this:</p>
+					<pre class="no-margin">
+<code class="html"><article class="question answered hot">
+  <div class="excerpt">Lorem ipsum dolor sit a...</div><span class="answers">6</span>
+</article></code>
+					</pre>
+					<i class="gray-text">question.get('answers.firstObject').set("accepted", true);</i>
+					<pre class="no-margin">
+<code class="html"><article class="question answered solved">
+  <div class="excerpt">Lorem ipsum dolor sit a...</div><span class="answers">6</span>
+</article></code>
+					</pre>
 				</section>
 
 				<section>
@@ -376,6 +382,11 @@ question.get('solved')   // => true
 
 						I'll expand this points in reverse order. Lets start by the last one. The templates.
 					</aside>
+				</section>
+
+				<section>
+					TODO: Explain a bit the architecture on general lines.
+				  -- diagram with the interaction between routes, controllers, models, views and templates --
 				</section>
 
 				<section>
@@ -483,8 +494,7 @@ question.get('solved')   // => true
 					<br>
 					<p>The router links that URL with the state hander reponsable of that section.</p>
 					<pre>
-						<code data-trim class="javascript no-limits">
-App.Router.map(function(){
+<code data-trim class="javascript no-limits">App.Router.map(function(){
   this.resource('posts', function() {
     // Url: NA              Route name: "posts"          Route: App.PostsRoute
     // and also..
@@ -497,8 +507,7 @@ App.Router.map(function(){
   this.route('about');
   // Url: "/about"          Route name: "about"          Route: App.AboutRoute
 
-});
-						</code>
+});</code>
 					</pre>
 					<aside class="notes">
 						I say "the router" because in this case there is only one. The router is
@@ -540,8 +549,7 @@ App.Router.map(function(){
 				<section>
 					<h3>Route's full behavior</h3>
 					<pre>
-						<code data-trim class="javascript no-limits">
-App.MessagesRoute = Ember.Router.extend({
+<code data-trim class="javascript no-limits">App.MessagesRoute = Ember.Router.extend({
   activate: function(){
     /* Hook called when entering the route. */
   },
@@ -566,8 +574,7 @@ App.MessagesRoute = Ember.Router.extend({
   deactivate: function(){
     /* Hook for perform any teardown if needed. */
   }
-});
-						</code>
+});</code>
 					</pre>
 					<aside class="notes">
 						TODO:
@@ -578,13 +585,11 @@ App.MessagesRoute = Ember.Router.extend({
 					<h3>Average route code</h3>
 					<p>95% of the time, the average route has 5 lines that look like this:</p>
 					<pre class="fragment">
-						<code data-trim class="javascript no-limits">
-App.MessagesRoute = Ember.Router.extend({
+<code data-trim class="javascript no-limits">App.MessagesRoute = Ember.Router.extend({
   model: function(params, transition){
     return this.get('store').find('message');
   }
-});
-						</code>
+});</code>
 					</pre>
 					<p class="fragment">The rest of the default behavior is just fine.</p>
 					<aside class="notes">
@@ -623,6 +628,50 @@ App.MessagesRoute = Ember.Router.extend({
 					</aside>
 				</section>
 
+				<section>
+					<h4>Decorate models depending on application state</h4>
+					<pre>
+<code class="javascript">App.QuestionController = Ember.ObjectController.extend({
+  needs: ['currentUser'],
+
+  own: function(){ /* Application state. Depends on the current user being logged */
+    return this.get('creator.id') == this.get('controllers.currentUser.id');
+  }.property('creator.id', 'controllers.currentUser')
+});</code>
+					</pre>
+					<pre>
+<code class="html">{{#if own}}&lt;button {{action markAsSolved}}&gt;Mark as solved&lt;/button&gt;{{/if}}
+{{#unless own}}
+  &lt;textarea class=&quot;answer&quot;&gt;&lt;/textarea&gt;
+  &lt;button {{action sendAnswer}}&gt;&lt;/button&gt;
+{{/unless}}
+{{#link-to lastSeenQuestion}}Back to last seen question.{{/link-to}}
+</code>
+					</pre>
+					<aside class="notes">
+						I would like to clarify what application state means, because is a concept
+						that can be tricky.
+						If a user asks a question on stack overflow, buys a player on goldenmanager
+						or starts a conversation on discourse, that is business state, the probably
+						needs to be persisted.
+
+						When a player browses your application, starts writting a post or reads a
+						question, there is another kind of state that only belongs to the application life:
+						<i>Was that question asked by me?</i><i>What was the last section I visited?</i>
+						<i>Is the post body long enough to be publised?</i>. Although this state is long
+						lived, its realm is the application itself.
+
+						Lets see that example.
+
+						Let's say I am reading a question. All question in stackoverflow have a user that
+						created that question. But depending on if the question is mine or not, I can do different
+						things and see different buttons.
+
+						When I am the question's creator I can see a button to mark the question as solved. When I am not,
+						I see a textarea to place an answer. And In both cases, I have a link to go read again the last question
+						I've visited, which depends on what page has the user visited just before.
+					</aside>
+				</section>
 
 				<section data-markdown>
 					<script type="text/template">

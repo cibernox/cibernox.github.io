@@ -180,6 +180,152 @@
 				</section>
 
 				<section>
+					<h2>Ember basics: Design choices</h2>
+				</section>
+
+				<section>
+					<h3>UAP: Uniform access principle</h3>
+					<br>
+					<div class="fragment">
+						<blockquote>
+							“All services offered by a module should be available through a uniform notation,
+							which does not betray whether they are implemented through storage or through computation”
+						</blockquote>
+						<p class="text-right gray-text"><i>Bertrand Meyer</i></p>
+					</div>
+					<br>
+					<aside class="notes">
+						TOOD
+					</aside>
+				</section>
+
+				<section>
+					Template:
+					<pre>
+						<code>
+<div class="name">{{user.name}}</div>
+<div class="location">{{user.aproximateLocation}}</div>
+						</code>
+					</pre>
+					Somewhere in the app:
+					<pre>
+						<code class="javascript">
+App.User = Ember.Object.extend({
+  aproximateLocation: function(){
+    return someExpensiveCalculation();
+  }.property()
+});
+
+var user = App.User.create({name: "Wilson"});
+						</code>
+					</pre>
+					<p class="fragment">No matter if <code class="yellow-text">name</code> or <code class="yellow-text">aproximateLocation</code>
+					are a properties that are just read or function that perform complex calculations, they are  accessed in the same way.</p>
+					<br>
+					<aside class="notes">
+						TOOD
+					</aside>
+				</section>
+
+				<section data-background="images/all-the-things-alpha.png">
+					<h3>State. Machine. All. The. Things.</h3>
+					<br>
+					<p>Express your business logic declaratively.</p>
+					<br>
+					<p>Define dependencies and calculations.</p>
+					<br>
+					<p>Let the state be propagated all the way around.</p>
+				</section>
+
+				<section>
+					<h3>Example.</h3>
+					<br>
+					<p>StackOverflows questions:</p>
+					<br>
+					<ul class="spaced-list">
+						<li class="fragment">A question is answered if has at least one answer.</li>
+						<li class="fragment">A question is popular if has more than 5 answers.</li>
+						<li class="fragment">A question is solved if any answer has been accepted.</li>
+						<li class="fragment">A question is hot if its popular but still not solved.</li>
+					</ul>
+					<br>
+					<br>
+					<p class="fragment">How do we express that business logic?</p>
+				</section>
+
+				<section>
+					<h3>Computed properties to the rescue.</h3>
+					<pre>
+						<code class="javascript">
+App.Question = Ember.Object.extend({
+  solutions: [],
+  answered: function(){
+    return this.get('answers.length') > 0;
+  }.property('answers.length'),
+
+  popular: function(){
+    return this.get('answers.length') > 5;
+  }.property('answers.length'),
+
+  solved: function(){
+    return this.get('answers').some(function(answer){
+      return answer.get('accepted');
+    });
+  }.property('answers.@each.accepted'),
+
+  hot: function(){
+    return this.get('popular') && !this.get('solved');
+  }.property('popular', 'solved')
+});
+						</code>
+					</pre>
+				</section>
+
+				<section>
+					<h3>Computed properties to the rescue.</h3>
+					<pre>
+						<code class="javascript">
+question.get('answers')  // => []
+question.get('answered') // => false
+question.get('hot')      // => false
+
+question.get('answers').pushObject(Answer.create())
+
+question.get('answers')  // => [Answer]
+question.get('answered') // => true
+question.get('hot')      // => false
+
+question.get('answers').pushObjects([Answer.create(), Answer.create(), Answer.create(), Answer.create(), Answer.create()])
+
+question.get('answers')  // => [Answer, Answer, Answer, Answer, Answer, Answer]
+question.get('answered') // => true
+question.get('hot')      // => true
+
+question.get('answers.lastObject').set('accepted', true)
+
+question.get('hot')      // => false
+question.get('solved')   // => true
+						</code>
+					</pre>
+				</section>
+
+				<section>
+					<h2>Ember basics: Part 1. </h2>
+					<p>Ember apps are declarative territory</p>
+					<p>Computed properties make your changes to be pro</p>
+
+					<aside class="notes">
+						One of the mantras of ember is that user interfaces should be declarative. In a classical
+						jquery spagetti app, most of the code is focused on update content in the view. Hide that element,
+						enable a button and that kind of stuff.
+						It doesn't scale.
+
+						In ember, UI's are build as huge state machines. You declare the dependencies between the properties and
+						the calculation needed, and you let to ember to propagate the changes.
+					</aside>
+				</section>
+
+				<section>
 					<h2>A bit of history</h2>
 					<img src="images/tomster-release.png" alt="tomster-release" width="356.4px" height="473.4px">
 				</section>
@@ -337,7 +483,7 @@
 					<br>
 					<p>The router links that URL with the state hander reponsable of that section.</p>
 					<pre>
-						<code data-trim class="js no-limits">
+						<code data-trim class="javascript no-limits">
 App.Router.map(function(){
   this.resource('posts', function() {
     // Url: NA              Route name: "posts"          Route: App.PostsRoute
@@ -394,7 +540,7 @@ App.Router.map(function(){
 				<section>
 					<h3>Route's full behavior</h3>
 					<pre>
-						<code data-trim class="js no-limits">
+						<code data-trim class="javascript no-limits">
 App.MessagesRoute = Ember.Router.extend({
   activate: function(){
     /* Hook called when entering the route. */
@@ -432,7 +578,7 @@ App.MessagesRoute = Ember.Router.extend({
 					<h3>Average route code</h3>
 					<p>95% of the time, the average route has 5 lines that look like this:</p>
 					<pre class="fragment">
-						<code data-trim class="js no-limits">
+						<code data-trim class="javascript no-limits">
 App.MessagesRoute = Ember.Router.extend({
   model: function(params, transition){
     return this.get('store').find('message');
@@ -440,6 +586,7 @@ App.MessagesRoute = Ember.Router.extend({
 });
 						</code>
 					</pre>
+					<p class="fragment">The rest of the default behavior is just fine.</p>
 					<aside class="notes">
 						But most of the time you don't need any of this flexibility. 95% of the
 						time the route only populates the content of a controller with some data
@@ -450,14 +597,14 @@ App.MessagesRoute = Ember.Router.extend({
 				<section>
 					<h3>Controllers</h3>
 					<br>
-					<p>Expose and decorate the underlying data with contextual information.</p>
+					<p class="fragment">Expose and decorate the underlying data with contextual information.</p>
 					<br>
-					<p>React to user actions modifying data and store contextual state.</p>
+					<p class="fragment">React to user actions modifying data and store contextual state.</p>
 					<br>
-					<p>You can extend 3 kinds of controllers depending on your needs:
-					<p><code class="yellow-text">Ember.Controller</code></p>
-					<p><code class="yellow-text">Ember.ObjectController</code></p>
-					<p><code class="yellow-text">Ember.ArrayController</code></p>
+					<p class="fragment">You can extend 3 kinds of controllers depending on your needs:
+					<p class="fragment"><code class="yellow-text">Ember.Controller</code></p>
+					<p class="fragment"><code class="yellow-text">Ember.ObjectController</code></p>
+					<p class="fragment"><code class="yellow-text">Ember.ArrayController</code></p>
 					<aside class="notes">
 						The next item in the ember's toolchaing are the controllers.
 

@@ -17,7 +17,8 @@
 		<link href='http://fonts.googleapis.com/css?family=Creepster' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="css/reveal.min.css">
 		<link rel="stylesheet" href="css/theme/night.css" id="theme">
-		<link rel="stylesheet" href="css/theme/my-customizations.css" id="theme">
+		<link rel="stylesheet" href="css/theme/my-customizations.css" id="theme-customizations">
+		<link rel="stylesheet" href="lib/css/kudos.css">
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -37,6 +38,12 @@
 		<script src="lib/js/jquery-2.1.0.min.js"></script>
 		<script src="lib/js/handlebars.js"></script>
 		<script src="lib/js/ember-1.4.0.js"></script>
+		<script src="lib/js/kudos.js"></script>
+		<script>
+			$(function(){
+			  $("figure.kudo").kudoable();
+			});
+		</script>
 		<!--[if lt IE 9]>
 		<script src="lib/js/html5shiv.js"></script>
 		<![endif]-->
@@ -152,10 +159,10 @@
 					<h3>User interfaces are hard</h3>
 					<br>
 					<ul class="spaced-list">
-						<li>Display data from a source</li>
-						<li>Keep that information updated when source changes</li>
-						<li>React to user interaction</li>
-						<li>Store contextual state</li>
+						<li>Display data from a source.</li>
+						<li>Keep that information updated when source changes.</li>
+						<li>React to user interaction.</li>
+						<li>Store contextual state.</li>
 					</ul>
 					<aside class="notes">
 						**BUILD USER INTERFACES**
@@ -180,158 +187,6 @@
 				</section>
 
 				<section>
-					<h2>Ember basics: Design choices</h2>
-				</section>
-
-				<section>
-					<h3>UAP: Uniform access principle</h3>
-					<br>
-					<div class="fragment">
-						<blockquote>
-							“All services offered by a module should be available through a uniform notation,
-							which does not betray whether they are implemented through storage or through computation”
-						</blockquote>
-						<p class="text-right gray-text"><i>Bertrand Meyer</i></p>
-					</div>
-					<br>
-					<aside class="notes">
-						TOOD
-					</aside>
-				</section>
-
-				<section>
-					Template:
-					<pre>
-<code class="html"><div class="name">{{user.name}}</div>
-<div class="location">{{user.aproximateLocation}}</div></code>
-					</pre>
-					Somewhere in the app:
-					<pre>
-<code class="javascript">App.User = Ember.Object.extend({
-  aproximateLocation: function(){
-    return someExpensiveCalculation();
-  }.property()
-});
-
-var user = App.User.create({name: "Wilson"});</code>
-					</pre>
-					<p>Generated HTML:</p>
-					<pre>
-<code class="html"><div class="name">Wilson</div>
-<div class="location">BCN, Spain</div></code>
-					</pre>
-					<p class="fragment">No matter if <code class="yellow-text">name</code> or <code class="yellow-text">aproximateLocation</code>
-					are a properties that are just read or function that perform complex calculations, they are  accessed in the same way.</p>
-					<br>
-					<aside class="notes">
-						TOOD
-					</aside>
-				</section>
-
-				<section data-background="images/all-the-things-alpha.png">
-					<h3><span class="fragment">State.</span> <span class="fragment">Machine.</span> <span class="fragment">All.</span> <span class="fragment">The.</span> <span class="fragment">Things.</span></h3>
-					<br>
-					<p class="fragment">Express your business logic declaratively.</p>
-					<br>
-					<p class="fragment">Define dependencies and calculations between properties.</p>
-					<br>
-					<p class="fragment">React to user actions modifying some value in your underlying data.</p>
-					<br>
-					<p class="fragment">All properties that had dependencies on it gets recomputed automatically.</p>
-				</section>
-
-				<section>
-					<h3>Example.</h3>
-					<br>
-					<p>StackOverflows questions:</p>
-					<br>
-					<ul class="spaced-list">
-						<li class="fragment">A question is answered if has at least one answer.</li>
-						<li class="fragment">A question is popular if has more than 5 answers.</li>
-						<li class="fragment">A question is solved if any answer has been accepted.</li>
-						<li class="fragment">A question is hot if its popular but still not solved.</li>
-					</ul>
-					<br>
-					<br>
-					<p class="fragment">How do we express that business logic?</p>
-					<aside class="notes">
-						TODO
-					</aside>
-				</section>
-
-				<section>
-					<h3>Computed properties to the rescue.</h3>
-					<pre>
-<code class="javascript">App.Question = Ember.Object.extend({
-  solutions: [],
-  answered: function(){
-    return this.get('answers.length') > 0;
-  }.property('answers.length'),
-
-  popular: function(){
-    return this.get('answers.length') > 5;
-  }.property('answers.length'),
-
-  solved: function(){
-    return this.get('answers').some(function(answer){
-      return answer.get('accepted');
-    });
-  }.property('answers.@each.accepted'),
-
-  hot: function(){
-    return this.get('popular') && !this.get('solved');
-  }.property('popular', 'solved')
-});</code>
-					</pre>
-				</section>
-
-				<section>
-					<h3>Computed properties to the rescue.</h3>
-					<pre>
-<code class="javascript">question.get('answers')  // => []
-question.get('answered') // => false
-question.get('hot')      // => false
-
-question.get('answers').pushObject(Answer.create())
-
-question.get('answers')  // => [Answer]
-question.get('answered') // => true
-question.get('hot')      // => false
-
-question.get('answers').pushObjects([Answer.create(), Answer.create(), Answer.create(), Answer.create(), Answer.create()])
-
-question.get('answers')  // => [Answer, Answer, Answer, Answer, Answer, Answer]
-question.get('answered') // => true
-question.get('hot')      // => true
-
-question.get('answers.lastObject').set('accepted', true)
-
-question.get('hot')      // => false
-question.get('solved')   // => true</code>
-					</pre>
-				</section>
-
-				<section>
-					<pre class="no-margin">
-<code class="html">&lt;article {{bind-attr class=&quot;:question answered hot solved&quot;}}&gt;
-  &lt;div class=&quot;excerpt&quot;&gt;{{excerpt text}}&lt;/div&gt;&lt;span class=&quot;answers-counter&quot;&gt;{{answers.length}}&lt;/span&gt;
-&lt;/article&gt;</code>
-					</pre>
-					<p>When it receives 6 answers the html will look like this:</p>
-					<pre class="no-margin">
-<code class="html"><article class="question answered hot">
-  <div class="excerpt">Lorem ipsum dolor sit a...</div><span class="answers">6</span>
-</article></code>
-					</pre>
-					<i class="gray-text">question.get('answers.firstObject').set("accepted", true);</i>
-					<pre class="no-margin">
-<code class="html"><article class="question answered solved">
-  <div class="excerpt">Lorem ipsum dolor sit a...</div><span class="answers">6</span>
-</article></code>
-					</pre>
-				</section>
-
-				<section>
 					<h2>A bit of history</h2>
 					<img src="images/tomster-release.png" alt="tomster-release" width="356.4px" height="473.4px">
 				</section>
@@ -343,7 +198,7 @@ question.get('solved')   // => true</code>
 						<li class="fragment"><i class="gray-text">2010</i> - SproutCore team leaves Apple and starts Strobe Inc.</li>
 						<li class="fragment"><i class="gray-text">2011 (May)</i> - SproutCore 2.0 announced</li>
 						<li class="fragment"><i class="gray-text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Nov)</i> - Apple builds Strobe in a talent adquisition.</li>
-						<li class="fragment"><i class="gray-text">2012</i> - Tom Dale (ex-apple) and Yehuda Kats leave Strobe, Tilde and made a fork of SproutCore that is later renamed to Ember</li>
+						<li class="fragment"><i class="gray-text">2012</i> - Tom Dale (ex-apple) and Yehuda Kats leave Strobe, start Tilde and made a fork of SproutCore that is later renamed to Ember.</li>
 						<li class="fragment"><i class="gray-text">7 months ago</i> - 1.5 Years later Ember hits 1.0</li>
 					</ul>
 					<aside class="notes">
@@ -364,7 +219,7 @@ question.get('solved')   // => true</code>
 						<li class="fragment">Enforces simple UI design</li>
 					</ul>
 					<aside class="notes">
-						* MVC framework (with Ember's flafour)
+						* MVC framework (with Ember's flavour)
 						_Ember is a MVC framework as you would expect. It has its own flavour of MVC that takes many concepts from cocoa and rails._
 
 						* The URL is foundational for Ember.
@@ -384,22 +239,125 @@ question.get('solved')   // => true</code>
 					</aside>
 				</section>
 
-				<section>
-					TODO: Explain a bit the architecture on general lines.
-				  -- diagram with the interaction between routes, controllers, models, views and templates --
+				<section data-state="diagram-event">
+					<h3>Ember <i>MVC</i></h3>
+				  <div class="ember-diagram">
+				  	<div class="display-flex">
+							<div class="diagram-entity flex-1 yellow-bg fragment roll-in" data-fragment-index="9	">API</div>
+				  	</div>
+				  	<div class="display-flex">
+							<div class="diagram-entity flex-1 green-bg fragment roll-in" data-fragment-index="8">Store</div>
+				  	</div>
+				  	<div class="display-flex">
+					  	<div class="vertical-layer fragment fade" data-fragment-index="1">
+					  		<div class="diagram-entity">
+					  			<div class="vertical-text">Router</div>
+					  		</div>
+					  	</div>
+					  	<div class="vertical-layer fragment fade" data-fragment-index="2">
+					  		<div class="diagram-entity">
+					  			<div class="vertical-text">Route</div>
+					  		</div>
+					  	</div>
+					  	<div class="horizontal-layers">
+								<div class="diagram-layer flex-container">
+									<div class="flex-1 flex-container">
+										<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="6">
+											<span>Model</span>
+										</div>
+										<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="6">
+											<span>Model</span>
+										</div>
+									</div>
+									<div class="flex-1 flex-container">
+										<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="7">
+											<span>Model</span>
+										</div>
+										<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="7">
+											<span>Model</span>
+										</div>
+									</div>
+								</div>
+								<div class="diagram-layer flex-container">
+									<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="3">
+										<span>Controller</span>
+									</div>
+									<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="7">
+										<span>Controller</span>
+									</div>
+								</div>
+								<div class="diagram-layer flex-container">
+									<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="4">
+										<span>View</span>
+									</div>
+									<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="7">
+										<span>View</span>
+									</div>
+								</div>
+								<div class="diagram-layer flex-container">
+									<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="5">
+										<span>Template</span>
+									</div>
+									<div class="diagram-entity blue-bg flex-1 fragment roll-in" data-fragment-index="7">
+										<span>Template</span>
+									</div>
+								</div>
+					  	</div>
+				  	</div>
+				  </div>
+				  <aside class="notes">
+				  	So lets talk about Ember's MVC. For people like me used to backend development,
+				  	the MVC approach of ember is quite confusing at first, mainly because its more
+				  	similar to Cocoa MVC pattern and the naming has some false friends.
+
+				  	First of all, ember is still a framework created for the web, so there is a layer
+				  	for url recognision. It's called "the router". No surprises here, is just what it
+				  	looks. A library that listen for changes in the URL and matches them to some actions.
+
+				  	When the router find a URL, it invokes its associated route. "A route" was a brand new
+				  	concept for me. It matches a section of your app and it is responsable instantiate
+				  	a controller, its view, its template and populate the controllers with the needed
+				  	data (The models).
+
+				  	"Models" are also what they seem. They represent your the actors of your business logic.
+						"Controllers" on the other hand are a bit different of what I was used. Since is usually
+						responsability of the route to find and inject the models into the controllers, the
+						responsability of the controllers is only to control the access to that models, decorating
+						them with application state and modifing them reacting to user actions.
+						"Views" are quite dumb. It responsability is to control the rendering of the section
+						and to transform meaningless browser events like "click" or "blur" into business
+						related actions like "Publish" or "Validate". They link controllers and templates.
+						"Templates" are just templates.
+
+						Another key difference here is that, unlike backend framworks, there is more of all of this.
+						In backend, a request arrives, a controllers is instantiated, and html answer is generated and
+						sent and we start over again. Here controllers and models are long-lived, so in ocasions
+						controllers can interact between them. When you are in a section of the game, your actions
+						can have effects in other parts of the game you are not even visualizing right now.
+
+						So far, this is the basic ember structure. However, most of the times you want to have some
+						kind of persistence. Ember handles this with "the store". You can think in the store as a
+						persistence layer that abstract you from the implementation details of the persistence strategy
+						you've chosen, tipically a JSON API, but it could be local storage, an web sockets channel, whatever...
+				  </aside>
 				</section>
 
 				<section>
-					<h2><img src="images/ember-handlebars.png" alt="ember-eiffel-tower" style="vertical-align: -75%"> Handlebars templates</h2>
-					<pre>
-						<code data-trim class="html">
-&lt;script id=&quot;player&quot; type=&quot;text/x-handlebars-template&quot;&gt;
-    &lt;div class=&quot;player-profile&quot;&gt;
-        &lt;img alt=&quot;player-image&quot; {{bind-attr src=&quot;imageUrl&quot;}}&gt;
-        &lt;p class=&quot;name&quot;&gt;{{name}}&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/script&gt;
-						</code>
+					<h2><img src="images/ember-handlebars.png" alt="ember-handlebars" style="vertical-align: -75%"> Handlebars templates</h2>
+				</section>
+
+				<section>
+					<div class="fragment">
+						<blockquote class="wide-quote">Handlebars.js is an extension to the Mustache templating language. Both are logicless templating languages that keep the view and the code separated like we all know they should be.</blockquote>
+						<p class="text-right gray-text"><i>Yehuda Katz</i></p>
+					</div>
+					<br>
+					<p class="fragment">Example:</p>
+					<pre class="fragment">
+<code class="html">&lt;div class=&quot;player-profile&quot;&gt;
+  &lt;img alt=&quot;player-image&quot; {{bind-attr src=&quot;imageUrl&quot;}}&gt;
+  &lt;p class=&quot;name&quot;&gt;{{name}}&lt;/p&gt;
+&lt;/div&gt;</code>
 					</pre>
 					<p class="fragment"><code class="yellow-text">name</code> and the <code class="yellow-text">src</code> attribute are bound!</p>
 					<aside class="notes">
@@ -673,209 +631,285 @@ question.get('solved')   // => true</code>
 					</aside>
 				</section>
 
-				<section data-markdown>
-					<script type="text/template">
-						## Markdown support
+				<section>
+					<h3>The Views</h3>
+					<br>
+					<p class="fragment">Handle view state/rendering and transform browser meaningless avents into
+					business-logic related events.</p>
+					<br>
+					<div class="fragment">
+						<div class="kudos-container">
+					    <figure class="kudo kudoable" data-id="1">
+					        <a class="kudobject">
+					            <div class="opening">
+					                <div class="circle">&nbsp;</div>
+					            </div>
+					        </a>
+					        <a href="#kudo" class="count">
+					            <span class="num">0</span>
+					            <span class="txt">Kudos</span>
+					        </a>
+					    </figure>
+						</div>
+						<br>
+						<div class="text-right">
+						  <a href="https://github.com/masukomi/kudos">
+						  	<i class="gray-text">https://github.com/masukomi/kudos</i>
+						  </a>
+						</div>
+					</div>
+					<aside class="notes">
+						The views in ember most of the time are very dumb, but hey can be very usefull to
+						create rich interaction and widgets.
 
-						For those of you who like that sort of thing. Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
+						Lets take as an example the Kudos like button. I've seen over the web in a couple of
+						blogs. Its sort of a like button that reacts to hover it for a while.
+						That's how it works.
+						--- DEMO ---
+						If we realize here, there is something we would call view state. The actions we try to
+						capture here is a discrete action. To "like" something. But, in order to perform this action,
+						we need to interact with the widget for a while. If we stop the action before its completed,
+						we need to start over.
 
-						```
-						<section data-markdown>
-						  ## Markdown support
+						All this kind of state belongs to that very specific part of the UI. It is not something
+						we want to store of share across the app.
 
-						  For those of you who like that sort of thing.
-						  Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
-						</section>
-						```
-					</script>
+						However, once we have performed the action, we cannot perform it again. THAT is something we
+						want to store and share across the app, maybe forever or maybe for some time.
+
+						Lets see how ember's views would help us to do this.
+					</aside>
 				</section>
 
-				<section id="themes">
-					<h2>Themes</h2>
-					<p>
-						Reveal.js comes with a few themes built in: <br>
-						<a href="?#/themes">Default</a> -
-						<a href="?theme=sky#/themes">Sky</a> -
-						<a href="?theme=beige#/themes">Beige</a> -
-						<a href="?theme=simple#/themes">Simple</a> -
-						<a href="?theme=serif#/themes">Serif</a> -
-						<a href="?theme=night#/themes">Night</a> <br>
-						<a href="?theme=moon#/themes">Moon</a> -
-						<a href="?theme=solarized#/themes">Solarized</a>
-					</p>
-					<p>
-						<small>
-							* Theme demos are loaded after the presentation which leads to flicker. In production you should load your theme in the <code>&lt;head&gt;</code> using a <code>&lt;link&gt;</code>.
-						</small>
-					</p>
-				</section>
 
 				<section>
-					<h2>Global State</h2>
-					<p>
-						Set <code>data-state="something"</code> on a slide and <code>"something"</code>
-						will be added as a class to the document element when the slide is open. This lets you
-						apply broader style changes, like switching the background.
-					</p>
-				</section>
+					<p>View</p>
+					<pre>
+<code class="javascript">App.KudosView = Ember.View.extend({
+  mouseleaveAt: null,
 
-				<section data-state="customevent">
-					<h2>Custom Events</h2>
-					<p>
-						Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
-					</p>
-					<pre><code data-trim contenteditable style="font-size: 18px; margin-top: 20px;">
-Reveal.addEventListener( 'customevent', function() {
-	console.log( '"customevent" has fired' );
-} );
-					</code></pre>
-				</section>
+  // Capture browser generic events
+  mouseenter: function(){
+    this.set('mouseleaveAt', null);
+    Ember.run.later(function(){
+      // Send a meaningful event to the controller
+      if (!this.get('mouseleaveAt')) this.get('controller').send('like');
+    }, 1000);
+  },
 
-				<section>
-					<section data-background="#007777">
-						<h2>Slide Backgrounds</h2>
-						<p>
-							Set <code>data-background="#007777"</code> on a slide to change the full page background to the given color. All CSS color formats are supported.
-						</p>
-						<a href="#" class="image navigate-down">
-							<img width="178" height="238" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png">
-						<h2>Image Backgrounds</h2>
-						<pre><code>&lt;section data-background="image.png"&gt;</code></pre>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" data-background-repeat="repeat" data-background-size="100px">
-						<h2>Repeated Image Backgrounds</h2>
-						<pre><code style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
-					</section>
-				</section>
-
-				<section data-transition="linear" data-background="#4d7e65" data-background-transition="slide">
-					<h2>Background Transitions</h2>
-					<p>
-						Pass reveal.js the <code>backgroundTransition: 'slide'</code> config argument to make backgrounds slide rather than fade.
-					</p>
-				</section>
-
-				<section data-transition="linear" data-background="#8c4738" data-background-transition="slide">
-					<h2>Background Transition Override</h2>
-					<p>
-						You can override background transitions per slide by using <code>data-background-transition="slide"</code>.
-					</p>
-				</section>
-
-				<section>
-					<h2>Clever Quotes</h2>
-					<p>
-						These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
-					</p>
-					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
-						reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
-					</blockquote>
-				</section>
-
-				<section>
-					<h2>Pretty Code</h2>
-					<pre><code data-trim contenteditable>
-function linkify( selector ) {
-  if( supports3DTransforms ) {
-
-    var nodes = document.querySelectorAll( selector );
-
-    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
-      var node = nodes[i];
-
-      if( !node.className ) {
-        node.className += ' roll';
-      }
+  mouseleave: function(){
+    this.set('mouseleaveAt', new Date());
+  }
+});
+</code>
+					</pre>
+					<p>Controller</p>
+					<pre>
+<code class="javascript">App.PostController = Ember.ObjectController.extend({
+  actions: {
+    like: function(){
+      this.set('liked', true);
+      // Persist the like forever if needed.
     }
   }
-}
-					</code></pre>
-					<p>Courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
+});
+</code>
+					</pre>
+					<aside class="notes">
+
+					</aside>
+				</section>
+
+
+				<section>
+					<h2>Ember basics: Design choices</h2>
 				</section>
 
 				<section>
-					<h2>Intergalactic Interconnections</h2>
-					<p>
-						You can link between slides internally,
-						<a href="#/2/3">like this</a>.
-					</p>
+					<h3>UAP: Uniform access principle</h3>
+					<br>
+					<div class="fragment">
+						<blockquote>
+							“All services offered by a module should be available through a uniform notation,
+							which does not betray whether they are implemented through storage or through computation”
+						</blockquote>
+						<p class="text-right gray-text"><i>Bertrand Meyer</i></p>
+					</div>
+					<br>
+					<aside class="notes">
+						TOOD
+					</aside>
 				</section>
 
 				<section>
-					<section id="fragments">
-						<h2>Fragmented Views</h2>
-						<p>Hit the next arrow...</p>
-						<p class="fragment">... to step through ...</p>
-						<ol>
-							<li class="fragment"><code>any type</code></li>
-							<li class="fragment"><em>of view</em></li>
-							<li class="fragment"><strong>fragments</strong></li>
-						</ol>
+					Template:
+					<pre>
+<code class="html"><div class="name">{{user.name}}</div>
+<div class="location">{{user.aproximateLocation}}</div></code>
+					</pre>
+					Somewhere in the app:
+					<pre>
+<code class="javascript">App.User = Ember.Object.extend({
+  aproximateLocation: function(){
+    return someExpensiveCalculation();
+  }.property()
+});
 
-						<aside class="notes">
-							This slide has fragments which are also stepped through in the notes window.
-						</aside>
-					</section>
-					<section>
-						<h2>Fragment Styles</h2>
-						<p>There's a few styles of fragments, like:</p>
-						<p class="fragment grow">grow</p>
-						<p class="fragment shrink">shrink</p>
-						<p class="fragment roll-in">roll-in</p>
-						<p class="fragment fade-out">fade-out</p>
-						<p class="fragment highlight-red">highlight-red</p>
-						<p class="fragment highlight-green">highlight-green</p>
-						<p class="fragment highlight-blue">highlight-blue</p>
-						<p class="fragment current-visible">current-visible</p>
-						<p class="fragment highlight-current-blue">highlight-current-blue</p>
-					</section>
+var user = App.User.create({name: "Wilson"});</code>
+					</pre>
+					<p>Generated HTML:</p>
+					<pre>
+<code class="html"><div class="name">Wilson</div>
+<div class="location">BCN, Spain</div></code>
+					</pre>
+					<p class="fragment">No matter if <code class="yellow-text">name</code> or <code class="yellow-text">aproximateLocation</code>
+					are a properties that are just read or function that perform complex calculations, they are  accessed in the same way.</p>
+					<br>
+					<aside class="notes">
+						TODO
+					</aside>
+				</section>
+
+				<section data-background="images/all-the-things-alpha.png">
+					<h3><span class="fragment">State.</span> <span class="fragment">Machine.</span> <span class="fragment">All.</span> <span class="fragment">The.</span> <span class="fragment">Things.</span></h3>
+					<br>
+					<p class="fragment">Express your business logic declaratively.</p>
+					<br>
+					<p class="fragment">Define dependencies and calculations between properties.</p>
+					<br>
+					<p class="fragment">React to user actions modifying some value in your underlying data.</p>
+					<br>
+					<p class="fragment">All properties that had dependencies on it gets recomputed automatically.</p>
 				</section>
 
 				<section>
-					<h2>Spectacular image!</h2>
-					<a class="image" href="http://lab.hakim.se/meny/" target="_blank">
-						<img width="320" height="299" src="http://s3.amazonaws.com/hakim-static/portfolio/images/meny.png" alt="Meny">
-					</a>
+					<h3>Example.</h3>
+					<br>
+					<p>StackOverflows questions:</p>
+					<br>
+					<ul class="spaced-list">
+						<li class="fragment">A question is answered if has at least one answer.</li>
+						<li class="fragment">A question is popular if has more than 5 answers.</li>
+						<li class="fragment">A question is solved if any answer has been accepted.</li>
+						<li class="fragment">A question is hot if its popular but still not solved.</li>
+					</ul>
+					<br>
+					<br>
+					<p class="fragment gray-text"><i>How do we express that business logic?</i></p>
+					<aside class="notes">
+						TODO
+					</aside>
 				</section>
 
 				<section>
-					<h2>Export to PDF</h2>
-					<p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, below is an example that's been uploaded to SlideShare.</p>
-					<iframe id="slideshare" src="http://www.slideshare.net/slideshow/embed_code/13872948" width="455" height="356" style="margin:0;overflow:hidden;border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen> </iframe>
-					<script>
-						document.getElementById('slideshare').attributeName = 'allowfullscreen';
-					</script>
+					<h3>Computed properties to the rescue.</h3>
+					<pre>
+<code class="javascript">App.Question = Ember.Object.extend({
+  solutions: [],
+  answered: function(){
+    return this.get('answers.length') > 0;
+  }.property('answers.length'),
+
+  popular: function(){
+    return this.get('answers.length') > 5;
+  }.property('answers.length'),
+
+  solved: function(){
+    return this.get('answers').some(function(answer){
+      return answer.get('accepted');
+    });
+  }.property('answers.@each.accepted'),
+
+  hot: function(){
+    return this.get('popular') && !this.get('solved');
+  }.property('popular', 'solved')
+});</code>
+					</pre>
 				</section>
 
 				<section>
-					<h2>Take a Moment</h2>
-					<p>
-						Press b or period on your keyboard to enter the 'paused' mode. This mode is helpful when you want to take distracting slides off the screen
-						during a presentation.
-					</p>
+					<h3>Computed properties to the rescue.</h3>
+					<pre>
+<code class="javascript">question.get('answers')  // => []
+question.get('answered') // => false
+question.get('hot')      // => false
+
+question.get('answers').pushObject(Answer.create())
+
+question.get('answers')  // => [Answer]
+question.get('answered') // => true
+question.get('hot')      // => false
+
+question.get('answers').pushObjects([Answer.create(), Answer.create(), Answer.create(), Answer.create(), Answer.create()])
+
+question.get('answers')  // => [Answer, Answer, Answer, Answer, Answer, Answer]
+question.get('answered') // => true
+question.get('hot')      // => true
+
+question.get('answers.lastObject').set('accepted', true)
+
+question.get('hot')      // => false
+question.get('solved')   // => true</code>
+					</pre>
 				</section>
 
 				<section>
-					<h2>Stellar Links</h2>
-					<ul>
-						<li><a href="http://slid.es">Try the online editor</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js">Source code on GitHub</a></li>
-						<li><a href="http://twitter.com/hakimel">Follow me on Twitter</a></li>
+					<pre class="no-margin">
+<code class="html">&lt;article {{bind-attr class=&quot;:question answered hot solved&quot;}}&gt;
+  &lt;div class=&quot;excerpt&quot;&gt;{{excerpt text}}&lt;/div&gt;&lt;span class=&quot;answers-counter&quot;&gt;{{answers.length}}&lt;/span&gt;
+&lt;/article&gt;</code>
+					</pre>
+					<p>When it receives 6 answers the html will look like this:</p>
+					<pre class="no-margin">
+<code class="html"><article class="question answered hot">
+  <div class="excerpt">Lorem ipsum dolor sit a...</div><span class="answers">6</span>
+</article></code>
+					</pre>
+					<i class="gray-text">question.get('answers.firstObject').set("accepted", true);</i>
+					<pre class="no-margin">
+<code class="html"><article class="question answered solved">
+  <div class="excerpt">Lorem ipsum dolor sit a...</div><span class="answers">6</span>
+</article></code>
+					</pre>
+				</section>
+
+				<section>
+					<h3>And much much more...</h3>
+					<ul class="spaced-list">
+						<li class="fragment">Extensive use of promises.</li>
+						<li class="fragment">Properties observers.</li>
+						<li class="fragment">The Run loop.</li>
+						<li class="fragment">Isolated components.</li>
+						<li class="fragment">Testing tools.</li>
+						<li class="fragment">Ember extension for chrome and firefox.</li>
 					</ul>
 				</section>
 
 				<section>
-					<h1>THE END</h1>
-					<h3>BY Hakim El Hattab / hakim.se</h3>
+					<h3>Bonus points: Ember data</h3>
+					<br>
+					<div class="fragment">
+						<p class="small-paragraph"><i>Disclaimer. Still rolling. Not stable yet.</i></p>
+						<img src="/images/tomster-running.png" alt="running-tomster">
+					</div>
 				</section>
 
-			</div>
+				<section>
+					<p>Ember's <i>"official"</i> persistence layer.</p>
+					<p>TODO: Explain what is ember data </p>
+				</section>
 
+				<section>
+					<h1>Thanks</h1>
+					<img src="images/tomster-love.png" alt="thanks">
+				</section>
+
+
+
+				<section>
+					<h1>Q & A</h1>
+				</section>
+			</div>
 		</div>
 
 		<script src="lib/js/head.min.js"></script>

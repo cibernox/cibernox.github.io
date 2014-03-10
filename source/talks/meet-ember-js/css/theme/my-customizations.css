@@ -49,6 +49,7 @@
 }
 .reveal pre.no-margin{
   margin: 0;
+  width: 100%;
 }
 .reveal pre code.no-limits {
   max-height: 800px;
@@ -109,4 +110,7 @@
 
 .reveal p.small-paragraph{
   font-size: 22px;
+}
+.reveal .display-inline-block{
+  display: inline-block;
 }

@@ -182,10 +182,73 @@
 						Why not pick the solutions that have been there for a while and are battle-tested in desktop/mobile
 						apps and bring those patters to the web?
 
-						And that's what they did
+						And that's what they did.
 					</aside>
 				</section>
 
+<!-- 				<section>
+					<h2>Why did we choose ember?</h2>
+					<br>
+					<br>
+					<p class="fragment gray-text"><i>Read: Why did we choose it over Angular?</i></p>
+					<img class="fragment roll-in" src="images/troll-face.png" alt="trollface" height="326" width="400">
+					<aside class="notes">
+						This slide is just a subjective opinion about why did we choose ember over other options
+						to build our game. I'll compare it against Angular JS because it was our runner up and because
+						many of you know it quite well.
+					</aside>
+				</section>
+
+
+				<section>
+					<h3>They have different intents.</h3>
+				</section>
+
+				<section>
+					<img src="images/angular-logo.png" class="absolute-element" style="position: absolute; max-height: none; max-width: none; width: 60px; height: 60px; z-index: 4; left: 50px; top: -35px;" data-fragment-index="1">
+					<blockquote>Angular is not a framework, is an HTML compiler.</blockquote>
+					<p class="text-right gray-text"><i>Mishko Hevery - creator of angular</i></p>
+					<br>
+					<blockquote>AngularJS is a toolset for building the framework most suited to your application development.</blockquote>
+					<p class="text-right gray-text"><i>AngularJS Homepage</i></p>
+					<br>
+					<br>
+					<img src="images/ember-logo.png" class="absolute-element" style="position: absolute; max-height: none; max-width: none; width: 60px; height: 60px; z-index: 4; left: 50px; top: 310px;" data-fragment-index="1">
+					<blockquote>[Ember.js is] a framework to create ambitious web applications.</blockquote>
+					<p class="text-right gray-text"><i>Ember.js Homepage</i></p>
+					<aside class="notes">
+					</aside>
+				</section>
+
+				<section>
+					<table>
+						<thead>
+							<th>
+								<td>Angular</td>
+								<td>Ember</td>
+							</th>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+ -->
 				<section>
 					<h2>A bit of history</h2>
 					<img src="images/tomster-release.png" alt="tomster-release" width="356.4px" height="473.4px">
@@ -482,7 +545,7 @@
 				</section>
 
 				<section>
-					<h3>Routes</h3>
+					<h3>The Routes</h3>
 					<br>
 					<p>Populate and setup the controllers of the current section of the application</p><br>
 					<p>Manage the transition between the different routes (the top-level state)</p><br>
@@ -640,15 +703,15 @@
 					<div class="fragment">
 						<div class="kudos-container">
 					    <figure class="kudo kudoable" data-id="1">
-					        <a class="kudobject">
-					            <div class="opening">
-					                <div class="circle">&nbsp;</div>
-					            </div>
-					        </a>
-					        <a href="#kudo" class="count">
-					            <span class="num">0</span>
-					            <span class="txt">Kudos</span>
-					        </a>
+				        <a class="kudobject">
+				            <div class="opening">
+				                <div class="circle">&nbsp;</div>
+				            </div>
+				        </a>
+				        <a href="#kudo" class="count">
+				            <span class="num">0</span>
+				            <span class="txt">Kudos</span>
+				        </a>
 					    </figure>
 						</div>
 						<br>
@@ -680,7 +743,6 @@
 						Lets see how ember's views would help us to do this.
 					</aside>
 				</section>
-
 
 				<section>
 					<p>View</p>
@@ -854,6 +916,7 @@ question.get('solved')   // => true</code>
 				</section>
 
 				<section>
+					<p>question.hbs</p>
 					<pre class="no-margin">
 <code class="html">&lt;article {{bind-attr class=&quot;:question answered hot solved&quot;}}&gt;
   &lt;div class=&quot;excerpt&quot;&gt;{{excerpt text}}&lt;/div&gt;&lt;span class=&quot;answers-counter&quot;&gt;{{answers.length}}&lt;/span&gt;
@@ -874,6 +937,92 @@ question.get('solved')   // => true</code>
 				</section>
 
 				<section>
+					<h3>Bonus points: Ember data</h3>
+					<br>
+					<div class="fragment">
+						<p class="small-paragraph"><i>Disclaimer. Still rolling. Not stable yet.</i></p>
+						<img src="images/tomster-running.png" alt="running-tomster">
+					</div>
+				</section>
+
+				<section>
+					<h3>Ember's <i>"official"</i> persistence layer.</h3>
+					<ul class="spaced-list">
+						<li class="fragment">In memory store.</li>
+						<li class="fragment">Canonical records.</li>
+						<li class="fragment">Customizable adapters/serializers.</li>
+						<li class="fragment">Type casting.</li>
+						<li class="fragment">Rich DSL.</li>
+						<li class="fragment">Identity map.</li>
+						<li class="fragment">HasMany/BelongsTo associations.</li>
+						<li class="fragment">Errors and dirty tracking.</li>
+						<li class="fragment">Out-of-the-box integration with ActiveModel::Serializers.</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Defining your model</h3>
+					<pre>
+<code class="javascript">App.Team = DS.Model.extend({
+  name:      DS.attr('string'),
+  birthDate: DS.attr('date'),
+  weight:    DS.attr('number'),
+  links:     DS.attr(), // Raw data, no casting. p.e. { tw: "http...", fb: "http..." }
+
+  // Relations
+  league:    DS.belongsTo('league'),
+  matches:   DS.hasMany('match', {async: true});
+});</code>
+					</pre>
+				</section>
+
+				<section>
+					<h3>Query for records</h3>
+					<br>
+					<p>
+						Find all records.
+						<pre class="display-inline-block"><code class="javascript">store.find('match');</code></pre>
+					</p>
+					<p>
+						Find a record.
+						<pre class="display-inline-block"><code class="javascript">store.find('match', 123);</code></pre>
+					</p>
+					<p>
+						Filter records.
+						<pre class="display-inline-block"><code class="javascript">store.find('match', { played: false });</code></pre>
+					</p>
+				</section>
+
+			</section>
+				<section>
+					<h3>DSL</h3>
+					<br>
+					<p>
+						Create a new record
+						<pre class="display-inline-block"><code class="javascript">var match = store.createRecord('match', { stadium: "Camp Now" });</code></pre>
+					</p>
+					<p>
+						Dirty tracking
+						<pre class="display-inline-block">
+<code class="javascript">match.set('played', true);
+match.get('isDirty'); // true
+</code>
+						</pre>
+					</p>
+					<p>
+						Saving with promises.
+						<pre class="display-inline-block">
+<code class="javascript">match.save().then(function(){
+  alert('Match saved!');
+}).catch(function(errors){
+	alert('Ups, your match has some errors: ' + errors);
+});
+</code>
+						</pre>
+					</p>
+				</section>
+
+				<section>
 					<h3>And much much more...</h3>
 					<ul class="spaced-list">
 						<li class="fragment">Extensive use of promises.</li>
@@ -885,18 +1034,20 @@ question.get('solved')   // => true</code>
 					</ul>
 				</section>
 
-				<section>
-					<h3>Bonus points: Ember data</h3>
-					<br>
-					<div class="fragment">
-						<p class="small-paragraph"><i>Disclaimer. Still rolling. Not stable yet.</i></p>
-						<img src="images/tomster-running.png" alt="running-tomster">
-					</div>
-				</section>
 
 				<section>
-					<p>Ember's <i>"official"</i> persistence layer.</p>
-					<p>TODO: Explain what is ember data </p>
+					<h3>
+						<img src="images/campster.png" alt="campster" style="display: inline-block;vertical-align: -150%;margin-right: 25px;">
+						Resources to learn more:
+					</h3>
+
+					<ul class="spaced-list">
+						<li><a href="http://emberjs.com/guides/">Ember Guides</a></li>
+						<li><a href="http://www.codeschool.com/courses/warming-up-with-emberjs">Code school - Warming up with ember.</a></li>
+						<li><a href="http://ember101.com/">Ember 101</a></li>
+						<li><a href="http://discuss.emberjs.com">Official forums.</a></li>
+						<li><a href="http://emberwatch.com/">Ember Watch</a></li>
+					</ul>
 				</section>
 
 				<section>

@@ -62,11 +62,12 @@
 					<p class="text-right bigger-text">Miguel Camba</p>
 					<div class="text-right big-text low-height">
 						<img src="images/twitter-logo.png" alt="twitter-logo" height="40px" width="48px" class="inline-icon">
-						@miguelcamba
+						<a href="https://twitter.com/miguelcamba" class="gray-text">@miguelcamba</a>
+
 					</div>
 					<div class="text-right big-text low-height">
 						<img src="images/github-logo.png" alt="github-logo" height="52px" width="52px" class="inline-icon">
-						@cibernox &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="https://github.com/cibernox" class="gray-text">@cibernox &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 					</div>
 				</section>
 
@@ -165,93 +166,33 @@
 						<li>Store contextual state.</li>
 					</ul>
 					<aside class="notes">
-						**BUILD USER INTERFACES**
+						<b>BUILD USER INTERFACES</b><br>
 
 						They try to provide some foundations and patters to build UI's on a platform (the browser)
 						that was not originally designed to it.
 
-						The problem is that UI's **are hard**.
-						* They need to react to events
-						* show information from a source data
-						* keep that information updated when the inner data changes
-						* store contextual state (where am it? How I came here? Where i was before? What was my previous action?)
+						The problem is that UI's <b>are hard.</b>
+						<ul>
+							<li>They need to react to events</li>
+							<li>show information from a source data</li>
+							<li>keep that information updated when the inner data changes</li>
+							<li>store contextual state (where am it? How I came here? Where i was before? What was my previous action?)</li>
+						</ul>
 
-						Although that problem is new to us (web developers), it has been solved for a while
-						in desktop and mobile applications, so what ember's team said was:
+						<p>Although that problem is new to us (web developers), it has been solved for a while
+						in desktop and mobile applications, so what ember's team said was:</p>
 
-						Why not pick the solutions that have been there for a while and are battle-tested in desktop/mobile
-						apps and bring those patters to the web?
+						<p>Why not pick the solutions that have been there for a while and are battle-tested in desktop/mobile
+						apps and bring those patters to the web?</p>
 
-						And that's what they did.
+						<p>And that's what they did.</p>
 					</aside>
 				</section>
 
-<!-- 				<section>
-					<h2>Why did we choose ember?</h2>
-					<br>
-					<br>
-					<p class="fragment gray-text"><i>Read: Why did we choose it over Angular?</i></p>
-					<img class="fragment roll-in" src="images/troll-face.png" alt="trollface" height="326" width="400">
-					<aside class="notes">
-						This slide is just a subjective opinion about why did we choose ember over other options
-						to build our game. I'll compare it against Angular JS because it was our runner up and because
-						many of you know it quite well.
-					</aside>
-				</section>
-
-
-				<section>
-					<h3>They have different intents.</h3>
-				</section>
-
-				<section>
-					<img src="images/angular-logo.png" class="absolute-element" style="position: absolute; max-height: none; max-width: none; width: 60px; height: 60px; z-index: 4; left: 50px; top: -35px;" data-fragment-index="1">
-					<blockquote>Angular is not a framework, is an HTML compiler.</blockquote>
-					<p class="text-right gray-text"><i>Mishko Hevery - creator of angular</i></p>
-					<br>
-					<blockquote>AngularJS is a toolset for building the framework most suited to your application development.</blockquote>
-					<p class="text-right gray-text"><i>AngularJS Homepage</i></p>
-					<br>
-					<br>
-					<img src="images/ember-logo.png" class="absolute-element" style="position: absolute; max-height: none; max-width: none; width: 60px; height: 60px; z-index: 4; left: 50px; top: 310px;" data-fragment-index="1">
-					<blockquote>[Ember.js is] a framework to create ambitious web applications.</blockquote>
-					<p class="text-right gray-text"><i>Ember.js Homepage</i></p>
-					<aside class="notes">
-					</aside>
-				</section>
-
-				<section>
-					<table>
-						<thead>
-							<th>
-								<td>Angular</td>
-								<td>Ember</td>
-							</th>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Angular</td>
-								<td>Ember</td>
-							</tr>
-							<tr>
-								<td>Angular</td>
-								<td>Ember</td>
-							</tr>
-							<tr>
-								<td>Angular</td>
-								<td>Ember</td>
-							</tr>
-							<tr>
-								<td>Angular</td>
-								<td>Ember</td>
-							</tr>
-						</tbody>
-					</table>
-				</section>
- -->
 				<section>
 					<h2>A bit of history</h2>
 					<img src="images/tomster-release.png" alt="tomster-release" width="356.4px" height="473.4px">
+					<aside class="notes">Lets talk a bit about ember's history</aside>
 				</section>
 
 				<section>
@@ -265,6 +206,8 @@
 						<li class="fragment"><i class="gray-text">7 months ago</i> - 1.5 Years later Ember hits 1.0</li>
 					</ul>
 					<aside class="notes">
+						--- read list items --- <br>
+
 						As you see, it has been a looong way so far. But during that time ember extracted
 						knowledge from multiple sources. One that is specially present Apple DNA. Many of the
 						design principles and patterns that ember uses are inspired by cocoa's internals and
@@ -282,23 +225,25 @@
 						<li class="fragment">Enforces simple UI design</li>
 					</ul>
 					<aside class="notes">
-						* MVC framework (with Ember's flavour)
-						_Ember is a MVC framework as you would expect. It has its own flavour of MVC that takes many concepts from cocoa and rails._
+						<ul>
+							<li><b>MVC framework (with Ember's flavour)</b></li>
+							<i>Ember is a MVC framework as you would expect. It has its own flavour of MVC that takes many concepts from cocoa and rails.</i>
+							<li><b>The URL is foundational for Ember.</b></li>
+							</i>Ember guys don't like very much the term: "Single page application". Even if the browser doesn't reloads the URL's map your resources</i>
 
-						* The URL is foundational for Ember.
-						_Ember guys don't like very much the term: "Single page application". Even if the browser doesn't reloads the URL's map your resources_
+							<li><b>Convention over configuration. Highly opinionated _à la rails_.</b></li>
+							<i>Although some people might argue against this approach, it has proben itself very convenient. Big applications need architecture.</i> <br>
+							<i>In that sense, Ember is quite different to Angular. Angular has been described as a framework to build your one framework</i> <br>
+							<i>In ember everything has a predefined place and name by convention.</i> <br>
+							<i>There is no route without controller, controller without view or view without template</i>
 
-						* Convention over configuration. Highly opinionated _à la rails_.
-						_Although some people might argue against this approach, it has proben itself very convenient. Big applications need architecture._
-						_In that sense, Ember is quite different to Angular. Angular has been described as a framework to build your one framework_
-						_In ember everything has a predefined place and name by convention._
-						_There is no route without controller, controller without view or view without template_
+							<li><b>Enforces simple UI design.</b></li>
+							<i>Ember relies on Handlebars for its templates. Handlebars is an superset of moustache templating language, and so, it logicless</i> <br>
+							<i>Remember those angular directives that perform some kind of javascript evaluation? You won't find that here.</i>
+						</ul>
 
-						* Enforces simple UI design.
-						_Ember relies on Handlebars for its templates. Handlebars is an superset of moustache templating language, and so, it logicless_
-						_Remember those angular directives that perform some kind of javascript evaluation? You won't find that here._
 
-						I'll expand this points in reverse order. Lets start by the last one. The templates.
+						I'll expand this points in reverse order. First lets give an overview to ember elements.
 					</aside>
 				</section>
 
@@ -369,20 +314,20 @@
 				  	</div>
 				  </div>
 				  <aside class="notes">
-				  	So lets talk about Ember's MVC. For people like me used to backend development,
+				  	<p>So lets talk about Ember's MVC. For people like me used to backend development,
 				  	the MVC approach of ember is quite confusing at first, mainly because its more
-				  	similar to Cocoa MVC pattern and the naming has some false friends.
+				  	similar to Cocoa MVC pattern and the naming has some false friends.</p>
 
-				  	First of all, ember is still a framework created for the web, so there is a layer
+				  	<p>First of all, ember is still a framework created for the web, so there is a layer
 				  	for url recognision. It's called "the router". No surprises here, is just what it
-				  	looks. A library that listen for changes in the URL and matches them to some actions.
+				  	looks. A library that listen for changes in the URL and matches them to some actions.</p>
 
-				  	When the router find a URL, it invokes its associated route. "A route" was a brand new
+				  	<p>When the router find a URL, it invokes its associated route. "A route" was a brand new
 				  	concept for me. It matches a section of your app and it is responsable instantiate
 				  	a controller, its view, its template and populate the controllers with the needed
-				  	data (The models).
+				  	data (The models).</p>
 
-				  	"Models" are also what they seem. They represent your the actors of your business logic.
+				  	<p>"Models" are also what they seem. They represent your the actors of your business logic.
 						"Controllers" on the other hand are a bit different of what I was used. Since is usually
 						responsability of the route to find and inject the models into the controllers, the
 						responsability of the controllers is only to control the access to that models, decorating
@@ -390,13 +335,13 @@
 						"Views" are quite dumb. It responsability is to control the rendering of the section
 						and to transform meaningless browser events like "click" or "blur" into business
 						related actions like "Publish" or "Validate". They link controllers and templates.
-						"Templates" are just templates.
+						"Templates" are just templates.</p>
 
-						Another key difference here is that, unlike backend framworks, there is more of all of this.
+						<p>Another key difference here is that, unlike backend framworks, there is more of all of this.
 						In backend, a request arrives, a controllers is instantiated, and html answer is generated and
 						sent and we start over again. Here controllers and models are long-lived, so in ocasions
 						controllers can interact between them. When you are in a section of the game, your actions
-						can have effects in other parts of the game you are not even visualizing right now.
+						can have effects in other parts of the game you are not even visualizing right now.</p>
 
 						So far, this is the basic ember structure. However, most of the times you want to have some
 						kind of persistence. Ember handles this with "the store". You can think in the store as a
@@ -407,6 +352,7 @@
 
 				<section>
 					<h2><img src="images/ember-handlebars.png" alt="ember-handlebars" style="vertical-align: -75%"> Handlebars templates</h2>
+					<aside class="notes">Lets start by the templates. <b>Handlebars templates.</b></aside>
 				</section>
 
 				<section>
@@ -424,15 +370,17 @@
 					</pre>
 					<p class="fragment"><code class="yellow-text">name</code> and the <code class="yellow-text">src</code> attribute are bound!</p>
 					<aside class="notes">
-						Handlebars is a text-based template engine.
+						<p>If anyone doesn't know handlebars yet, it is a text-based template engine.</p>
 
-						That's how a handlebars template looks like.
+						<p>In words of its own creator: --- read quote ---</p>
 
-						You can interpolate expressions into the html with `{{}}` or bind attributes
-						with the build-in `bind-attr` helper.
+						<p>That's how a handlebars template looks like.</p>
 
-						The cool thing there is that those interpolated stuff is always bound. Whenever the name
-						or picture of this player changes, the template will be updated too.
+						<p>You can interpolate expressions into the html with `{{}}` or bind attributes
+						with the build-in `bind-attr` helper.</p>
+
+						<p>The cool thing there is that those interpolated stuff is always bound. Whenever the name
+						or picture of this player changes, the template will be updated too.</p>
 					</aside>
 				</section>
 
@@ -470,6 +418,7 @@
 							});
 						})();
 					</script>
+					<aside class="notes">Lets play with a live template!</aside>
 				</section>
 
 				<section>
@@ -598,7 +547,9 @@
 });</code>
 					</pre>
 					<aside class="notes">
-						TODO:
+						<p>These are all the hooks that every route has just extending from Ember.Route.</p>
+						<p>You can see that ember saves you a lot of work out of the box.</p>
+						--- explain hooks ---
 					</aside>
 				</section>
 
@@ -632,20 +583,20 @@
 					<p class="fragment"><code class="yellow-text">Ember.ObjectController</code></p>
 					<p class="fragment"><code class="yellow-text">Ember.ArrayController</code></p>
 					<aside class="notes">
-						The next item in the ember's toolchaing are the controllers.
+						<p>The next item in the ember's toolchaing are the controllers.</p>
 
-						Again, controllers are a bit different to what backend developers are used to.
+						<p>Again, controllers are a bit different to what backend developers are used to.</p>
 
-						They are responsable of expose and decorate the underlaying data, ofter
-						with information that is dependent of the application state.
+						<p>They are responsable of expose and decorate the underlaying data, ofter
+						with information that is dependent of the application state.</p>
 
-						By example, in out game, a played match is the same for you and for your rival,
+						<p>By example, in out game, a played match is the same for you and for your rival,
 						but depending of you being the manager of the home team or the away team, you will
-						see the same goal as a success or a failure.
+						see the same goal as a success or a failure.</p>
 
-						Also, controllers have the responsability of modify the data reacting to user
+						<p>Also, controllers have the responsability of modify the data reacting to user
 						actions and store contextual state that does not need to be persisted in the
-						backend.
+						backend.</p>
 					</aside>
 				</section>
 
@@ -778,7 +729,7 @@
 </code>
 					</pre>
 					<aside class="notes">
-
+						--- explaing code freely ---
 					</aside>
 				</section>
 
@@ -799,7 +750,13 @@
 					</div>
 					<br>
 					<aside class="notes">
-						TOOD
+						One key principle about ember is this. Uniform access principle.
+
+						--- explain ---
+
+						<p>If you have seen ember code using those ugly getters and setters, its not
+						a caprice. Using them you can access regular properties or computed properties
+						without even know what they are. You will understand this better in the next slides.</p>
 					</aside>
 				</section>
 
@@ -828,7 +785,7 @@ var user = App.User.create({name: "Wilson"});</code>
 					are a properties that are just read or function that perform complex calculations, they are  accessed in the same way.</p>
 					<br>
 					<aside class="notes">
-						TODO
+						-- explain freely --
 					</aside>
 				</section>
 
@@ -842,6 +799,20 @@ var user = App.User.create({name: "Wilson"});</code>
 					<p class="fragment">React to user actions modifying some value in your underlying data.</p>
 					<br>
 					<p class="fragment">All properties that had dependencies on it gets recomputed automatically.</p>
+					<aside class="notes">
+						Another key principle to ember.
+
+						<p><b>STATE. MACHINE. ALL. THE. THINGS.</b></p>
+
+						<p>Is most a phylosophy that a principle. The Ember Way of doing things can be sumarized with this
+						easy recipe.</p>
+
+						<p>I was skeptical at first. Seems more complicated that just handle events and do stuff.
+						All this state seems a lot of work but when you have been doing it so you realize that
+						is a much more pure and intuitive way of express your business logic.</p>
+
+						<p>Let's see it with a silly example: -- NEXT SLIDE --</p>
+					</aside>
 				</section>
 
 				<section>
@@ -859,7 +830,7 @@ var user = App.User.create({name: "Wilson"});</code>
 					<br>
 					<p class="fragment gray-text"><i>How do we express that business logic?</i></p>
 					<aside class="notes">
-						TODO
+						-- explain example freely --
 					</aside>
 				</section>
 
@@ -1055,11 +1026,73 @@ match.get('isDirty'); // true
 					<img src="images/tomster-love.png" alt="thanks">
 				</section>
 
-
-
 				<section>
 					<h1>Q & A</h1>
 				</section>
+
+<!-- 				<section>
+					<h2>Why did we choose ember?</h2>
+					<br>
+					<br>
+					<p class="fragment gray-text"><i>Read: Why did we choose it over Angular?</i></p>
+					<img class="fragment roll-in" src="images/troll-face.png" alt="trollface" height="326" width="400">
+					<aside class="notes">
+						This slide is just a subjective opinion about why did we choose ember over other options
+						to build our game. I'll compare it against Angular JS because it was our runner up and because
+						many of you know it quite well.
+					</aside>
+				</section>
+
+
+				<section>
+					<h3>They have different intents.</h3>
+				</section>
+
+				<section>
+					<img src="images/angular-logo.png" class="absolute-element" style="position: absolute; max-height: none; max-width: none; width: 60px; height: 60px; z-index: 4; left: 50px; top: -35px;" data-fragment-index="1">
+					<blockquote>Angular is not a framework, is an HTML compiler.</blockquote>
+					<p class="text-right gray-text"><i>Mishko Hevery - creator of angular</i></p>
+					<br>
+					<blockquote>AngularJS is a toolset for building the framework most suited to your application development.</blockquote>
+					<p class="text-right gray-text"><i>AngularJS Homepage</i></p>
+					<br>
+					<br>
+					<img src="images/ember-logo.png" class="absolute-element" style="position: absolute; max-height: none; max-width: none; width: 60px; height: 60px; z-index: 4; left: 50px; top: 310px;" data-fragment-index="1">
+					<blockquote>[Ember.js is] a framework to create ambitious web applications.</blockquote>
+					<p class="text-right gray-text"><i>Ember.js Homepage</i></p>
+					<aside class="notes">
+					</aside>
+				</section>
+
+				<section>
+					<table>
+						<thead>
+							<th>
+								<td>Angular</td>
+								<td>Ember</td>
+							</th>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+							<tr>
+								<td>Angular</td>
+								<td>Ember</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+ -->
 			</div>
 		</div>
 

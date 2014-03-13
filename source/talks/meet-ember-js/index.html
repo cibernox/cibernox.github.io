@@ -736,6 +736,12 @@
 
 				<section>
 					<h2>Ember basics: Design choices</h2>
+					<aside class="notes">
+						<p>
+							This was a quick overview of ember architecture, but beyond all those views... and routes... and controllers...
+							there is a set of choices and phylosophies that build "The Ember Way" of building applications.
+						</p>
+					</aside>
 				</section>
 
 				<section>
@@ -750,9 +756,9 @@
 					</div>
 					<br>
 					<aside class="notes">
-						One key principle about ember is this. Uniform access principle.
+						<p>The first one key principle about ember is Uniform access principle.</p>
 
-						--- explain ---
+						--- read quote ---
 
 						<p>If you have seen ember code using those ugly getters and setters, its not
 						a caprice. Using them you can access regular properties or computed properties
@@ -786,6 +792,63 @@ var user = App.User.create({name: "Wilson"});</code>
 					<br>
 					<aside class="notes">
 						-- explain freely --
+					</aside>
+				</section>
+
+				<section>
+					<h3>The object model: Going beyond the POJO</h3>
+					<br>
+					<p class="text-left">Use high level abstractions instead of stick to regular JS structures.</p><br>
+					<p class="text-left">Good: Higher level abstractions means less boilerplate.</p><br>
+					<p class="text-left">Good: Allows complex patterns: Class extension, mixin inheritance, proxies, method missing...</p><br>
+					<p class="text-left">Bad: Bigger API, bigger functionality, bigger size: 2x the size of angular.</p><br>
+					<p class="text-left">Bad: Steeper learning curve.</p><br>
+					<p></p>
+					<aside class="notes">
+						<p>Ember decided (unlike angular and other libraries) to go further and build its own set
+						of high level abstractions to build applications with.</p>
+						<p>Instead of stick to POJO objects they build a full object model that reminds deeply to
+						clasical object oriented programming and makes much more easy to use complex patterns to which
+						we are very used in other languages, such as class extensions, mixin inheritance, proxy patterns,
+						method missing (kind of) and more.</p>
+						<p>On the other hand, this make ember to have a much wider API surface area and I have to admit
+						that the learning curve of ember is waaaaay more steeper that other frameworks that work with
+						the low level structured we all already know.</p>
+					</aside>
+				</section>
+
+				<section>
+					<p>Examples:</p>
+					<pre>
+<code class="javascript no-limits">// Class extension
+App.Cat = Ember.Object.extend({
+  legs: 4,
+  talk: function(){ alert("meeeaau!"); }
+});
+App.GrumpyCat = App.Dog.extend({
+  talk: function(){ alert("meea....NO") }
+});
+
+// Mixins
+App.Domesticable = Ember.Mixin.create({
+  owner: null,
+  domesticate: function(owner){
+    console.log("Now " + owner + " and " + this.get("name") + " are friends!");
+    this.set("owner", owner);
+  }
+})
+App.Dog = App.Animal.extend(App.Domesticable, {carnivore: true});
+
+// Proxies
+var rex = App.Dog.create({name: "Rex"});
+var pet = Ember.ObjectProxy.create({content: rex, age: 4});
+pet.get("name") // => "Rex"
+pet.get("age")  // => 4
+</code>
+  				</pre>
+					<p></p>
+					<aside class="notes">
+						<p>Some examples of what kind of things you can do with ember that take much more effor in plaing old javascript</p>
 					</aside>
 				</section>
 
@@ -858,6 +921,9 @@ var user = App.User.create({name: "Wilson"});</code>
   }.property('popular', 'solved')
 });</code>
 					</pre>
+					<aside class="notes">
+						<p>-- explain code freely --</p>
+					</aside>
 				</section>
 
 				<section>
@@ -908,12 +974,32 @@ question.get('solved')   // => true</code>
 				</section>
 
 				<section>
+					<h3>And much much more...</h3>
+					<ul class="spaced-list">
+						<li class="fragment">Extensive use of promises.</li>
+						<li class="fragment">Properties observers.</li>
+						<li class="fragment">The Run loop.</li>
+						<li class="fragment">Isolated components.</li>
+						<li class="fragment">Testing tools.</li>
+						<li class="fragment">Ember extension for chrome and firefox.</li>
+					</ul>
+				</section>
+
+				<section>
 					<h3>Bonus points: Ember data</h3>
 					<br>
 					<div class="fragment">
 						<p class="small-paragraph"><i>Disclaimer. Still rolling. Not stable yet.</i></p>
 						<img src="images/tomster-running.png" alt="running-tomster">
 					</div>
+					<aside class="notes">
+						<p>And for last, I want to talk about ember data.</p>
+						<p>Ember data is a separate project from the ember team that acts as the model layer
+						of your application but is by far the more powerful aproach I've seen to something like
+						this in any library.</p>
+						<p>I want to warn you that its still in beta, so the API might have changes, but we are using it in production
+						and we love it.</p>
+					</aside>
 				</section>
 
 				<section>
@@ -929,6 +1015,9 @@ question.get('solved')   // => true</code>
 						<li class="fragment">Errors and dirty tracking.</li>
 						<li class="fragment">Out-of-the-box integration with ActiveModel::Serializers.</li>
 					</ul>
+					<aside class="notes">
+						<p>-- read list --</p>
+					</aside>
 				</section>
 
 				<section>
@@ -945,6 +1034,10 @@ question.get('solved')   // => true</code>
   matches:   DS.hasMany('match', {async: true});
 });</code>
 					</pre>
+					<aside class="notes">That's an example of how a tipical model would be defined.
+
+					<p>Explain</p>
+					</aside>
 				</section>
 
 				<section>
@@ -962,6 +1055,7 @@ question.get('solved')   // => true</code>
 						Filter records.
 						<pre class="display-inline-block"><code class="javascript">store.find('match', { played: false });</code></pre>
 					</p>
+					<aside class="notes"><p>Explain</p></aside>
 				</section>
 
 			</section>
@@ -994,19 +1088,6 @@ match.get('isDirty'); // true
 				</section>
 
 				<section>
-					<h3>And much much more...</h3>
-					<ul class="spaced-list">
-						<li class="fragment">Extensive use of promises.</li>
-						<li class="fragment">Properties observers.</li>
-						<li class="fragment">The Run loop.</li>
-						<li class="fragment">Isolated components.</li>
-						<li class="fragment">Testing tools.</li>
-						<li class="fragment">Ember extension for chrome and firefox.</li>
-					</ul>
-				</section>
-
-
-				<section>
 					<h3>
 						<img src="images/campster.png" alt="campster" style="display: inline-block;vertical-align: -150%;margin-right: 25px;">
 						Resources to learn more:
@@ -1030,12 +1111,14 @@ match.get('isDirty'); // true
 					<h1>Q & A</h1>
 				</section>
 
-<!-- 				<section>
+				<section>
 					<h2>Why did we choose ember?</h2>
 					<br>
 					<br>
-					<p class="fragment gray-text"><i>Read: Why did we choose it over Angular?</i></p>
-					<img class="fragment roll-in" src="images/troll-face.png" alt="trollface" height="326" width="400">
+					<p class="gray-text"><i>Read: Why did we choose it over Angular?</i></p>
+					<img src="images/troll-face.png" alt="trollface" height="326" width="400">
+					<br>
+					<p class="gray-text text-right"><i>Another day.....</i></p>
 					<aside class="notes">
 						This slide is just a subjective opinion about why did we choose ember over other options
 						to build our game. I'll compare it against Angular JS because it was our runner up and because
@@ -1043,7 +1126,7 @@ match.get('isDirty'); // true
 					</aside>
 				</section>
 
-
+<!--
 				<section>
 					<h3>They have different intents.</h3>
 				</section>
@@ -1091,8 +1174,8 @@ match.get('isDirty'); // true
 							</tr>
 						</tbody>
 					</table>
-				</section>
- -->
+				</section> -->
+
 			</div>
 		</div>
 

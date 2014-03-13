@@ -21,6 +21,9 @@
 .reveal section .big-text{
   font-size: 36px;
 }
+.reveal section .text-left{
+  text-align: left;
+}
 .reveal section .text-right{
   text-align: right;
 }

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Ember components <3 webP"
+title: "WebP + Ember components. The future is now"
 date: 2014-05-07 21:09
 comments: true
 categories: Ember.js

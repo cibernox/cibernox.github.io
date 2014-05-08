@@ -52,33 +52,32 @@ App = Ember.Application.create({});
 
 App.deferReadiness();
 
+(function(){
+  var image = new Image();
+  image.onerror = function() {
+    App.SmartImgComponent.reopen({webpSupported: false});
+    App.advanceReadiness();
+  };
+  image.onload = function() {
+    App.SmartImgComponent.reopen({webpSupported: image.width == 1});
+    App.advanceReadiness();
+  };
+  image.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=';
+})();
+
 App.SmartImgComponent = Ember.Component.extend({
   tagName: 'img',
   attributeBindings: ['bestSrc:src'],
   webp: 'auto',
   bestSrc: function(){
     var src = this.get('src');
-    if (this.get('webp') && this.get('webp') == 'auto'){
+    if (this.get('webpSupported') && this.get('webp') == 'auto'){
       return src.replace(/\.(png|jpg|jpeg)$/, '.webp');
     } else {
       return src;
     }
   }.property('src')
 });
-
-// Webp support detection
-(function(){
-  var image = new Image();
-  image.onerror = function() {
-    App.SmartImgComponent.reopen({webp: false});
-    App.advanceReadiness();
-  };
-  image.onload = function() {
-    App.SmartImgComponent.reopen({webp: image.width == 1});
-    App.advanceReadiness();
-  };
-  image.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=';
-})();
 ```
 
 That's it.
@@ -100,7 +99,7 @@ The only trick I've done here has to do with the web support detection. Since is
 pause the start up of the application until I know the support, and then I reopen the component prototype
 to add the proper flag and resume the application's start up.
 
-Here is a jsbin showing this in practice: [Smart Img Component](http://jsbin.com/ucanam/4901/edit)
+Here is a jsbin showing this in practice: [Smart Img Component](http://jsbin.com/ucanam/4910/edit)
 
 It's easy for me to imagine more use cases where ember components can be used to detect brower features and
 offer a well suited fallback when some browsers doesn't support the native thing yet.

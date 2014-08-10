@@ -3,8 +3,7 @@ layout: post
 title: "Import bootstrap glyphicons in ember-cli"
 date: 2014-08-10 00:28
 comments: true
-categories:
-comments: true
+published: true
 categories: Ember.js
 keywords: Ember,ember.js,ember-cli,bootstrap,glyphicons,import
 description: "How-to import bootstrap glyphicons in ember-cli apps"

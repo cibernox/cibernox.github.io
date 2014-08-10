@@ -3,6 +3,7 @@ layout: post
 title: "WebP + Ember components. The future is now"
 date: 2014-05-07 21:09
 comments: true
+published: true
 categories: Ember.js
 keywords: Ember,ember.js,components,webp,feature-detection
 description: "Want to use webp"

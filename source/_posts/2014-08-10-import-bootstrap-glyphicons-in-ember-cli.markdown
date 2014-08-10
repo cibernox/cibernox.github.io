@@ -8,7 +8,7 @@ categories: Ember.js
 keywords: Ember,ember.js,ember-cli,bootstrap,glyphicons,import
 description: "How-to import bootstrap glyphicons in ember-cli apps"
 ---
-Lately I've bulding a small internal tool using ember-cli. Although it is
+Lately I've building a small internal tool using ember-cli. Although it is
 intended to be used by the QA team, I like it to be pretty, or at least decent,
 so I am using bootstrap to have a good set of base styles.
 
@@ -25,14 +25,14 @@ app.import('vendor/bootstrap/dist/js/bootstrap.js');
 app.import('vendor/bootstrap/dist/css/bootstrap.css');
 ```
 
-The problem apears when you want to use the glyphicons fonts. Bootstraps expects
+The problem appears when you want to use the glyphicons fonts. Bootstraps expects
 the fonts to be inside the `/fonts` folder and nowhere else, so we can't just
 import the font like we do with js or css files.
 All docs I've seen about how to do this involve using broccoli plugins and the
 old syntax to move files within a tree, but that is not needed anymore.
 
 `app.import` accepts a second argument which is an object to configure its
-behavior, including the output tree where we want a file to be placed.
+behaviour, including the output tree where we want a file to be placed.
 
 Add this third sentence under the other two:
 
@@ -43,4 +43,4 @@ app.import('vendor/bootstrap/dist/fonts/glyphicons-halflings-regular.woff', {
 ```
 
 That's all. This also works with any other kind of file, like images or
-souremaps.
+sourcemaps.

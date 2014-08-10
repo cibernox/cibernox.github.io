@@ -15,8 +15,7 @@ place of the Iberic Peninsula.
 {% img center /images/cruceiro.jpg %}
 {% img center /images/prado.jpg %}
 
-Right now I live in Barcelona, an awesome city in the mediterranean sea. Sunny weather, good beaches and a
-vibran ambiance make this city special, and I love it too.
+Right now I am living in London, home to his Majesty and the finalcial heart of Europe. 
 
 My father was a computer engineer and, like in programming, inheritance gave me the same attributes, like the love for solving
 problems just to probe I can, so I followed his steps in the [University of A Coruña](http://www.udc.es/index.html?language=en), at the

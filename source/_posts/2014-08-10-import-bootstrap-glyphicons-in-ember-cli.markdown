@@ -28,6 +28,7 @@ app.import('vendor/bootstrap/dist/css/bootstrap.css');
 The problem appears when you want to use the glyphicons fonts. Bootstraps expects
 the fonts to be inside the `/fonts` folder and nowhere else, so we can't just
 import the font like we do with js or css files.
+
 All docs I've seen about how to do this involve using broccoli plugins and the
 old syntax to move files within a tree, but that is not needed anymore.
 

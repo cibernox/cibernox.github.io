@@ -68,8 +68,8 @@ When that happened, suddenly share and reuse libraries, not among some of your o
 but with projects of people you don't even know, was simplified massively. Gems that extended
 rails with al sort of functionalities expanded like mushrooms in autumn. Authentication,
 logging, state managers, middlewares...you name it. All of them working out-of-the-box
-with rails, with maybe just a few config lines. Compared with all the time and effort used
-to require to integrate properly in your *[put-your-favourite-old-technology-here]* project,
+with rails, with maybe just a few config lines. Compared with all the time and effort that it
+used to require to integrate properly a 3rd party library in your *[put-your-favourite-old-technology-here]* project,
 that made of rails a game-changer in the industry.
 
 Now I believe that ember-cli is about to achieve the same thing.

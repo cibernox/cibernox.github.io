@@ -108,7 +108,7 @@ Imagine that you have to add a datepicker to a web app you're building. I'm sure
 
 Since you don't want to reinvent the wheel, you surf the web an choose a cool web component
 to make your life easier, but it turns out that *it's not so easy either*. Maybe the component
-requires polymer.js. Almost certainly a datepicker will also require moment.js. Some specify versions.
+requires polymer.js. Almost certainly a datepicker will also require moment.js. Some specific versions.
 You have to include in your build pipeline the js file. An also the html template. And the base
 stylesheet too. All in the right order and after including its dependencies. And probably register
 the component/directive to use it from your templates. The documentation is pretty good (hopefully)

@@ -65,8 +65,8 @@ It is not because it brought anything absolutely new to the dev world, but becau
 a place to each piece of your app in a way that all projects shared the same common foundation.
 
 When that happened, suddenly share and reuse libraries, not among some of your own projects
-but with projects of pleople you don't even know, was simplified masively. Gems that extended
-rails with al sort of funcionalities expanded like mushrooms in autumn. Authentication,
+but with projects of people you don't even know, was simplified massively. Gems that extended
+rails with al sort of functionalities expanded like mushrooms in autumn. Authentication,
 logging, state managers, middlewares...you name it. All of them working out-of-the-box
 with rails, with maybe just a few config lines. Compared with all the time and effort used
 to require to integrate properly in your *[put-your-favourite-old-technology-here]* project,
@@ -86,7 +86,7 @@ broccoli, package managers and a collection of wisely chosen tools and defaults.
 In other terms, it brings uniformity *to the machine*.
 
 It might not seem a big deal on itself, but that uniformity is what really makes a
-difference. I just allows libaries authors to know the foundation of the environment where
+difference. I just allows libraries authors to know the foundation of the environment where
 its code will be plugged into.
 
 If there is a word that summarizes the doors that ember-cli opens that would be **extensibility**.

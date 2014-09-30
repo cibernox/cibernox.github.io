@@ -146,7 +146,7 @@ a command. And creating it was a piece of cake.
 That is a truly game-changer for me.
 
 I can't imagine the frontend development following any path other than this. Share and
-reuse code like this is the way to go. I don't know how much will other competitor projects
+reuse code like this is the way to go. I don't know how much will take to other competitor projects
 to have its own toolset as ember does, but I don't think they can remain on the sidelines
 much longer.
 

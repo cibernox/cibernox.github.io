@@ -76,7 +76,7 @@ Now I believe that ember-cli is about to achieve the same thing.
 
 ### A few words about Ember CLI
 
-I can't avoid think about Ember CLI as *"the missing parts"* I mentioned earlier.
+I can't avoid thinking about Ember CLI as *"the missing parts"* I mentioned earlier.
 
 To the strong opinions that ember has about how you should organize your code logically,
 ember-cli adds the rules of how you must organize your code physically, including the

@@ -8,28 +8,24 @@ footer: true
 description: "A little about me. Who I am, what I like ..."
 ---
 
-I was born in A Coruña (Coronna in English), a medium-size city in the worth-west coast of Spain, where I grew up.
-A Coruña belongs to the region of Galicia, probably (along with Asturias, the neighbour region) the most green a beautiful
-place of the Iberic Peninsula.
+I was born in A Coruña (Coronna in English), a medium-sized city in the north-west coast of Spain, where I grew up.
+A Coruña belongs to the region of Galicia, probably the most green and beautiful place in the Iberic Peninsula.
 
 {% img center /images/cruceiro.jpg %}
 {% img center /images/prado.jpg %}
 
-Right now I am living in London, home to his Majesty and the finalcial heart of Europe. 
+Right now I am living in London, home to his Majesty and the financial heart of Europe.
 
-My father was a computer engineer and, like in programming, inheritance gave me the same attributes, like the love for solving
-problems just to probe I can, so I followed his steps in the [University of A Coruña](http://www.udc.es/index.html?language=en), at the
+My father was a computer engineer and apparently inheritance gave me the same attributes, like the love for problem solving,
+so I followed his steps in the [University of A Coruña](http://www.udc.es/index.html?language=en), at the
 [Faculty of computer science](www.fic.udc.es).
 
-I was interested in the web since I was a boy and I started to learn about web development, first in the dark side (java) and
-then to the wonderful world of Ruby and other dynamic languages.
+I was interested in the web since I was a boy so I started learning web development, jumping from java to the dynamic
+world of Ruby, Javascript and laterly also Go and some funtional languages (Elixir and Clojure).
 
-I am also very interested in other fields like functional languages (Erlang and Elixir) and User Experience.
-
-In the personal side of my life, I'm a quiet guy who loves to **play** sports, not seeing sports. You won't see
-me watching a football match, but you can always count on me for play a match, go running or mountain bike.
+In the personal side of my life, I'm a quiet guy that likes to do sports but you won't see me watching a football match, but playing one or going everywhere on my bike.
 
 I also love animals _(who doens't?)_ and I have 2 cats, **Argon** and **Helia**. If I follow the noble gases rule,
-probable my first dog will be called **Kripton**. You have to agree that this will be a kick-ass name for a dog!
+probable my first dog will be called **Kripton**. You have to agree that it will be a kick-ass name for a dog!
 
 I don't have much more to say. Go read the [stuff I write](/)

@@ -9,13 +9,15 @@ keywords: sass,mixins,placeholders,extend,scss,differences,versus
 description: "A quick summary pointing out the differences between mixins, extends and placeholders"
 ---
 
-Sass preprocessors have reached critical mass to consider them a mainstream technology. 
+Sass preprocessors have reached critical mass to consider them a mainstream technology.
 Nowadays almost nobody that does some serius frontend still uses plain old css, but some people
 that uses [sass](http://sass-lang.com/) (or [less](http://lesscss.org/)) are using
 it like if it where just regular css with nesting and some sintax sugar, without squeezing
 all the power that those technologies put in our hands.
 
 This a summary of the main 3 features o SASS, pointing out its differences.
+
+<!--more-->
 
 ## @mixin
 
@@ -29,7 +31,7 @@ The most evident use case is the mixins that apply vendor prefixes:
   -o-border-radius: $radius;
   -ms-border-radius: $radius;
   -moz-border-radius: $radius;
-  -webkit-border-radius: $radius;  
+  -webkit-border-radius: $radius;
 }
 
 button{
@@ -43,7 +45,7 @@ them used the wrong way.
 By example:
 
 {% codeblock lang:scss %}
-@mixin rounded{  
+@mixin rounded{
   border-radius: 5px;
   -o-border-radius: 5px;
   -ms-border-radius: 5px;
@@ -86,7 +88,7 @@ button{
   color: #222;
 }
 
-.simple-form input{  
+.simple-form input{
   border-radius: 5px;
   -o-border-radius: 5px;
   -ms-border-radius: 5px;
@@ -115,7 +117,7 @@ The golden rule of where a mixin is a good choice is just a few line above:
 They allow us to [...] share similar styles among our rules
 {% endblockquote %}
 
-The keyword here is _similar_. 
+The keyword here is _similar_.
 
 A mixin is used to reuse rules, not values. In this case
 to create rounded borders of different radius, but if your ever find yourself writting a mixin
@@ -127,7 +129,7 @@ The `@extends` directive, on the other hand, is the static cousin of `@mixin`.
 It is designed for sharing rules and values between selectors while avoiding repetitions.
 
 {% codeblock lang:scss %}
-.rounded{  
+.rounded{
   border-radius: 5px;
   -o-border-radius: 5px;
   -ms-border-radius: 5px;
@@ -156,7 +158,7 @@ button{
 This time, the generated CSS looks like this:
 
 {% codeblock lang:css %}
-.rounded, button, .simple-form input, .main-nav .item a:hover, .main-nav .item a:active{  
+.rounded, button, .simple-form input, .main-nav .item a:hover, .main-nav .item a:active{
   border-radius: 5px;
   -o-border-radius: 5px;
   -ms-border-radius: 5px;
@@ -168,7 +170,7 @@ This time, the generated CSS looks like this:
 }
 {% endcodeblock %}
 
-It has just a fraction of the lines that the mixin approach, which is nice because lighter stylesheets 
+It has just a fraction of the lines that the mixin approach, which is nice because lighter stylesheets
 means faster loading times, specially with slow connections (mobiles), and for the browser
 is also much more efficient to parse one single rule applied to several selectors than apply
 the same rule once for each selector.
@@ -272,7 +274,7 @@ will generate
 a{ color: blue; }
 {% endcodeblock %}
 
-There is no reference to `%button` because placeholders are just named sets of styles meant to be extended by 
+There is no reference to `%button` because placeholders are just named sets of styles meant to be extended by
 other selectors, and don't have existence on its own.
 
 Since they don't have existence on its own, they can't be nested, so you can use `@extend %placeholder-name` with complete safety.

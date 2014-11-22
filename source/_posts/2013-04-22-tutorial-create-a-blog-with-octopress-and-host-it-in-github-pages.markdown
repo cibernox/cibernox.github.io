@@ -11,6 +11,8 @@ description: What is octopress and how create and deploy your blog in github pag
 I'll start talking about the last thing I started to experiment with, that is this very blog you are
 reading right now, built with Jekyll + Octopress.
 
+<!--more-->
+
 ### Jekyll.
 Straight-forward definition taken directy from the Github's repository description.
 

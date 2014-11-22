@@ -17,6 +17,8 @@ After publish your blog, there is still a few things you can do to improve it. T
 This is a must have. Have your own domain is cool. If you don't like the _.github.io_ at the end of the address bar,
 you can point your domain to github.
 
+<!--more-->
+
 * Create a file named `CNAME` in the root of your repository with the nude name of domain. With nude I mean
   without `www.` of `http://`.
   {% codeblock CNAME %}

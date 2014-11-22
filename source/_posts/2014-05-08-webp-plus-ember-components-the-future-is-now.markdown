@@ -20,6 +20,8 @@ in the web since ever, not only because they are awesome on their own, but becau
 forward in new ways by helping us to support new features in new browsers and degrade gracefully in more crappy
 ones.
 
+<!--more-->
+
 I've been a heavy user of Ember for a year now and I love how Ember's components can bring us the power of
 the newest features before thay are implementeda cross all browser, so this demo will leverage
 its advantages to conditionally display the best possible image format.

@@ -14,6 +14,8 @@ conflics when I already knew that the changes I wanted were all from same branch
 
 Never again using merge strategies.
 
+<!--more-->
+
 {% codeblock %}
 git merge [-s recursive] -X[theirs|ours]
 {% endcodeblock %}

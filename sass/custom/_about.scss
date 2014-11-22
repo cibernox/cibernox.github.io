@@ -1,0 +1,91 @@
+.widther-content {
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+  clear: both;
+  @include breakpoints("mobile") {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+.column {
+  @include span-columns(4);
+  text-align: justify;
+  line-height: 140%;
+  @include breakpoints("mobile") {
+    @include span-columns(12);
+  }
+}
+
+.column-header-image {
+  margin: 0 auto;
+  display: block;
+}
+
+hr{
+  padding: 0;
+  border: none;
+  border-top: medium double #333;
+  color: #333;
+  text-align: center;
+  margin: 4rem 0 2rem 0;
+  &::after {
+    content: "§";
+    display: inline-block;
+    position: relative;
+    top: -0.7em;
+    font-size: 1.5em;
+    padding: 0 0.25em;
+    background: white;
+  }
+}
+
+#contact-form {
+  $min-height: 50px;
+  $button-color: #B8CA41;
+
+  form {
+    height: 300px;
+    transition: opacity .3s, height .3s;
+    overflow: hidden;
+    h3{
+      text-align: center;
+    }
+  }
+
+  .motivational {
+    text-align: center;
+  }
+  input, textarea, button {
+    min-height: $min-height;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    font-size: 18px;
+    border: 1px solid #ddd;
+  }
+  input, textarea {
+    width: 100%;
+  }
+  button {
+    padding: 0.5rem 2.5rem;
+    margin: 0.5rem auto;
+    display: block;
+    background: $button-color;
+    border-radius: $min-height / 2;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    &:hover {
+      background: lighten($button-color, 6%)
+    }
+    &:active {
+      background: darken($button-color, 6%)
+    }
+  }
+}

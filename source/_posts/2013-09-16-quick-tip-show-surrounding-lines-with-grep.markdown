@@ -11,6 +11,9 @@ description: "A quick tip, show the surrounding context of any grep match. Speci
 ---
 
 A few days ago I made one of these small discoveries that make you smile and at the same time cry for all the time you have lost.
+And one more time I got a reminder that mastering unix tools can make your life easier. God save the `man` command.
+<!--more-->
+
 I was trying to debug an error in production. An ajax call was failing randomly (aparently) with a 500 but I couldn't figure out how to reproduce it,
 so my plan was to navigate around the page until I can understand what kind of parameters make the ajax call fail.
 

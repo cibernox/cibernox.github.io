@@ -19,6 +19,8 @@ I've discovered many usefull tricks. It totally worths the 9$/month.
 After my subscription, I wanted to download the old episodes (a few days ago Avdi published the 100th episode)
 but I didn't want to do it manually. I googled for a script but I didn't found any, so I decided to write one.
 
+<!--more-->
+
 The problem I found was to download files from an **HTTPS** source that was behind a login form. My first
 idea was to use a pure ruby solution like the `HTTParty` gem, but after a few failed attemps I realized that
 `curl` already has all that I need.

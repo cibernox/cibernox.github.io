@@ -1,0 +1,15 @@
+#header{
+  h1 a {
+    color: #DDD; // Override default theme
+  }
+  &.internal-page{
+    height: 150px;
+  }
+  #second-link, #third-link {
+    a {
+      font-size: 22px
+    }
+  }
+  #second-link{top: 50px; }
+  #third-link{top: 80px; }
+}

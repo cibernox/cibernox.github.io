@@ -139,6 +139,8 @@ Some of this improvements are more exciting than others (thumbs up to frozen str
 but as Yukuhiro Matsumoto said in his talk at the [Baruco](http://baruco.org/), which I attended, the main changes in this new release are
 internal, with the new generational garbage collector as the king of the party.
 
+<!--more-->
+
 I don't want to repeat content on the web, Konstantin Haase already wrote a great article explaining all the new features.
 [Check it out](http://rkh.im/ruby-2.1) for more detailed information.
 

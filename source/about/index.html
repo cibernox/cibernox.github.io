@@ -1,0 +1,69 @@
+---
+layout: default
+title: About me
+comments: false
+sharing: true
+footer: true
+index: true
+---
+
+<div id="index" class="content">
+  {% include about.html %}
+  <p>I'm a web developer from Spain living in London. I do most of my work in Ruby/Rails and Javascript/Ember.js but I like to experiment with bleeding edge technologies. </p>
+  <p>If you need help building your product, I might be able to <a href="#contact-form">help you.</a></p>
+</div>
+<div id="skills" class="widther-content">
+  <hr></hr>
+  <div class="column">
+    <img class="column-header-image" src="/images/ruby-medium.png" alt="ruby" height="150" width="150">
+    <p>My favourite language. No other language is so expresive and allows me to get my job done faster.</p>
+    <p>During more than 5 years of experience building web apps with it, from complex SaaS products to big systems
+    with several millions of users.</p>
+    <p>Rails and sinatra are my usual tools.</p>
+  </div>
+  <div class="column">
+    <img class="column-header-image" src="/images/tomster.png" alt="tomster" height="150" width="150">
+    <p>When it comes to building rich user experiences Ember.js is my choice</p>
+    <p>I've been hacking with ember since the beta days, and I've built some of the most complex
+    Ember apps out there, and I collaborate with it as much as I can</p>
+    <p>Did you know that you can build videogames in Ember? </p>
+    <p>Yeah, I'm that crazy.</p>
+  </div>
+  <div class="column">
+    <img class="column-header-image" src="/images/architecture.png" alt="architecture" height="150" width="150">
+    <p>When a project grows in complexity and popularity things can become a bit hairy.</p>
+    <p>Buiding a product is one thing and building a product that scales to handle millions of users and
+    thousands of requests per minute is a different one.
+    </p>
+    <p>You need to choose the right tool for the right job, and often that means use a mix of them
+    to master the cloud.</p>
+  </div>
+</div>
+<div id="contact-form" class="widther-content">
+  <hr></hr>
+  <p class="motivational">Write me if you think we can collaborate or just to say hi!</p>
+  <script type="text/javascript">
+    $(function() {
+      $('#43246101002333').submit(function(e){
+        e.preventDefault();
+        var $form = $(this);
+        $.post("https://api.jotform.com/form?apiKey=dd412a53a93211112d9a36a376ed3ce4", $form.serialize()).success(function(data){
+          if (data["responseCode"] === 200){
+            $form.css({opacity: 0, height: '50px'});
+            setTimeout(function(){
+              $form.html("<h3>Thanks! I'll get back to you soon</h3>");
+              $form.css({opacity: 1});
+            }, 300);
+          }
+        });
+      });
+    })
+  </script>
+  <form action="http://submit.jotformeu.com/submit/43246101002333/" method="post" name="form_43246101002333" id="43246101002333" accept-charset="utf-8">
+    <input type="hidden" name="formID" value="43246101002333">
+    <input type="text" placeholder="Name" data-type="input-textbox" id="input_1" name="q1_nombre" required>
+    <input type="email" placeholder="Email" data-type="input-textbox" id="input_3" name="q3_email" required>
+    <textarea id="input_4" name="q4_message"  placeholder="Talk me about you and your project..." rows="3" required></textarea>
+    <button id="input_2" type="submit">Send</button>
+  </form>
+</div>

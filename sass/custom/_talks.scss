@@ -1,0 +1,44 @@
+.talk {
+  position: relative;
+  float: left;
+  border: 1px solid lightgray;
+  margin: 0 1rem 1rem 0;
+  width: 302px;
+  height: 240px;
+  background-size: cover;
+  background-position: 50%;
+  overflow: hidden;
+  a {
+    height: inherit;
+    width: inherit;
+    display: block;
+  }
+  &:nth-child(4n){
+    margin-right: 0;
+  }
+  .rollup{
+    background: rgba(0,0,0, 0.5);
+    color: white;
+    position: absolute;
+    bottom: 0;
+    padding: 1rem;
+    transform: translateY(120px);
+    width: 100%;
+    will-change: transform;
+    transition: transform 0.5s;
+  }
+  &:hover .rollup{
+    transform: translateY(0px);
+  }
+
+}
+
+#ember-for-rails-devs{
+  background-image: url('/images/ember-for-rails-devs.png');
+}
+#meet-ember{
+  background-image: url('/images/meet-ember.png');
+}
+#sneak-peek-ember{
+  background-image: url('/images/sneak-peek-ember.png');
+}

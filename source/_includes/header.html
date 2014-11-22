@@ -1,1 +1,12 @@
-{% include custom/header.html %}
+<div class="cover-image"></div>
+
+<header id="header" role="banner" {% unless page.index %}class="internal-page"{% endunless %}>
+  <div class="content">
+    <h1><a href="{{ root_url }}/">{{ site.title }}</a></h1>
+    <h1 id="second-link"><a href="/talks">Talks</a></h1>
+    <h1 id="third-link"><a href="/about">About</a></h1>
+    {% if site.subtitle and page.index == true %}
+      <h2>{{ site.subtitle }}</h2>
+    {% endif %}
+  </div>
+</header>

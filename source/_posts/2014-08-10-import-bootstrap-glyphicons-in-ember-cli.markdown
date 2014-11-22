@@ -17,13 +17,15 @@ but I've found it to be outdated in general, since the syntax of the Brocfile.js
 of ember-cli's projects has changes a lot in the last months, being now
 `app.import` the swiss knife for almost everything.
 
+<!--more-->
+
 Using bootstrap now is as simple as typing `bower install --save bootstrap` and
 adding this two lines to your brocfile:
 
-```js
+{% codeblock lang:javascript %}
 app.import('vendor/bootstrap/dist/js/bootstrap.js');
 app.import('vendor/bootstrap/dist/css/bootstrap.css');
-```
+{% endcodeblock %}
 
 The problem appears when you want to use the glyphicons fonts. Bootstraps expects
 the fonts to be inside the `/fonts` folder and nowhere else, so we can't just

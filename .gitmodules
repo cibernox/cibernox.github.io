@@ -1,0 +1,3 @@
+[submodule ".themes/emd-theme"]
+	path = .themes/emd-theme
+	url = git@github.com:vidblog/emd-theme.git

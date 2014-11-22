@@ -18,6 +18,8 @@ development that is going to change the way we think about it.
 
 *That's what I think [Ember CLI](http://www.ember-cli.com/) is about to do.*
 
+<!--more-->
+
 ### A few words words about Ember.js
 
 I've been using Ember.js a bit more than a year and a half, since some beta version before the

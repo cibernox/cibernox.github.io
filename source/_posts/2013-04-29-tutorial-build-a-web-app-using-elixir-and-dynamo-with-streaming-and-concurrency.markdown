@@ -10,7 +10,10 @@ description: We are going to build step by step a simple web app that reads to f
 ---
 
 Althoug I am mostly a Ruby developer, I like to play with unusual (to me) things from time to time, and
-concurrent programming is one of them.
+concurrent programming is one of them. Functional programming is great for that, and elixir puts all the power
+of the Erlang VM in your hands without renounce to a nice and expresive syntax.
+
+<!--more-->
 
 Is well known that Ruby is not a good language to build concurrent code. MRI, the main ruby interpreter,
 has a global lock that prevents any code to run in parallel. It is true that other implementations like JRuby

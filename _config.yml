@@ -4,11 +4,11 @@
 
 url: http://miguelcamba.com
 title: Coder idiosyncrasy
-subtitle: Thoughts on development.
+subtitle: Development and stuff.
 author: Miguel Camba
-simple_search: http://google.com/search
-keywords: "ruby,ruby on rails,javascript,hacking,html5,web development,tips,tricks,barcelona"
-description: "Thoughts on development. Hacking ruby, rails, html5 and family. Tips and tricks."
+author_description: "I'm a web developer from Spain living in London. I do most of my work in Ruby/Rails and Javascript/Ember.js but I like to experiment with bleeding edge technologies. If you need help building your product, I might be able to help you."
+simple_search: https://www.google.com/search
+description: "Thoughts on development. Hacking ruby, rails, javascript, Ember.js and more. Tips and tricks."
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -35,18 +35,24 @@ plugins: plugins
 code_dir: downloads/code
 category_dir: blog/categories
 markdown: rdiscount
-pygments: false # default python pygments have been replaced by pygments.rb
+rdiscount:
+  extensions:
+    - autolink
+    - footnotes
+    - smart
+highlighter: pygments # default python pygments have been replaced by pygments.rb
 
 paginate: 10          # Posts per page on the blog index
-pagination_dir: blog  # Directory base for pagination URLs eg. /blog/page/2/
+paginate_path: "posts/:num"  # Directory base for pagination URLs eg. /posts/2/
 recent_posts: 5       # Posts in the sidebar Recent Posts section
 excerpt_link: "Read on &rarr;"  # "Continue reading" link text at the bottom of excerpted articles
+excerpt_separator: "<!--more-->"
 
 titlecase: true       # Converts page and post titles to titlecase
 
 # list each of the sidebar modules you want to include, in the order you want them to appear.
 # To add custom asides, create files in /source/_includes/custom/asides/ and add them to the list like 'custom/asides/custom_aside_name.html'
-default_asides: [asides/gravatar.html, asides/recent_posts.html, asides/github.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
+default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
 
 # Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
 # and add an array with the asides you want to use.
@@ -62,15 +68,18 @@ default_asides: [asides/gravatar.html, asides/recent_posts.html, asides/github.h
 github_user: cibernox
 github_repo_count: 6
 github_show_profile_link: true
-github_skip_forks: false
+github_skip_forks: true
 
 # Twitter
 twitter_user: miguelcamba
 twitter_tweet_button: true
 
+# Linkedin
+linkedin_user: miguelcamba
+
 # Google +1
 google_plus_one: true
-google_plus_one_size: small
+google_plus_one_size: medium
 
 # Google Plus Profile
 # Hidden: No visible button, just add author information to search results
@@ -87,13 +96,13 @@ delicious_count: 3
 
 # Disqus Comments
 disqus_short_name: miguelcamba
-disqus_show_comment_count: true
+disqus_show_comment_count: false
 
 # Google Analytics
-google_analytics_tracking_id: UA-40004935-2
+google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: true
 
 # Gravatar
-gravatar_email: miguel.camba@gmail.com
+gravatar_hash: "aadced6e13c05d42faaf1be3bbb88b83"

@@ -46,7 +46,7 @@ hr{
   }
 }
 
-#contact-form {
+#contact-me {
   $min-height: 50px;
   $button-color: #B8CA41;
 
@@ -54,7 +54,7 @@ hr{
     height: 300px;
     transition: opacity .3s, height .3s;
     overflow: hidden;
-    h3{
+    h3 {
       text-align: center;
     }
   }

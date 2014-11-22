@@ -47,7 +47,7 @@ index: true
       $('#43246101002333').submit(function(e){
         e.preventDefault();
         var $form = $(this);
-        $.post("https://api.jotform.com/form?apiKey=dd412a53a93211112d9a36a376ed3ce4", $form.serialize()).success(function(data){
+        $.post("https://api.jotform.com/form/43246101002333/submissions?apiKey=dd412a53a93211112d9a36a376ed3ce4", $form.serialize()).success(function(data){
           if (data["responseCode"] === 200){
             $form.css({opacity: 0, height: '50px'});
             setTimeout(function(){

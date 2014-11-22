@@ -1,8 +1,8 @@
 <div class="about-author">
   <img src="http://www.gravatar.com/avatar/{{ site.gravatar_hash }}?s=135" width="135" height="135" alt="{{ site.author }}" />
-  <h3>{{ site.author }}</h3>
+  <h3><a href="/about">{{ site.author }}</a></h3>
   {% unless page.index and site.author_description != null %}
-    <div class="author-description">{{ site.author_description }}</div>
+  <div class="author-description">{{ site.author_description }}</div>
   {% endunless %}
   <ul class="social-links">
     <li>

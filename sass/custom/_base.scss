@@ -1,0 +1,23 @@
+.feed-article{
+  text-align: justify;
+  header {
+    text-align: center;
+  }
+}
+ul:not(.social-links){
+  text-align: left
+}
+main[role=main]{
+  @include breakpoints("mobile") {
+    padding: 0 2.5rem;
+  }
+}
+
+#post{
+  .content > article{
+    @include breakpoints("mobile") {
+      @include span-columns(12);
+      @include shift(0);
+    }
+  }
+}

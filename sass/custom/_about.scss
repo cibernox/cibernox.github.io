@@ -20,10 +20,18 @@
 
 .column {
   @include span-columns(4);
+  .column-header-image{
+    height: 150px;
+    width: 150px;
+  }
   text-align: justify;
   line-height: 140%;
   @include breakpoints("mobile") {
     @include span-columns(12);
+    .column-header-image{
+      height: 300px;
+      width: 300px;
+    }
   }
 }
 

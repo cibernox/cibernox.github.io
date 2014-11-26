@@ -19,5 +19,8 @@ main[role=main]{
       @include span-columns(12);
       @include shift(0);
     }
+    p {
+      display: block;
+    }
   }
 }

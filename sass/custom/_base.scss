@@ -9,7 +9,7 @@ ul:not(.social-links){
 }
 main[role=main]{
   @include breakpoints("mobile") {
-    padding: 0 2.5rem;
+    padding: 0 2rem;
   }
 }
 

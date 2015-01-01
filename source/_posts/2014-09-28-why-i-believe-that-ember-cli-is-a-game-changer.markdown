@@ -3,7 +3,6 @@ layout: post
 title: "Why I believe that ember-cli is a game-changer"
 date: 2014-09-28 23:42
 comments: true
-comments: true
 published: true
 categories: Ember.js
 keywords: Ember,ember.js,ember-cli,ember-addon

@@ -34,3 +34,6 @@ Part I:
 Part II:
 {% youtube aY7EsSWVVTY %}
 
+The code is available here: [https://github.com/cibernox/mobile-patterns](https://github.com/cibernox/mobile-patterns).
+I case you want to collaborate, or you have an UX in mind you don't know how to implement using Ember,
+don't hesitate and open an issue/PR.

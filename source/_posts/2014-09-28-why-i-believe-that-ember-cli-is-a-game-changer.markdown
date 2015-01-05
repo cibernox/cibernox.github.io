@@ -121,6 +121,10 @@ to wire up things automatically. The ember addon only requires you to install it
 npm install ember-cli-cool-datepicker --save-dev # Downloads the addon
 ember generate ember-cli-cool-datepicker         # Fetches dependencies and wire all together.
 ```
+**NOTE:  Since version `0.1.5` of ember-cli, an addon can be installed with only one command.
+You can replace this 2 lines by `ember install:addon ember-cli-cool-datepicker` and it will
+install the package from NPM and execute the corresponding generator.**
+
 and use it right away
 {% raw %}
 ```
@@ -129,6 +133,7 @@ and use it right away
 {% endraw %}
 
 And possibilities go far beyond this example.
+
 
 Addons can modify your build process adding pre-processors (p.e. you can start using the new features
 of ES6 like classes and generators with [ember-cli-esnext](https://github.com/rjackson/ember-cli-esnext)),

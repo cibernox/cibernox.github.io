@@ -10,9 +10,9 @@ published: true
 
 Service Workers are coming to town. By the time of this writing you can use them in Chrome stable
 and in nightly versions of firefox. Not all features are ready, but the most basic ones are, so
-you can start using it today.
+you can start using them today.
 
-There is still not much documentation out there about how to use it, this are my two cents:
+There isn't still much documentation out there about how to use it, this are my two cents:
 How to tamper requests/responses with service workers.
 
 <!--more-->
@@ -35,13 +35,14 @@ Requests/Responses are designed.
 
 I misundestood this until I read [the spec](http://www.w3.org/TR/2015/WD-service-workers-20150205/)
 and the [article in MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorker_API). Well,
-I haven't really read the spec cover to cover, but most of it.
+to be completely honest I haven't really read the spec cover to cover, but read some parts.
 
-The responses from the server are streams containinig binary data. Service Workers is a low level API
-on purpose, so when we mangle responses we are playing with very low level objects.
+Service Workers is a low level API on purpose, so when we mangle responses we are playing with very
+low level objects. It turns out that the responses from the server are streams containinig binary data.
 
 Streams can only be consumed once. That means that if you read the content of a response and then
-you forward that response to the browser, the browser will not be able to read it.
+you forward that response to the browser, the browser will not be able to read it because it has
+already been consumed.
 
 Every time you want to mangle a response and the return it, make a clone and mangle the clone instead
 

@@ -3,8 +3,8 @@ require 'sass-globbing'
 # Require any additional compass plugins here.
 project_type = :stand_alone
 
-add_import_path "vendor/bower/bourbon/dist/"
-add_import_path "vendor/bower/neat/app/assets/stylesheets/"
+add_import_path "bourbon/"
+add_import_path "neat/"
 
 # Publishing paths
 http_path = "/"

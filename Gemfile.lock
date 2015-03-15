@@ -77,7 +77,7 @@ GEM
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
-    rake (10.3.2)
+    rake (10.4.2)
     rb-fsevent (0.9.4)
     rb-inotify (0.9.5)
       ffi (>= 0.5.0)
@@ -111,7 +111,7 @@ DEPENDENCIES
   jekyll-sitemap
   octopress-date-format (~> 2.0)
   octopress-hooks (~> 2.2)
-  rake (~> 10.0)
+  rake (~> 10.4)
   rb-fsevent (~> 0.9)
   rdiscount (~> 2.0)
   rubypants (~> 0.2.0)

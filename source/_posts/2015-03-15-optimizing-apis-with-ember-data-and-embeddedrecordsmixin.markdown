@@ -24,7 +24,7 @@ Nowadays creating a service will almost always mean creating a backend API consu
 frontend applications, web or mobile, so scaling a service is all about scaling its API.
 
 If you foreseen tens of millions of users, you need to design your API carefully, and I learned some
-this the hard way.
+of this things the hard way.
 
 ### API scaling is all about caching
 

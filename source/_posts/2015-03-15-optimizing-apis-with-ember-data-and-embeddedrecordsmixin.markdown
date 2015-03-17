@@ -17,7 +17,7 @@ of users and many thousands of requests per minute, and how ember-data is totall
 
 
 I had the great luck of have participated in the creation of a some very successful projects that
-made me have some ruff moments trying to meet the scalability demands. I am very grateful for that
+made me have some tough moments trying to meet the scalability demands. I am very grateful for that
 because those are the projects that really push your limits forward as a developer.
 
 Nowadays creating a service will almost always mean creating a backend API consumed by one or many

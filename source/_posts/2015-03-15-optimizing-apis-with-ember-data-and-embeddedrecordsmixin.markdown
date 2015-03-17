@@ -181,7 +181,7 @@ A `PUT` request to update the user's profile has this payload:
 ```
 
 The `create` action in the user endpoint will take care of update both the public and private
-information and returns the user and also sideload the private info.
+information, return the user and also sideload the private info with it.
 
 ```js
 {
@@ -238,7 +238,6 @@ When this record is serialized, it will receive ids but when serialized it will 
 just like the previous examples. My hands bled of how much I clapped.
 
 I really think that Ember Data and [json-api](http://jsonapi.org) are not only useful tools, but also
-tools that make you a better programmer by carrying with them the opinions of other very good programmers,
-letting you stand on the shoulders of giants.
-
+tools that make you a better programmer, and is amazing how much following it's conventions can help
+to get good software design.
 

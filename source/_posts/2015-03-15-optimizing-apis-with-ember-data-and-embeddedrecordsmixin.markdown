@@ -234,7 +234,8 @@ export default DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
 
 That's all I needed to implement this functionality.
 
-When this record is serialized, it will receive ids but when serialized it will embed the relation,
+When this record is deserialized coming from the server it will contain the only id but when it's
+serialized for being sent to the server the payload will have embedded the user private information,
 just like the previous examples. My hands bled of how much I clapped.
 
 I really think that Ember Data and [json-api](http://jsonapi.org) are not only useful tools, but also

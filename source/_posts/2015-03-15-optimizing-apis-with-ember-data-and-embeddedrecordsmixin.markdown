@@ -61,7 +61,7 @@ Congratulations, you're doomed. No caching for you.
 Another common example of this is when an endpoint like `/users/123` conditionally returns the private
 information of that used depending if you are that user or not.
 
-This is an example of pollution, consecuence of poor encapsulation. Your otherwise static and easy
+This is an example of pollution as a consecuence of poor encapsulation. Your otherwise static and easy
 cacheable API has been poisoned by one single dynamic field, and even worse, one you don't even need most of the time.
 
 There is for me **two golden rules in API design**:
@@ -109,7 +109,7 @@ export default DS.Model.extend({
 
 The encapsulation rule is simple: If you have any reason to consider some field private, it lives
 in the `UserPrivateInfo` model. Otherwise, it belongs to the `User` model.
-I can fetch it in a dedicated endpoint, but since the relationship is asynchronous the private
+Now you can fetch it in a dedicated endpoint, but since the relationship is asynchronous the private
 information will only be fetched when its really necessary.
 
 Any user without permission trying to the the private information will get a *403*. That shouldn't
@@ -117,7 +117,7 @@ occur anyway because your fronted won't try to access the private information if
 but you're safe if that happens.
 
 
-Taking this approach the payloads of the different endpoints will look like this:
+Taking this approach, the payloads of the different endpoints will look like this:
 `/api/users/123`
 ```js
 {
@@ -140,13 +140,16 @@ Taking this approach the payloads of the different endpoints will look like this
 }
 ```
 
-You might have noticed that `user_private_info_id` if the `id` are the same. That it true because in the
-backend I have only one user model, but I could be stored in a different table and have non related ids,
-that is an implementation detail.
+You might have noticed that the `id` of the user and its private info are the same, so you might think
+that I don't really need that field, but that would be leaking an implementation detail into your
+business logic. It turns out that I have all the information in the same user table and therefore the ID
+is the same, but I could change my mind and store that info in a different table with different ids,
+and the same API is still valid.
 
-The `users` API is publicly available. I don't need to perform an expensive check to see the requester
-and that user are friends. In fact depending on the business logic you might not even need to be logged.
-This allows to cache this endpoint at a very high level in varnish and don't even touch our servers.
+Also, note that now `users` API is *objective*. I don't need to perform an any kind of check to see the
+requester and that user are friends. In fact depending on the business logic you might not even need to
+be logged to access this resource. This allows to cache this endpoint at a very high level, using Varnish
+by example, and don't even touch our servers.
 
 ### Pitfalls of this approach: How do I save sliced resources?!?!
 
@@ -154,7 +157,7 @@ Simple answer is: **You don't**
 
 If you have been paying attention you have noticed that this API slicing is more based in the usage of
 the API than in the limits of the business logic itself. Conceptually speaking an user has both public
-and private information, but the user is still only one business object, so the moment will come when
+and private information, but it is still only one business object, so the moment will come when
 you need to perform a save operation that affects information of both words.
 
 It would be massively complicated to synchronize save operations to two endpoints at the same time, so

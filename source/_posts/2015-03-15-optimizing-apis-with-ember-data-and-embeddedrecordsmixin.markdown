@@ -158,7 +158,7 @@ Simple answer is: **You don't**
 If you have been paying attention you have noticed that this API slicing is more based in the usage of
 the API than in the limits of the business logic itself. Conceptually speaking an user has both public
 and private information, but it is still only one business object, so the moment will come when
-you need to perform a save operation that affects information of both words.
+you need to perform a save operation that affects information of both the public and private areas.
 
 It would be massively complicated to synchronize save operations to two endpoints at the same time, so
 I take the approach of using `user` endpoint as single point of entry for write operations on the user

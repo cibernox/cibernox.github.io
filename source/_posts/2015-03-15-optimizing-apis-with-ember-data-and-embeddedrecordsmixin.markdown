@@ -71,14 +71,14 @@ There is for me **two golden rules in API design**:
 
 * **Minimize the number of moving parts**. A good API is that one that is mostly static and do not
   vary depending on the identity of the consumer. You can call this also objective/subjective. If you
-  are mixing static & objective field with variable & subjective ones in the same endpoint, specially if
-  the variable information is not always required, you will have a bad time. Consider *slicing* your
-  app into two separated static/variable endpoints.
+  are mixing static & objective fields with variable & subjective ones in the same endpoint, specially if
+  the variable information is not always required, you will have a bad time. Intead you should consider
+  *slicing* your app into two separated static/variable endpoints.
 
 
 ### The objective/subjective encapsulation pattern.
 
-The paradigmatic case of this getting the profile information of a user. Imagine an app where some
+The paradigmatic case of this pattern is getting the profile information of a user. Imagine an app where some
 information of the users is public (username, avatar, etc...) and other fields are private (email,
 facebook, money in the current account...).
 

@@ -155,7 +155,7 @@ sense, since it has to behave like a promise and promises can't change it's stat
 Time to take a break and look at the problem with a different light. I had a tea while cursing
 stability without stagnation and went to [Ember London's slack channel](https://emberlondon.slack.com) to share my dispair.
 
-I exposed the problem in the reneral and `@niks` told me that when he faced the same problem he
+I exposed the problem in the reneral and [@niks](https://github.com/nikz) told me that when he faced the same problem he
 ended up creating a service `current-user` that had an `instance` property that is populated from
 the application route.
 

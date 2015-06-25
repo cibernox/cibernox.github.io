@@ -89,7 +89,7 @@ supports them (1.12+). And since instance initializers are executed *after* regu
 store wasn't available yet.
 
 > Ok, not a big deal, I'll convert this into an instance initializer.
-- An naive developer (Me)
+> - An naive developer (Me)
 
 The new initializers have a different signature. Instead of receiving the container and the application
 they receive an `applicationInstance` that gives access both to the _registry_ and the _container_. I
@@ -111,7 +111,8 @@ initialize: function(appInstance) {
 }
 ```
 
-> appInstance.deferReadiness is not a function - Mr. Chrome
+> appInstance.deferReadiness is not a function
+> - Mr. Chrome
 
 I inspected the object and dove into the deep internet to confirm the bitter truth. You can't defer \
 the readiness of the application from an instance initializer.
@@ -123,9 +124,9 @@ And that it's not the only problem. You no longer can inject `null` as a service
 Again, nope. Ember now doesn't allow to register something under the same name once the application
 has started.
 
-> Ok, initializers are now useful anymore. Thanks for nothing!
+> Ok, initializers are not useful anymore. Thanks for nothing!
 
-I was starting to feel angry. I the tried then to create an autonomus service that takes care of all
+I was starting to feel angry. I the tried then to create an autonomous service that takes care of all
 the login. I can't show you the exact code because I never commited it but looked similar to this.
 
 ```js

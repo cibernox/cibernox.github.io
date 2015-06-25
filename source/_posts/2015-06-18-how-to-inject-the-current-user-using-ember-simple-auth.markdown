@@ -6,7 +6,7 @@ comments: true
 categories: Ember.js
 keywords: API, ember, ember-data, EmbeddedRecordsMixin
 comments: true
-published: false
+published: true
 ---
 
 Earlier this week I was updating a project to the latest version of ember (1.13.2)

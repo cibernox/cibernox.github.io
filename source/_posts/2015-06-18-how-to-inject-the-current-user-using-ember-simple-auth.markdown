@@ -156,7 +156,7 @@ sense, since it has to behave like a promise and promises can't change it's stat
 Time to take a break and look at the problem with a different light. I had a tea while cursing
 stability without stagnation and went to [Ember London's slack channel](https://emberlondon.slack.com) to share my dispair.
 
-I exposed the problem in the reneral and [@niks](https://github.com/nikz) told me that when he faced the same problem he
+I exposed the problem in the general and [@niks](https://github.com/nikz) told me that when he faced the same problem he
 ended up creating a service `current-user` that had an `instance` property that is populated from
 the application route.
 
@@ -210,7 +210,7 @@ export default Ember.Route.extend({
 });
 ```
 
-When I started this refactor I was annoyed because of ember decision, but looking back on the final
+When I started this refactor I was annoyed because of ember's design decision, but looking back on the final
 result I find that once more not fighting the frameworks tends to reward you with simpler and better
 abstractions.
 
@@ -220,7 +220,7 @@ have to reopen the Session class) while mantaining the same nice public API I ha
 As a final gift for my efforts on this refactor I discovered a very nice advantage of this approach.
 
 Stopping the application's boot process with `deferReadiness()` until I have the current user before
-contining did not provide any feedback to the user, just a white screen of death, while with the new
+continuing did not provide any feedback to the user, just a white screen of death, while with the new
 approach the `loading.hbs` template renders as is does with any other promise returned from
 `beforeModel/model/afterModel` hooks.
 

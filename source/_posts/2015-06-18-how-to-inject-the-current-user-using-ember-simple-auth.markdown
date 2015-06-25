@@ -88,7 +88,8 @@ was moved form a regular initializer to an instance initializer if you're on a v
 supports them (1.12+). And since instance initializers are executed *after* regular initializers the
 store wasn't available yet.
 
-> Ok, not a big deal, I'll convert this into an instance initializer. - An naive developer (Me)
+> Ok, not a big deal, I'll convert this into an instance initializer.
+- An naive developer (Me)
 
 The new initializers have a different signature. Instead of receiving the container and the application
 they receive an `applicationInstance` that gives access both to the _registry_ and the _container_. I

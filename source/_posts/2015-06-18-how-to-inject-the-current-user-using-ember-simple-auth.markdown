@@ -143,7 +143,7 @@ export Ember.Service.extend(Ember.PromiseProxyObject, {
 })
 ```
 
-My idea was: If my service is a `PromiseProxyObject` and it's content is also another `PromiseProxyObject`
+My idea was: If my service is a `PromiseProxyObject` and its content is also another `PromiseProxyObject`
 I should be able to access the user though a double proxied interface.
 I thought I had been very clever. It was self contained and clear and it worked! ....ish.
 I only worked if you already had a session, but not if you try to login.
@@ -151,7 +151,7 @@ I only worked if you already had a session, but not if you try to login.
 When you're not logged the content of this PromiseProxyObject is undefined. I was planning to set
 the content to the current user in my login action and remove it when I log out, but what I didn't
 know was that `PromiseProxyObject`s doesn't support to change content after creation (and makes
-sense, since it has to behave like a promise and promises can't change it's status once it's settled).
+sense, since it has to behave like a promise and promises can't change its status once it's settled).
 
 Time to take a break and look at the problem with a different light. I had a tea while cursing
 stability without stagnation and went to [Ember London's slack channel](https://emberlondon.slack.com) to share my dispair.
@@ -168,7 +168,7 @@ all over the place.
 The inpiration came in that exact moment from combine my previous failed approach with this one.
 
 What if my service is just an `Ember.ObjectProxy` that proxies an inner user record? That way
-the service is aways there, I don't have to swap it when the user logs in. Instead I just set it's
+the service is aways there, I don't have to swap it when the user logs in. Instead I just set its
 content. Ember won't compain and I can continue to use `currentUser` as if a it was a real user model.
 
 The final code is very short and the public API remained exactly like it wanted.

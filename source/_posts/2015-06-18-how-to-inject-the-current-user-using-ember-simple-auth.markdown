@@ -11,8 +11,8 @@ published: true
 
 Earlier this week I was updating a project to the latest version of ember (1.13.2)
 and ember-data (beta.19.2) when everything broke.
-This post is a disection of why it broke, how I blamed ember a design change decission and the moment when
-I realized that the "workaround" I made was actually a much better solution that the one I had before.
+This post is a disection of why it broke, how I blamed an Ember design change decision and the moment
+I realized that the "workaround" I made was actually a much better solution than the one I had before.
 
 <!-- more -->
 
@@ -67,9 +67,9 @@ explaining how to inject the current user in controller/routes/whatever using em
 If it worked for the author it should work for me and it did after a couple changes.
 
 In a nutshell, that initializer is executed after _ember-simple-auth_ has prepared the session and
-its task is to registers a service named `current-user` (initially null) and inject it everywhere.
+its task is to register a service named `current-user` (initially null) and inject it everywhere.
 
-The rest of the code is the logic takes care of updating the injected value service once I got the current user
+The rest of the code is the logic that takes care of updating the injected value service once I got the current user
 from my API.
 
 It stopped the application's boot and tried to retrieve the user from the server before resuming
@@ -83,8 +83,8 @@ I updated to ember 1.13 successfully, but then I updated ember-data the app sudd
 Apart from some deprecation warnings about registering/injecting stuff using the container, the
 problem with this initializer was that `lookup('store:main')` suddenly was undefined. **WAT?**
 
-I digged a bit and I discovered that in recent version of ember-data the initialization of the store
-was moved form a regular initializer to an instance initializer if you're on a version of ember that
+I dug a bit and I discovered that in recent version of ember-data the initialization of the store
+was moved from a regular initializer to an instance initializer if you're on a version of ember that
 supports them (1.12+). And since instance initializers are executed *after* regular initializers the
 store wasn't available yet.
 
@@ -116,7 +116,7 @@ initialize: function(appInstance) {
 
 I inspected the object and dove into the deep internet to confirm the bitter truth. You can't defer \
 the readiness of the application from an instance initializer.
-**Why would whoever did this removed that feature? Most of my app needs access to the current user in order to work!**
+**Why would whoever did this remove that feature? Most of my app needs access to the current user in order to work!**
 And that it's not the only problem. You no longer can inject `null` as a service.
 
 > Ok, I inject an empty object later my observer will swap them.
@@ -126,7 +126,7 @@ has started.
 
 > Ok, initializers are not useful anymore. Thanks for nothing!
 
-I was starting to feel angry. I the tried then to create an autonomous service that takes care of all
+I was starting to feel angry. I tried then to create an autonomous service that takes care of all
 the login. I can't show you the exact code because I never commited it but looked similar to this.
 
 ```js
@@ -146,7 +146,7 @@ export Ember.Service.extend(Ember.PromiseProxyObject, {
 My idea was: If my service is a `PromiseProxyObject` and its content is also another `PromiseProxyObject`
 I should be able to access the user though a double proxied interface.
 I thought I had been very clever. It was self contained and clear and it worked! ....ish.
-I only worked if you already had a session, but not if you try to login.
+It only worked if you already had a session, but not if you try to login.
 
 When you're not logged the content of this PromiseProxyObject is undefined. I was planning to set
 the content to the current user in my login action and remove it when I log out, but what I didn't
@@ -156,13 +156,13 @@ sense, since it has to behave like a promise and promises can't change its statu
 Time to take a break and look at the problem with a different light. I had a tea while cursing
 stability without stagnation and went to [Ember London's slack channel](https://emberlondon.slack.com) to share my dispair.
 
-I exposed the problem in the general and [@niks](https://github.com/nikz) told me that when he faced the same problem he
+I exposed the problem in the general and [@nikz](https://github.com/nikz) told me that when he faced the same problem he
 ended up creating a service `current-user` that had an `instance` property that is populated from
 the application route.
 
 That approach was a bit more manual but I was ok with that, the only thing that I didn't like was that
 the public api of this approach was something like `currentUser.instance.isTeacher`. It doesn't feel
-natural to have to call `.instance` and my app already had the assumption that the current user was a user
+natural to have to call `.instance` and my app already had the assumption than the current user was a user
 all over the place.
 
 The inpiration came in that exact moment from combine my previous failed approach with this one.

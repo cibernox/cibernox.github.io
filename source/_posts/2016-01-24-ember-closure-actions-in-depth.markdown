@@ -114,24 +114,25 @@ This one is often understated.
 {% raw %}
 
 A function is a value. <code>{{my-component foo=bar}}</code>
-in a template means that we're passing to the component a property named `"foo"` whose value is the value is `bar`. What if `bar`
-happens to be a function? Nothing, it's the same idea. We're just passing a value.
+in a template means that we're passing to the component a property named `"foo"` whose value is the value in `bar`. What if `bar`
+is a function? Nothing, it's the same idea. We're just passing a value.
 
-What if we do <code>{{yield (action "submit")</code>? Same thing, we're just passing a value that happens
+What if we do <code>{{yield (action "submit")</code>? Same thing, we're just yielding a value that happens
 to be a function.
 
 {% endraw %}
 #### **Return values**
 
-Functions have return values. Closure actions are functions. _modus ponendo ponens_, closure actions then have
-return values.
+Functions have return values. Closure actions are functions. Therefore, _modus ponendo ponens_, closure actions have
+return values too.
 
 {% raw %}
 If the component calls `this.attrs.foo("someArg")`, it is just invoking a function and will have access
-to its return value. This enables bidirectional comunication with the parent context.
+to its return value, if any. This enables bidirectional comunication with the parent context.
+
 Per example, an <code>{{async-button action=(action "submit")}}</code> will invoke the action and that
-actions can return a promise. The button having access to that promise can therefore change to a "loading"
-state until that promise is fulfilled.
+actions can return a promise. Thanks to having access to that promise, the button can then change to a "loading"
+state while that returned promise is pending.
 {% endraw %}
 
 #### **Removes the middleman**
@@ -139,6 +140,8 @@ state until that promise is fulfilled.
 Closure actions can be passed down/up as many levels as desired. That means that in a deep hierarchy of
 components, the intermediate nodes just need to forward the action to their children, but they don't have
 to worry about bubbling the actions back to the parents using `sendAction(actionName)`.
+The leaf components can just invoke the function vía `this.attrs.functionName()`, no matter if that
+action lives on it's parent or several levels up.
 
 #### **Closure actions as event handlers**
 
@@ -158,22 +161,22 @@ button.onclick = wrappedSayHiFunction;
 ```
 {% endraw %}
 
-That means that as with all event handlers attached to DOM elements, the `event` is passed as an
-argument, but since the close already bound one argument, the event then becomes the second argument.
+That means that, as with all event handlers attached to DOM elements, it is invoked with the `event`
+as first argument. But since the handler function already has one argument bound, the event is then
+received as the second argument.
 
-The downside of this approach is that unlike the usage of action in the "element space", this will add
-many event handlers, instead of takind advantage or event delegation. In theory this is slighly more expensive,
-although in modern browsers the the performance difference is negligible.
+There is little-to-no magic happening here, just regular javascript.
 
 That also means that is up to the user to call _preventDefault_ or _stopPropagation_ on the received event.
 
 #### **Currying**
 
-From the wikipedia:
+Taken from the wikipedia:
 
 _Currying is the technique of translating the evaluation of a function that takes multiple arguments (or a tuple of arguments) into evaluating a sequence of functions_
 
-Without deep diving into haskell theory, let me only explain what you can do with this.
+Without deep diving into Haskell theory and monads madness, let me only explain how you can apply this
+technique for your own benefit with an example.
 
 Having this declaration in the templates:
 

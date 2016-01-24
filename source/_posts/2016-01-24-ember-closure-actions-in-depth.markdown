@@ -48,21 +48,21 @@ it does entirely different things.
 
 ### `action` in the "element space"
 
-When invoked withing the context of an html element (what is internally known as the _"elements space"_),
+When invoked withing the context of an html element (what is known as the _"elements space"_),
 the `action` keyword does a quite a lot of stuff.
 It registers in the global Ember dispatcher one (or some) handlers for events whose target is the element in
 which it was invoked.
 
 In the first line of the previous example, the helper is registering in the event handler for `click`
-attached automatically by Ember in the root element of your app a function that will be invoked when
+attached automatically by Ember to the root of your app a handler that will be invoked when
 the target of the event is that button. It's also doing the same thing for the `keypress` event when
-the pressed key is <kbd>enter<kbd>. That function will call the `sayHi` function on the context of that template.
+the pressed key is <kbd>enter</kbd>. That handler will on turn call the `sayHi` action on the context of that template.
 
-Apart from all that, the action helper will call `preventDefault()` on that event, hijaking the default
-behavior of the tag, like by example submitting the form in which that button lives. However, that will not
+Apart from all that, the action helper will call `preventDefault()` on that event, hijacking its default
+behavior, like by example submitting the form in which that button lives. However, that will not
 prevent the event from bubbling.
 
-Both behaviours can be tunned from the template with options:
+Both behaviors can be tunned from the template with options:
 
 {% raw %}
 ```html
@@ -96,7 +96,7 @@ function createClosureAction(func, ...args) {
 }
 ```
 {% endraw %}
-_Note: This is an oversimplification. Closure actions dont even use `Function#bind` at all, but it's close enough to grasp the basics_
+_Note: This is an oversimplification. Closure actions don't even use `Function#bind` at all, but it's close enough to grasp the basics_
 
 It does nothing else. It doesn't register any event handler, doesn't prevent default or prevent bubbling. It just
 binds the given function to the current context and the given arguments. When given a string it will assume that
@@ -121,27 +121,47 @@ What if we do <code>{{yield (action "submit")</code>? Same thing, we're just yie
 to be a function.
 
 {% endraw %}
+
+#### **Detect errors eagerly**
+{% raw %}
+
+On this usage, <code>{{action "foo"}}</code> is a helper and as such, tries to do its work as soon as the
+template is rendered. If the current context doesn't have a function named `foo` it will fail right away,
+unlike _element's space_ usage where it will fail in runtime when that event is fired.
+
+It still surprises me how many refactor bugs this simple feature has caught for me.
+{% endraw %}
+
 #### **Return values**
 
-Functions have return values. Closure actions are functions. Therefore, _modus ponendo ponens_, closure actions have
+Functions have return values. Closure actions are functions. Therefore _modus ponendo ponens_, closure actions have
 return values too.
 
 {% raw %}
 If the component calls `this.attrs.foo("someArg")`, it is just invoking a function and will have access
-to its return value, if any. This enables bidirectional comunication with the parent context.
+to its return value, if any. This enables bidirectional communication with the parent context.
 
 Per example, an <code>{{async-button action=(action "submit")}}</code> will invoke the action and that
 actions can return a promise. Thanks to having access to that promise, the button can then change to a "loading"
 state while that returned promise is pending.
 {% endraw %}
 
-#### **Removes the middleman**
+#### **Removes logic from middlemen**
 
-Closure actions can be passed down/up as many levels as desired. That means that in a deep hierarchy of
-components, the intermediate nodes just need to forward the action to their children, but they don't have
-to worry about bubbling the actions back to the parents using `sendAction(actionName)`.
-The leaf components can just invoke the function vía `this.attrs.functionName()`, no matter if that
-action lives on it's parent or several levels up.
+Actions can be passed down/up as many levels as desired.
+
+When passing actions as function names to be invoked with the `sendAction(actionName)` in the parent
+component, each call to `sendAction` will only reach the immediate superior component in the chain.
+That means that when logic to be executed lives a few layers up from where the event that triggers it
+is rendered, each of the intermediate components has to define an action to capture and forward the
+call to the next level.
+
+That is a lot of coupling.
+
+Closure actions just being functions bound to a given scope means that can just be passed as simple
+values from the root to the leaves. Then the last component in the chain can invoke that action with
+via `this.attrs.functionName()` and it will be executed with the provided arguments in the correct
+scope, releasing intermediate rings of the chain of the burden of capture and forward them.
 
 #### **Closure actions as event handlers**
 
@@ -210,7 +230,7 @@ arguments to the function. The first invocation bound the `this` to the current 
 first arguments to the string `"/users/registration"`. The second invocation bound the data to the function.
 Since the context and the first argument were already bound, that arguments takes the 2nd position.
 Last, but not least, that function is assigned to the `onclick` property of that DOM element, and when
-it's invoked the event is passed, occuping the last position in the arguments list.
+it's invoked the event is passed, occupying the last position in the arguments list.
 
 Translated to javascript, it's more or less equivalent to:
 
@@ -225,7 +245,7 @@ button.onclick = funcTwo;
 {% endraw %}
 
 Using currying each level can augment the action with one extra argument, and that frees the last
-level of the chain of the responsability of holding all the information needed invoke the function with.
+level of the chain of the responsibility of holding all the information needed invoke the function with.
 Each argument can live in the level it makes more sense, without leaking outside it.
 
 #### **Extracting values out of the first argument**
@@ -256,7 +276,7 @@ But often people doesn't realize that it works with anything, not only events. P
 
 {% endraw %}
 
-This is specially useful when convined with the next point.
+This is specially useful when combined with the next point.
 
 #### **DDAU and the `mut` helper**
 
@@ -264,7 +284,7 @@ The Data Down - Actions Up approach to propagate state changes in an app advices
 bindings for mutate state but on explicit function invocations. Consider the next select component:
 
 Pretty common. Change the selection invokes the `selectShipment` action with one value, and that
-action mutatates some value. However, set some state as result of some user interaction is so common
+action mutates some value. However, set some state as result of some user interaction is so common
 that there is a built in way to avoid having to define such simple functions over and over: The `mut` helper.
 
 This helper creates a function that will set on some property the first argument it receives. The following

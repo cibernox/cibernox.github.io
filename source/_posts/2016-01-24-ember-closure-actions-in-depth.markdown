@@ -98,13 +98,13 @@ function createClosureAction(func, ...args) {
 {% endraw %}
 _Note: This is an oversimplification. Closure actions don't even use `Function#bind` at all, but it's close enough to grasp the basics_
 
-It does nothing else. It doesn't register any event handler, doesn't prevent default or prevent bubbling. It just
-binds the given function to the current context and the given arguments. When given a string it will assume that
+It does nothing else. It doesn't register any event handler, doesn't prevent default or stop bubbling. It just
+binds the given function to the current context and arguments. When provided with a string it will assume that
 it's the name of an action and will extract it from the current context.
 
-So, why is this so cool?
+So, if it is such a simple helper, why is it so cool?
 
-### The good things of being a function
+### The good parts of being a function
 
 Convert your actions to functions you can pass around has many advantages.
 
@@ -118,7 +118,7 @@ in a template means that we're passing to the component a property named `"foo"`
 is a function? Nothing, it's the same idea. We're just passing a value.
 
 What if we do <code>{{yield (action "submit")</code>? Same thing, we're just yielding a value that happens
-to be a function.
+to be a function. That is all.
 
 {% endraw %}
 
@@ -127,7 +127,8 @@ to be a function.
 
 On this usage, <code>{{action "foo"}}</code> is a helper and as such, tries to do its work as soon as the
 template is rendered. If the current context doesn't have a function named `foo` it will fail right away,
-unlike _element's space_ usage where it will fail in runtime when that event is fired.
+unlike _element's space_ usage where it will fail in runtime when that event is fired and, oh surprise,
+there is no action named <code>foo</code>!!
 
 It still surprises me how many refactor bugs this simple feature has caught for me.
 {% endraw %}
@@ -141,7 +142,7 @@ return values too.
 If the component calls `this.attrs.foo("someArg")`, it is just invoking a function and will have access
 to its return value, if any. This enables bidirectional communication with the parent context.
 
-Per example, an <code>{{async-button action=(action "submit")}}</code> will invoke the action and that
+As a real world example, an <code>{{async-button action=(action "submit")}}</code> will invoke the action and that
 actions can return a promise. Thanks to having access to that promise, the button can then change to a "loading"
 state while that returned promise is pending.
 {% endraw %}
@@ -150,18 +151,18 @@ state while that returned promise is pending.
 
 Actions can be passed down/up as many levels as desired.
 
-When passing actions as function names to be invoked with the `sendAction(actionName)` in the parent
-component, each call to `sendAction` will only reach the immediate superior component in the chain.
-That means that when logic to be executed lives a few layers up from where the event that triggers it
-is rendered, each of the intermediate components has to define an action to capture and forward the
+When passing actions as as just their names to be invoked with the `sendAction(actionName)` in the receiver
+component, each call to `sendAction` will only reach the closest component in the hierarchy.
+This means that when the logic to be executed lives a few layers up from where the event that triggers it
+is fired, each one of the intermediate components has to define an action to capture and re-thorw the
 call to the next level.
 
 That is a lot of coupling.
 
 Closure actions just being functions bound to a given scope means that can just be passed as simple
-values from the root to the leaves. Then the last component in the chain can invoke that action with
+values from the root to the leaves. Then, the last component in the chain can invoke that action with
 via `this.attrs.functionName()` and it will be executed with the provided arguments in the correct
-scope, releasing intermediate rings of the chain of the burden of capture and forward them.
+scope, releasing intermediate nodes of the chain of the burden of capture-and-rethrow actions by its name.
 
 #### **Closure actions as event handlers**
 
@@ -173,7 +174,7 @@ When we attach a closure action to an event handler like this:
 ```
 {% endraw %}
 
-ember is just doing
+Ember.js is just doing
 
 {% raw %}
 ```js
@@ -182,8 +183,8 @@ button.onclick = wrappedSayHiFunction;
 {% endraw %}
 
 That means that, as with all event handlers attached to DOM elements, it is invoked with the `event`
-as first argument. But since the handler function already has one argument bound, the event is then
-received as the second argument.
+as first argument. But since the handler function already has one argument bound, the event is received
+as the second argument instead.
 
 There is little-to-no magic happening here, just regular javascript.
 
@@ -202,7 +203,7 @@ Having this declaration in the templates:
 
 {% raw %}
 ```html
-{{my-form onSubmit=(action "sendWithAjax" "/users/registration")}}
+{{my-form onSubmit=(action "submitWithAjax" "/users/registration")}}
 
 <!-- Within my-form.hbs -->
 {{my-button onUsage=(action onSubmit data)}}
@@ -225,7 +226,9 @@ actions: {
 ```
 {% endraw %}
 
-_Because currying_. Each invocation of the `action` helper created a new closure and bound the given
+_Because currying_.
+
+Each invocation of the `action` helper created a new closure and bound the given
 arguments to the function. The first invocation bound the `this` to the current context and the
 first arguments to the string `"/users/registration"`. The second invocation bound the data to the function.
 Since the context and the first argument were already bound, that arguments takes the 2nd position.
@@ -244,14 +247,14 @@ button.onclick = funcTwo;
 ```
 {% endraw %}
 
-Using currying each level can augment the action with one extra argument, and that frees the last
+Using currying each level can augment the action with some extra arguments, and that frees the last
 level of the chain of the responsibility of holding all the information needed invoke the function with.
-Each argument can live in the level it makes more sense, without leaking outside it.
+Each piece of data can live in the level it makes more sense, without leaking outside it.
 
 #### **Extracting values out of the first argument**
 
 The _action_ helper accepts a set of key/value pairs as last argument. One special option you can use
-is the `value` options. The option contains a path, and the closure action will be invoked with the
+is the `value` option. This option holds a path, and the closure action will be invoked with the
 value contained in that path on the first argument, instead of the argument itself.
 
 The most common example of this is to extract some value out of the event.
@@ -283,7 +286,7 @@ This is specially useful when combined with the next point.
 The Data Down - Actions Up approach to propagate state changes in an app advices us to not rely on double
 bindings for mutate state but on explicit function invocations. Consider the next select component:
 
-Pretty common. Change the selection invokes the `selectShipment` action with one value, and that
+Pretty common. Changing the selection invokes the `selectShipment` action with one value, and that
 action mutates some value. However, set some state as result of some user interaction is so common
 that there is a built in way to avoid having to define such simple functions over and over: The `mut` helper.
 
@@ -319,15 +322,6 @@ Per example, if you want to have an instance of [Ember Power Select](http://www.
 _queryParam_, you can do this:
 
 
-{% codeblock template.hbs lang:html %}
-{% raw %}
-<p>Select a teacher to filter homework</p>
-{{#power-select options=teachers selected=(find-by teachers 'id' teacherId) onchange=(action (mut teacherId) value="id") as |teacher|}}
-  {{teacher.fullName}} - {{teacher.group.name}}
-{{/power-select}}
-{% endraw %}
-{% endcodeblock %}
-
 {% codeblock controller.js %}
 {% raw %}
 export default Ember.Controller.extend({
@@ -359,9 +353,19 @@ export default Ember.Helper.helper(function([collection, attrName, attrValue]) {
 {% endraw %}
 {% endcodeblock %}
 
-Changing selecting a teacher will pass a `Teacher` model to the `onchange` function. From that teacher
-we extract the `id` with `value="id"` pass that is passed to `mut teacherId`, that updates
-the property in the controller and therefore the _queryParams_ in the URL, refreshing the model.
+{% codeblock template.hbs lang:html %}
+{% raw %}
+<p>Select a teacher to filter homework</p>
+{{#power-select options=teachers selected=(find-by teachers 'id' teacherId) onchange=(action (mut teacherId) value="id") as |teacher|}}
+  {{teacher.fullName}} - {{teacher.group.name}}
+{{/power-select}}
+{% endraw %}
+{% endcodeblock %}
+
+Selecting a teacher will pass that `Teacher` model to the `onchange` function. From that teacher
+we extract only the `id` with `value="id"` which is passed to `(mut teacherId)` as first argument.
+That updates the `teacherId` property in the controller, that is bound to a _queryParam_ in the URL,
+and that refreshing the model hook of the route.
 
 Neat.
 
@@ -370,4 +374,5 @@ Neat.
 Going forward the Ember 2.0 path, closure actions are one of the tools in your belt you're going to
 use more often.
 
-Understanding them fully will allow to squeeze them to your advantage.
+Understanding them fully will allow to squeeze them to your advantage and write simpler and more maintainable
+code.

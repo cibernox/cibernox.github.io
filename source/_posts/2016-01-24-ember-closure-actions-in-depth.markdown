@@ -161,7 +161,7 @@ That is a lot of coupling.
 Closure actions just being functions bound to a given scope means that they can just be passed as simple
 values from the root to the leaves. Then, the last component in the chain can invoke that action with
 via `this.attrs.functionName()` and it will be executed with the provided arguments in the correct
-scope, releasing intermediate nodes of the chain of the burden of capture-and-rethrow actions by its name.
+scope, releasing intermediate nodes in the chain of the burden of capture-and-rethrow actions by its name.
 
 #### **Closure actions as event handlers**
 
@@ -342,7 +342,7 @@ button.onclick = funcTwo;
 
 Using currying each level can augment the action with some extra arguments, and that frees the last
 level of the chain of the responsibility of holding all the information needed to perform the action.
-Each piece of data can live in the level it makes more sense, without leaking outside it.
+Each piece of data can live in the level where it makes more sense, without leaking outside it.
 
 #### **Extracting values out of the first argument**
 
@@ -377,7 +377,7 @@ This is specially useful when combined with the next point.
 #### **DDAU and the `mut` helper**
 
 The Data Down - Actions Up approach to propagate state changes in an app advices us to not rely on two-way
-bindings for mutate state but on explicit function invocations. Consider the next code example:
+bindings for mutating state but on explicit function invocations. Consider the next code example:
 
 {% codeblock template.hbs lang:html %}
 {% raw %}
@@ -398,7 +398,7 @@ actions: {
 {% endcodeblock %}
 
 Pretty common. Changing the selection invokes the `selectShipmentType` action with one value, and that
-action mutates some value. However, set some state as result of some user interaction is so common
+action mutates some value. However, setting some state as result of some user interaction is so common
 that there is a built-in way to avoid having to define such simple functions over and over: the `mut` helper.
 
 This helper creates a function that will set on some property the first argument it receives. The following
@@ -472,7 +472,7 @@ export default Ember.Helper.helper(function([collection, attrName, attrValue]) {
 {% endcodeblock %}
 
 Selecting a teacher will pass that `Teacher` model to the `onchange` function. From that teacher
-we extract only the `id` with `value="id"` which is passed to `(mut teacherId)` as first argument.
+we extract only the `id` with `value="id"` which is passed to `(mut teacherId)` as its first argument.
 That updates the `teacherId` property in the controller, that is bound to a _queryParam_ in the URL,
 tehen refreshing the model hook of the route.
 

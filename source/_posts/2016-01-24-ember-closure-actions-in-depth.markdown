@@ -13,7 +13,7 @@ I've been using Ember's closure actions in all my projects for a while now and I
 that I almost give for granted that everybody has embraced them too.
 
 While it's true that most ember devs has started using them, I've seen that many people haven't fully
-grasped all it's potential and the new patterns they enable, so I want to explain them a bit more,
+grasped all its potential and the new patterns they enable, so I want to explain them a bit more,
 starting from the basics and going towards more advanced patterns.
 
 <!-- more -->

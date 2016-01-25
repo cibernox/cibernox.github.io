@@ -189,6 +189,100 @@ There is little-to-no magic happening here, just regular javascript.
 
 That also means that is up to the user to call _preventDefault_ or _stopPropagation_ on the received event.
 
+#### **Not only actions can be actions**
+
+{% raw %}
+Tipically when using the `action` helper you will pass a string containing the name of some function
+that lives in the `actions` property of your component, like this: `<button onclick={{action "sayHi"}}></button>`
+{% endraw %}
+
+But did you know that you can extract any function from your component by passed an unquoted reference?
+
+{% codeblock template.hbs lang:html %}
+{% raw %}
+<button onclick={{action sayHi}}></button>
+{% endraw %}
+{% endcodeblock %}
+
+{% codeblock component.js %}
+export default Ember.Component.extend({
+  actions: {
+    // empty
+  },
+  sayHi() {
+    console.log('Hi!');
+  }
+});
+{% endcodeblock %}
+
+This is useful by example if you want a component to execute some arbitrary logic that can be decided
+by its parent, and passed as an argument.
+
+{% codeblock my-button/template.hbs lang:html %}
+{% raw %}
+<button onclick={{action clickHandler}}></button>
+{% endraw %}
+{% endcodeblock %}
+
+{% codeblock salutator/template.hbs lang:html %}
+{% raw %}
+{{my-button clickHandler=sayHi}}
+{% endraw %}
+{% endcodeblock %}
+
+{% codeblock salutator/component.js %}
+export default Ember.Component.extend({
+  sayHi() {
+    console.log('Hi!');
+  }
+});
+{% endcodeblock %}
+
+Now that you know that it's possible, **I strongly discourage you to do this.**
+
+This enters the personal opinion realm but I feel that **if we start extracting methods of components
+to use them as actions, why do we have the `actions` hash at all?**
+
+Instead, when I want to be able to customize from outside a component what an action will do, I define
+an action inside the component that just delegates all its logic to a method that can be passed in from
+the outside.
+
+{% codeblock my-button/template.hbs lang:html %}
+{% raw %}
+<button onclick={{action "clickHandler"}}></button>
+{% endraw %}
+{% endcodeblock %}
+
+{% codeblock my-button/component.js %}
+export default Ember.Component.extend({
+  actions: {
+    clickHandler() {
+      this.clickHandler(...arguments);
+    }
+  },
+  clickHanldler() {
+    throw new Error('clickHandler must be provided!!');
+  }
+});
+{% endcodeblock %}
+
+{% codeblock salutator/template.hbs lang:html %}
+{% raw %}
+{{my-button clickHandler=sayHi}}
+{% endraw %}
+{% endcodeblock %}
+
+{% codeblock salutator/component.js %}
+export default Ember.Component.extend({
+  sayHi() {
+    console.log('Hi!');
+  }
+});
+{% endcodeblock %}
+
+The behavior is the same but reading the code of the component is crystal clear that `clickHandler`
+is intended to be passed from the outside. I find this approach self-documented and more idiomatic.
+
 #### **Currying**
 
 Taken from the wikipedia:

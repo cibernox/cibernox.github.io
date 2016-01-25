@@ -53,8 +53,8 @@ the `action` keyword does a quite a lot of stuff.
 It registers in the global Ember dispatcher one (or some) handlers for events whose target is the element in
 which it was invoked.
 
-In the first line of the previous example, the helper is registering in the event handler for `click`
-attached automatically by Ember to the root of your app a handler that will be invoked when
+In the first line of the previous example, the helper is registering in the event handler for the `click`
+attached automatically by Ember to the root of your app, a handler that will be invoked when
 the target of the event is that button. It's also doing the same thing for the `keypress` event when
 the pressed key is <kbd>enter</kbd>. That handler will on turn call the `sayHi` action on the context of that template.
 

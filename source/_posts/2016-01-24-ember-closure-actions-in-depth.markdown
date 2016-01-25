@@ -20,7 +20,7 @@ starting from the basics and going towards more advanced patterns.
 
 ## What is a closure action?
 
-First things first, lets see a few actions in the wild.
+First things first, let's see a few actions in the wild.
 
 Which ones of this are closure actions?
 

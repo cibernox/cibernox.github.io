@@ -61,7 +61,7 @@ Apart from all that, the action helper will call `preventDefault()` on that even
 behavior, like by example submitting the form in which that button lives. However, that will not
 prevent the event from bubbling.
 
-Both behaviors can be tunned from the template with options:
+Both behaviors can be tuned from the template with options:
 
 {% raw %}
 ```html
@@ -77,7 +77,7 @@ By default the `action` helper registers for DOM click events but you can specif
 ```
 {% endraw %}
 
-As we see, there is a quite a process involved here, but this is not a closure action.
+As we see, there is quite a process involved here, but this is not a closure action.
 
 ### `action` as a closure creator
 
@@ -142,7 +142,7 @@ If the component calls `this.attrs.foo("someArg")`, it is just invoking a functi
 to its return value, if any. This enables bidirectional communication with the parent context.
 
 As a real world example, an <code>{{async-button action=(action "submit")}}</code> will invoke the action and that
-actions can return a promise. Thanks to having access to that promise, the button can then change to a "loading"
+action can return a promise. Thanks to having access to that promise, the button can then change to a "loading"
 state while that returned promise is pending.
 {% endraw %}
 
@@ -150,7 +150,7 @@ state while that returned promise is pending.
 
 Actions can be passed down/up as many levels as desired.
 
-When passing actions as as just their names to be invoked with the `sendAction(actionName)` in the receiver
+When passing actions as just strings with their names to be invoked with the `sendAction(actionName)` in the receiver
 component, each call to `sendAction` will only reach the closest component in the hierarchy.
 This means that when the logic to be executed lives a few layers up from where the event that triggers it
 is fired, each one of the intermediate components has to define an action to capture and re-thorw the

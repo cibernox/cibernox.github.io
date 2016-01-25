@@ -10,9 +10,9 @@ published: true
 
 
 I've been using Ember's closure actions in all my projects for a while now and I like them so much
-that I almost give for granted that everybody has embraced them too.
+that I almost take for granted that everybody has embraced them too.
 
-While it's true that most ember devs has started using them, I've seen that many people haven't fully
+While it's true that most ember devs have started using them, I've seen that many people haven't fully
 grasped all its potential and the new patterns they enable, so I want to explain them a bit more,
 starting from the basics and going towards more advanced patterns.
 
@@ -22,8 +22,7 @@ starting from the basics and going towards more advanced patterns.
 
 First things first, let's see a few actions in the wild.
 
-Which ones of this are closure actions?
-
+Which ones of these are closure actions?
 
 {% raw %}
 ```html
@@ -40,7 +39,7 @@ The 4th example is clearly just a regular attribute passing. It is named `action
 and would be exactly the same, just a string.
 
 The 1st line is a bit more fuzzy. That line is telling ember to invoke the "sayHi" action when the button
-is clicked. **Why doesn't qualify as a closure action?**
+is clicked. **Why doesn't it qualify as a closure action?**
 
 We have to start explaining that the `action` helper is overloaded and depending on which context is used
 it does entirely different things.
@@ -48,7 +47,7 @@ it does entirely different things.
 
 ### `action` in the "element space"
 
-When invoked withing the context of an html element (what is known as the _"elements space"_),
+When invoked within the context of an html element (what is known as the _"element's space"_),
 the `action` keyword does a quite a lot of stuff.
 It registers in the global Ember dispatcher one (or some) handlers for events whose target is the element in
 which it was invoked.

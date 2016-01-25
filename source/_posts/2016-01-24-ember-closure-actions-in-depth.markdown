@@ -38,10 +38,10 @@ If you said 2nd and 3rd you guessed right.
 The 4th example is clearly just a regular attribute passing. It is named `action` but could be named `weasel`
 and would be exactly the same, just a string.
 
-The 1st line is a bit more fuzzy. That line is telling ember to invoke the "sayHi" action when the button
+The 1st line is a bit more fuzzy. That line is telling Ember to invoke the "sayHi" action when the button
 is clicked. **Why doesn't it qualify as a closure action?**
 
-We have to start explaining that the `action` helper is overloaded and depending on which context is used
+We have to start by explaining that the `action` helper is overloaded and, depending on which context it is used in,
 it does entirely different things.
 
 
@@ -55,7 +55,7 @@ which it was invoked.
 In the first line of the previous example, the helper is registering in the event handler for the `click`
 attached automatically by Ember to the root of your app, a handler that will be invoked when
 the target of the event is that button. It's also doing the same thing for the `keypress` event when
-the pressed key is <kbd>enter</kbd>. That handler will on turn call the `sayHi` action on the context of that template.
+the pressed key is <kbd>enter</kbd>. That handler, in turn, will call the `sayHi` action on the context of that template.
 
 Apart from all that, the action helper will call `preventDefault()` on that event, hijacking its default
 behavior, like by example submitting the form in which that button lives. However, that will not
@@ -95,7 +95,7 @@ function createClosureAction(func, ...args) {
 }
 ```
 {% endraw %}
-_Note: This is an oversimplification. Closure actions don't even use `Function#bind` at all, but it's close enough to grasp the basics_
+_Note: This is an oversimplification. Closure actions don't even use `Function#bind` at all, but it's close enough to grasp the basics._
 
 It does nothing else. It doesn't register any event handler, doesn't prevent default or stop bubbling. It just
 binds the given function to the current context and arguments. When provided with a string it will assume that
@@ -105,7 +105,7 @@ So, if it is such a simple helper, why is it so cool?
 
 ### The good parts of being a function
 
-Convert your actions to functions you can pass around has many advantages.
+Converting your actions to functions you can pass around has many advantages.
 
 #### **Simpler mental model**
 This one is often understated.
@@ -114,7 +114,7 @@ This one is often understated.
 
 A function is a value. <code>{{my-component foo=bar}}</code>
 in a template means that we're passing to the component a property named `"foo"` whose value is the value in `bar`. What if `bar`
-is a function? Nothing, it's the same idea. We're just passing a value.
+is a function? Nothing: it's the same idea. We're just passing a value.
 
 What if we do <code>{{yield (action "submit")</code>? Same thing, we're just yielding a value that happens
 to be a function. That is all.
@@ -126,10 +126,10 @@ to be a function. That is all.
 
 On this usage, <code>{{action "foo"}}</code> is a helper and as such, tries to do its work as soon as the
 template is rendered. If the current context doesn't have a function named `foo` it will fail right away,
-unlike _element's space_ usage where it will fail in runtime when that event is fired and, oh surprise,
+unlike _element's space_ usage where it will fail at runtime when that event is fired and, oh surprise,
 there is no action named <code>foo</code>!!
 
-It still surprises me how many refactor bugs this simple feature has caught for me.
+It still surprises me how many refactoring bugs this simple feature has caught for me.
 {% endraw %}
 
 #### **Return values**
@@ -158,7 +158,7 @@ call to the next level.
 
 That is a lot of coupling.
 
-Closure actions just being functions bound to a given scope means that can just be passed as simple
+Closure actions just being functions bound to a given scope means that they can just be passed as simple
 values from the root to the leaves. Then, the last component in the chain can invoke that action with
 via `this.attrs.functionName()` and it will be executed with the provided arguments in the correct
 scope, releasing intermediate nodes of the chain of the burden of capture-and-rethrow actions by its name.
@@ -195,7 +195,7 @@ Taken from the wikipedia:
 
 _Currying is the technique of translating the evaluation of a function that takes multiple arguments (or a tuple of arguments) into evaluating a sequence of functions_
 
-Without deep diving into Haskell theory and monads madness, let me only explain how you can apply this
+Without deep diving into Haskell theory and monad madness, let me only explain how you can apply this
 technique for your own benefit with an example.
 
 Having this declaration in the templates:
@@ -230,7 +230,7 @@ _Because currying_.
 Each invocation of the `action` helper created a new closure and bound the given
 arguments to the function. The first invocation bound the `this` to the current context and the
 first arguments to the string `"/users/registration"`. The second invocation bound the data to the function.
-Since the context and the first argument were already bound, that arguments takes the 2nd position.
+Since the context and the first argument were already bound, that argument takes the 2nd position.
 Last, but not least, that function is assigned to the `onclick` property of that DOM element, and when
 it's invoked the event is passed, occupying the last position in the arguments list.
 
@@ -282,8 +282,8 @@ This is specially useful when combined with the next point.
 
 #### **DDAU and the `mut` helper**
 
-The Data Down - Actions Up approach to propagate state changes in an app advices us to not rely on double
-bindings for mutate state but on explicit function invocations. Consider the next select code:
+The Data Down - Actions Up approach to propagate state changes in an app advices us to not rely on two-way
+bindings for mutate state but on explicit function invocations. Consider the next code example:
 
 {% codeblock template.hbs lang:html %}
 {% raw %}
@@ -303,9 +303,9 @@ actions: {
 {% endraw %}
 {% endcodeblock %}
 
-Pretty common. Changing the selection invokes the `selectShipment` action with one value, and that
+Pretty common. Changing the selection invokes the `selectShipmentType` action with one value, and that
 action mutates some value. However, set some state as result of some user interaction is so common
-that there is a built in way to avoid having to define such simple functions over and over: The `mut` helper.
+that there is a built-in way to avoid having to define such simple functions over and over: the `mut` helper.
 
 This helper creates a function that will set on some property the first argument it receives. The following
 code is equivalent.
@@ -331,9 +331,9 @@ to extract some attribute from the first argument.
 
 {% endraw %}
 
-Remeber that you can use this not only with events but with any object.
+Remember that you can use this not only with events but with any object.
 
-Per example, if you want to have an instance of [Ember Power Select](http://www.ember-power-select.com) bound to some
+For example, if you want to have an instance of [Ember Power Select](http://www.ember-power-select.com) bound to some
 _queryParam_, you can do this:
 
 
@@ -380,7 +380,7 @@ export default Ember.Helper.helper(function([collection, attrName, attrValue]) {
 Selecting a teacher will pass that `Teacher` model to the `onchange` function. From that teacher
 we extract only the `id` with `value="id"` which is passed to `(mut teacherId)` as first argument.
 That updates the `teacherId` property in the controller, that is bound to a _queryParam_ in the URL,
-and that refreshing the model hook of the route.
+tehen refreshing the model hook of the route.
 
 Neat.
 
@@ -389,5 +389,5 @@ Neat.
 Going forward the Ember 2.0 path, closure actions are one of the tools in your belt you're going to
 use more often.
 
-Understanding them fully will allow to squeeze them to your advantage and write simpler and more maintainable
+Understanding them fully will allow you to squeeze them to your advantage and write simpler and more maintainable
 code.

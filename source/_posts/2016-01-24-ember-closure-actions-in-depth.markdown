@@ -248,14 +248,14 @@ button.onclick = funcTwo;
 {% endraw %}
 
 Using currying each level can augment the action with some extra arguments, and that frees the last
-level of the chain of the responsibility of holding all the information needed invoke the function with.
+level of the chain of the responsibility of holding all the information needed to perform the action.
 Each piece of data can live in the level it makes more sense, without leaking outside it.
 
 #### **Extracting values out of the first argument**
 
 The _action_ helper accepts a set of key/value pairs as last argument. One special option you can use
 is the `value` option. This option holds a path, and the closure action will be invoked with the
-value contained in that path on the first argument, instead of the argument itself.
+value contained in that path on the first argument instead of the first argument.
 
 The most common example of this is to extract some value out of the event.
 
@@ -284,7 +284,25 @@ This is specially useful when combined with the next point.
 #### **DDAU and the `mut` helper**
 
 The Data Down - Actions Up approach to propagate state changes in an app advices us to not rely on double
-bindings for mutate state but on explicit function invocations. Consider the next select component:
+bindings for mutate state but on explicit function invocations. Consider the next select code:
+
+{% codeblock template.hbs lang:html %}
+{% raw %}
+<p>Select shipment type</p>
+<button onclick={{action "selectShipmentType" "regularDelivery"}}>Standard delivery</button>
+<button onclick={{action "selectShipmentType" "urgent"}}>48h delivery</button>
+<button onclick={{action "selectShipmentType" "next-day"}}>Next day delivery</button>
+{% endraw %}
+{% endcodeblock %}
+{% codeblock component.js %}
+{% raw %}
+actions: {
+  selectShipmentType(type /*, e */) {
+    this.set('shipmentType', type);
+  }
+}
+{% endraw %}
+{% endcodeblock %}
 
 Pretty common. Changing the selection invokes the `selectShipment` action with one value, and that
 action mutates some value. However, set some state as result of some user interaction is so common
@@ -293,16 +311,14 @@ that there is a built in way to avoid having to define such simple functions ove
 This helper creates a function that will set on some property the first argument it receives. The following
 code is equivalent.
 
+{% codeblock template.hbs lang:html %}
 {% raw %}
-
-```html
 <p>Select shipment type</p>
 <button onclick={{action (mut shipmentType) "regularDelivery"}}>Standard delivery</button>
 <button onclick={{action (mut shipmentType) "urgent"}}>48h delivery</button>
 <button onclick={{action (mut shipmentType) "next-day"}}>Next day delivery</button>
-```
-
 {% endraw %}
+{% endcodeblock %}
 
 This, in combination with the `value` option, can save you the tedium of defining super simple functions
 to extract some attribute from the first argument.

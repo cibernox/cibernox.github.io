@@ -79,7 +79,7 @@ And here it comes the problem. If the consumer of the wrapper component doesn't 
 option those non-specified options being forwarded contain `undefined` and will override the default
 values of the inner with it.
 
-This is not really easy to fix by the creator of the wrapper component, because to fix that from the ouside,
+This is not really easy to fix by the creator of the wrapper component, because to fix that from the outside,
 the wrapper component has to copy the default values for every option accepted by the inner component, like this.
 
 {% raw %}
@@ -133,10 +133,10 @@ argue that this is not a big problem because usually `null` can be used for the 
 imagine there is some edge case where `undefined` is a perfectly valid value. I just haven't found one yet.
 
 The second is that while it saves the component composing yours from having to know every
-default value, it still requires it to know about every option and forward it the template.
-Not yet ideal, but at least you removed half of the problem.
+default value, it still requires it to specify forward *every* option in the template.
+Not yet ideal, but at least you removed one half of the problem.
 
 I hope some new HTMLBars/glimmer construction in the future, like the spread operator mentioned
-in some RFCs will improve this.
+in some RFCs will improve the ergonomics of this.
 
 Stay tuned for part 2.

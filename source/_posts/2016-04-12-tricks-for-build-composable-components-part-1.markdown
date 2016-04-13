@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Trick for builder composable components - Part 1"
+title: "Trick for build composable components - Part 1"
 date: 2016-04-13 09:24:56 +0000
 comments: true
 categories: Ember.js

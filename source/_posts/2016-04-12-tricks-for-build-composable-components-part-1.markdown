@@ -9,7 +9,7 @@ published: true
 ---
 
 Component composition has been my personal area of interest lately when using Ember.
-[Ember Power Select](https://www.ember-power-select) started like me scratching my own itch and
+[Ember Power Select](https://www.ember-power-select.com) started like me scratching my own itch and
 trying to fill what I felt like a meaningful gap in the ecosystem but also became my playground to
 try ideas and decide what works and what doesn't.
 

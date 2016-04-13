@@ -26,8 +26,8 @@ Patronizing bores people, so I'll start with one simple trick.
 No, this is not about the well-known old rails security outage.
 
 Imagine you have built a component that, despite of how hard you tried to avoid it, ends up accepting
-quite a few options. You are a good Ember fellow so you decide leverage convention over configuration
-and make most those option have sensitive default values.
+quite a few options. You are a good Ember fellow so you decide to leverage convention over configuration
+and make most those option have sensible default values.
 
 Example:
 
@@ -122,13 +122,14 @@ export default Ember.Component.extend({
 ```
 {% endraw %}
 
-With this little macro people wrapping your components can carelessly forward all options
-to the internal component with the peace of mind that default values are safe.
+With this little macro people wrapping your component can carelessly forward all options
+to the it with the peace of mind that default values are safe even if the user doesn't fill
+all the blanks.
 
-There is still two downsides with this.
+There is still two downsides with this idea.
 
 The first one is that this is preventing the user to pass `undefined` to override a default value. I'd
-argue that this is not a big problem since usually `null` can be used for the same purpose, although I
+argue that this is not a big problem because usually `null` can be used for the same purpose, although I
 imagine there is some edge case where `undefined` is a perfectly valid value. I just haven't found one yet.
 
 The second is that while it saves the component composing yours from having to know every
@@ -138,4 +139,4 @@ Not yet ideal, but at least you removed half of the problem.
 I hope some new HTMLBars/glimmer construction in the future, like the spread operator mentioned
 in some RFCs will improve this.
 
-Stay tunned for part 2.
+Stay tuned for part 2.

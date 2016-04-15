@@ -235,7 +235,7 @@ Even if the start time is the same, the user has the feedback that the app is wo
 I hope this helps anyone else using ember-simple-auth/torii to update to ride the stable wave and get
 rid of all those deprecation warnings before Ember 2.0 cames out.
 
-#### UPDATE Ember 2.2+
+### UPDATE Ember 2.2+
 
 Initializers have changed a bit since this post has been published. Now the instance initializer
 should looks like this:

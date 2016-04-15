@@ -180,6 +180,12 @@ export default {
   name: "current-user",
 
   initialize: function({ registry }) {
+
+    /*
+      IMPORTANT. This part of the snipped is outdated. Check the last snipped in the bottom
+      of the article for a Ember 2.2+ version.
+    */
+
     const service = Ember.ObjectProxy.create({ isServiceFactory: true });
     registry.register('service:current-user', service, { instantiate: false, singleton: true });
     registry.injection('route', 'currentUser', 'service:current-user');
@@ -228,3 +234,28 @@ Even if the start time is the same, the user has the feedback that the app is wo
 
 I hope this helps anyone else using ember-simple-auth/torii to update to ride the stable wave and get
 rid of all those deprecation warnings before Ember 2.0 cames out.
+
+#### UPDATE Ember 2.2+
+
+Initializers have changed a bit since this post has been published. Now the instance initializer
+should looks like this:
+
+```js
+// app/instance-initializers/current-user.js
+import Ember from 'ember';
+
+export function initialize(appInstance) {
+  const service = Ember.ObjectProxy.create({ isServiceFactory: true });
+  appInstance.register('service:current-user', service, { instantiate: false, singleton: true });
+  appInstance.inject('route', 'currentUser', 'service:current-user');
+  appInstance.inject('controller', 'currentUser', 'service:current-user');
+  appInstance.inject('component', 'currentUser', 'service:current-user');
+  appInstance.inject('serializer', 'currentUser', 'service:current-user');
+}
+
+export default {
+  name: "current-user",
+  initialize
+};
+```
+

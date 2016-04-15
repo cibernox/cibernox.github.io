@@ -31,6 +31,7 @@ and make most those option have sensible default values.
 
 Example:
 
+{% raw %}
 ```js
 // cool-component/compoenent.js
 export default Ember.Component.extend({
@@ -41,6 +42,7 @@ export default Ember.Component.extend({
   dir: 'ltr'
 });
 ```
+{% raw %}
 
 Your goal is to allow a user to be able to create their own wrapper components that _compose_ yours,
 so they can reuse some set of configuration options and actions that yield the behavior they want in

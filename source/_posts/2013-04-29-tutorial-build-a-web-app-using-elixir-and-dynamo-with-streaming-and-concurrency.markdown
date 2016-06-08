@@ -74,7 +74,7 @@ is naturally evented and make is interesting to build certain kind of services.
 You need to have erlang installed in your computer in order to install elixir. You can download the
 latest erlang environment from [here](https://www.erlang-solutions.com/downloads/download-erlang-otp),
 and then proceed to install elixir. I installed it in maxOS with _homebrew_ (`brew install elixir`).
-The [official guide](http://elixir-lang.org/getting_started/1.html) has this topic covered for all operative systems.
+The [official guide](http://elixir-lang.org/getting-started/introduction.html) has this topic covered for all operative systems.
 
 Dynamo requires as well to have installed [rebar](https://github.com/basho/rebar) for compile apps.
 Now you can clone elixir repository to create your first app.

@@ -138,7 +138,7 @@ Functions have return values. Closure actions are functions. Therefore _modus po
 return values too.
 
 {% raw %}
-If the component calls `this.attrs.foo("someArg")`, it is just invoking a function and will have access
+If the component calls `this.get("foo")("someArg")`, it is just invoking a function and will have access
 to its return value, if any. This enables bidirectional communication with the parent context.
 
 As a real world example, an <code>{{async-button action=(action "submit")}}</code> will invoke the action and that
@@ -160,7 +160,7 @@ That is a lot of coupling.
 
 Closure actions just being functions bound to a given scope means that they can just be passed as simple
 values from the root to the leaves. Then, the last component in the chain can invoke that action with
-via `this.attrs.functionName()` and it will be executed with the provided arguments in the correct
+via `this.get("functionName")()` and it will be executed with the provided arguments in the correct
 scope, releasing intermediate nodes in the chain of the burden of capture-and-rethrow actions by its name.
 
 #### **Closure actions as event handlers**

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ember.js | Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/blog/categories/ember-dot-js/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:46:01+01:00</updated>
+  <updated>2017-04-12T00:46:13+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -315,7 +315,7 @@ since the same helpers behave the same way on both kind of tests:
 </span><span class='line'><span class="p">});</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="nx">test</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">I</span> <span class="nx">can</span> <span class="nx">interact</span> <span class="kd">with</span> <span class="nx">my</span> <span class="nx">component</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="nx">async</span> <span class="kd">function</span><span class="p">(</span><span class="nx">assert</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">hbs</span><span class="o">&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="err">\</span><span class="p">{{</span><span class="nx">my</span><span class="o">-</span><span class="nx">component</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/code&gt;);&lt;/p&gt;</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">hbs</span><span class="o">&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="p">{{</span><span class="nx">my</span><span class="o">-</span><span class="nx">component</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/code&gt;);&lt;/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">await</span> <span class="nx">fillIn</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">some</span><span class="o">-</span><span class="nx">input</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>
 </span><span class='line'>  <span class="nx">await</span> <span class="nx">click</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">main</span><span class="o">-</span><span class="nx">button</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>

@@ -4,7 +4,7 @@
   <title><![CDATA[Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:38:57+01:00</updated>
+  <updated>2017-04-12T00:40:29+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -196,8 +196,9 @@ fork of the project (<a href="https://github.com/cibernox/ember-fetch/tree/patch
 merged into master.</p>
 
 <p>It is important to note that <strong>you must not use the global <code>window.fetch</code> even if your browser matrix supports it</strong>.
-You must use the <code>import fetch from 'fetch';</code> import path that the addon provides. You might
-wonder why we can&rsquo;t just &ldquo;Use the platform&rdquo;. If you don&rsquo;t care about testing then using <code>window.fetch</code>
+You must use the <code>import fetch from 'fetch';</code> import path that the addon provides.</p>
+
+<p>You might wonder why we can&rsquo;t just &ldquo;Use the platform&rdquo;. If you don&rsquo;t care about testing then using <code>window.fetch</code>
 is fine, but in testing you will want to perform some operation that makes a network request
 and then wait for it to finish before asserting that your UI has updated accordingly.
 In order to do that Ember must instrument when a fetch request starts and finishes so it can

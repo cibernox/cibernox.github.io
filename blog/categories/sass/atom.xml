@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Sass | Coder idiosyncrasy]]></title>
+  <link href="http://miguelcamba.com/blog/categories/sass/atom.xml" rel="self"/>
+  <link href="http://miguelcamba.com/"/>
+  <updated>2017-04-12T00:14:24+01:00</updated>
+  <id>http://miguelcamba.com/</id>
+  <author>
+    <name><![CDATA[Miguel Camba]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[SASS Placeholders Versus Mixins and Extends]]></title>
+    <link href="http://miguelcamba.com/blog/2013/07/11/sass-placeholders-versus-mixins-and-extends/"/>
+    <updated>2013-07-11T21:32:00+01:00</updated>
+    <id>http://miguelcamba.com/blog/2013/07/11/sass-placeholders-versus-mixins-and-extends</id>
+    <content type="html"><![CDATA[<p>Sass preprocessors have reached critical mass to consider them a mainstream technology.
+Nowadays almost nobody that does some serius frontend still uses plain old css, but some people
+that uses <a href="http://sass-lang.com/">sass</a> (or <a href="http://lesscss.org/">less</a>) are using
+it like if it where just regular css with nesting and some sintax sugar, without squeezing
+all the power that those technologies put in our hands.</p>
+
+<p>This a summary of the main 3 features o SASS, pointing out its differences.</p>
+
+<!--more-->
+
+
+<h2>@mixin</h2>
+
+<p>Mixins are the most known feature of sass. They allow us to create a sort of <em>functions</em> to
+share <strong>similar</strong> styles among our selectors (well, sass also has <strong>functions</strong>, but I can&rsquo;t find a better word).
+The most evident use case is the mixins that apply vendor prefixes:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='scss'><span class='line'><span class="k">@mixin</span><span class="nf"> border-radius</span><span class="p">(</span><span class="nv">$radius</span><span class="p">){</span>
+</span><span class='line'>  <span class="na">border-radius</span><span class="o">:</span> <span class="nv">$radius</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-o-border-radius</span><span class="o">:</span> <span class="nv">$radius</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-ms-border-radius</span><span class="o">:</span> <span class="nv">$radius</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-moz-border-radius</span><span class="o">:</span> <span class="nv">$radius</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-webkit-border-radius</span><span class="o">:</span> <span class="nv">$radius</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nt">button</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">@include</span><span class="nd"> border-radius</span><span class="p">(</span><span class="mi">10</span><span class="kt">px</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Mixins are the first feature that a sass beginner learns, but is surprising how often I see
+them used the wrong way.</p>
+
+<p>By example:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='scss'><span class='line'><span class="k">@mixin</span><span class="nf"> rounded</span><span class="p">{</span>
+</span><span class='line'>  <span class="na">border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-o-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-ms-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-moz-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-webkit-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nt">button</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">@include</span><span class="nd"> rounded</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">background</span><span class="o">:</span> <span class="mh">#ccc</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">color</span><span class="o">:</span> <span class="mh">#222</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;//</span> <span class="nt">Several</span> <span class="nt">lines</span> <span class="nt">down</span><span class="o">,</span> <span class="nt">in</span> <span class="nt">the</span> <span class="nt">same</span> <span class="nt">file</span><span class="o">,</span> <span class="nt">or</span> <span class="nt">even</span> <span class="nt">in</span> <span class="nt">another</span> <span class="nt">different</span> <span class="nt">file</span>
+</span><span class='line'><span class="o">//</span><span class="k">&amp;</span><span class="nt">hellip</span><span class="o">;</span>
+</span><span class='line'><span class="nc">.simple-form</span> <span class="nt">input</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">@include</span><span class="nd"> rounded</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.main-nav</span> <span class="nc">.item</span><span class="p">{</span>
+</span><span class='line'>  <span class="na">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'>  <span class="nt">a</span><span class="nd">:hover</span><span class="o">,</span> <span class="nt">a</span><span class="nd">:active</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">@include</span><span class="nd"> rounded</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><strong>Whats wrong with that?</strong> It&rsquo;s not <strong>DRY</strong>.</p>
+
+<p>This is the generated output:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nt">button</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">o</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">ms</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">moz</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background</span><span class="o">:</span> <span class="m">#ccc</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="m">#222</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.simple-form</span> <span class="nt">input</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">o</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">ms</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">moz</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.main-nav</span> <span class="nc">.item</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.main-nav</span> <span class="nc">.item</span>  <span class="nt">a</span><span class="nd">:hover</span><span class="o">,</span> <span class="nc">.main-nav</span> <span class="nc">.item</span> <span class="nt">a</span><span class="nd">:active</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">o</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">ms</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">moz</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>We see the <em><strong>exact same 6 lines</strong></em> repeated <em><strong>over and over</strong></em> in our css.</p>
+
+<p>The golden rule of where a mixin is a good choice is just a few line above:</p>
+
+<p><blockquote><p>They allow us to [&hellip;] share similar styles among our rules</p></blockquote></p>
+
+<p>The keyword here is <em>similar</em>.</p>
+
+<p>A mixin is used to reuse rules, not values. In this case
+to create rounded borders of different radius, but if your ever find yourself writting a mixin
+that don&rsquo;t take arguments, <strong>you are doing it wrong</strong>.</p>
+
+<h2>@extends</h2>
+
+<p>The <code>@extends</code> directive, on the other hand, is the static cousin of <code>@mixin</code>.
+It is designed for sharing rules and values between selectors while avoiding repetitions.</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='scss'><span class='line'><span class="nc">.rounded</span><span class="p">{</span>
+</span><span class='line'>  <span class="na">border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-o-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-ms-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-moz-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">-webkit-border-radius</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nt">button</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">@extend</span> <span class="nt">rounded</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;//</span> <span class="nt">Some</span> <span class="nt">lines</span> <span class="nt">down</span> <span class="nt">the</span> <span class="nt">road</span><span class="nc">..</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.simple-form</span> <span class="nt">input</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">@extend</span> <span class="nc">.rounded</span><span class="o">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.main-nav</span> <span class="nc">.item</span><span class="p">{</span>
+</span><span class='line'>  <span class="na">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'>  <span class="nt">a</span><span class="nd">:hover</span><span class="o">,</span> <span class="nt">a</span><span class="nd">:active</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">@extend</span> <span class="nc">.rounded</span><span class="o">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>This time, the generated CSS looks like this:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nc">.rounded</span><span class="o">,</span> <span class="nt">button</span><span class="o">,</span> <span class="nc">.simple-form</span> <span class="nt">input</span><span class="o">,</span> <span class="nc">.main-nav</span> <span class="nc">.item</span> <span class="nt">a</span><span class="nd">:hover</span><span class="o">,</span> <span class="nc">.main-nav</span> <span class="nc">.item</span> <span class="nt">a</span><span class="nd">:active</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">o</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">ms</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">moz</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>  <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.main-nav</span> <span class="nc">.item</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>It has just a fraction of the lines that the mixin approach, which is nice because lighter stylesheets
+means faster loading times, specially with slow connections (mobiles), and for the browser
+is also much more efficient to parse one single rule applied to several selectors than apply
+the same rule once for each selector.</p>
+
+<p>This is awesome because thanks to <code>@extend</code> we can have human-readable sass stylesheets (you know, split stylesheets in
+several files, put together rules that apply to the same sections or components of the design, &hellip;) and at the
+same time have machine-optimized css (all selectors that extend the same parent are chained in one single rule, no
+matter in which file or how conceptually unrelated they are) and at the same time we can keep clean our html because
+we don&rsquo;t need to add all over the markup classes like <code>.rounded-border</code> or <code>.highlighted-text</code> that have no
+meaning from the point of view of the application&rsquo;s domain.</p>
+
+<p>I know that some people disagree on what html classes are, but I am a big fan of use classes
+to represent what that element means (<code>.warning</code>, <code>.user-avatar</code> and <code>.selected-day</code> by example) and not
+how they must look (<code>.red-box.bordered</code>, <code>.rounded-corners.</code> and <code>.highlighted-text</code> respectively)</p>
+
+<p>After reading this you might wonder why if <code>@extend</code> are so cool, is not so popular and used as <em>mixins</em>.</p>
+
+<p>That&rsquo;s because <code>@extend</code> can be <strong>dangerous</strong>.</p>
+
+<p>The problem with this directive extending classes or id&rsquo;s, is that when that rules you are extending
+appears nested on the application, sass must generate all the posible combinations between the nesting classes and
+the rules that includes them.</p>
+
+<p>Example:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='scss'><span class='line'><span class="nc">.button</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">display</span><span class="o">:</span> <span class="no">block</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">padding</span><span class="o">:</span> <span class="mi">10</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">background</span><span class="o">:</span> <span class="nb">green</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.sidebar</span> <span class="nc">.signup</span> <span class="nc">.button</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">margin-top</span><span class="o">:</span> <span class="mi">22</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.registration</span><span class="o">,</span> <span class="nc">.remember-password</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nc">.button</span>  <span class="p">{</span>
+</span><span class='line'>    <span class="na">margin-bottom</span><span class="o">:</span> <span class="mi">33</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.edit-account</span> <span class="nc">.delete-area</span> <span class="nc">.button</span><span class="p">{</span>
+</span><span class='line'>  <span class="na">background-color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.article</span> <span class="nt">a</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">@extend</span> <span class="nc">.button</span><span class="o">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>generates</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nc">.button</span><span class="o">,</span> <span class="nc">.article</span> <span class="nt">a</span> <span class="p">{</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">This</span> <span class="n">is</span> <span class="n">probably</span> <span class="n">what</span> <span class="n">you</span> <span class="n">intended</span> <span class="n">to</span> <span class="n">do</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span>
+</span><span class='line'>  <span class="k">display</span><span class="o">:</span> <span class="k">block</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding</span><span class="o">:</span> <span class="m">10px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background</span><span class="o">:</span> <span class="nb">green</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;/&lt;</span><span class="nt">em</span><span class="o">&gt;</span> <span class="nt">But</span> <span class="nt">it</span> <span class="nt">also</span> <span class="nt">generates</span> <span class="nt">this</span> <span class="nt">combinational</span> <span class="nt">mess</span> <span class="o">&lt;/</span><span class="nt">em</span><span class="o">&gt;/</span>
+</span><span class='line'><span class="nc">.sidebar</span> <span class="nc">.signup</span> <span class="nc">.button</span><span class="o">,</span> <span class="nc">.sidebar</span> <span class="nc">.signup</span> <span class="nc">.article</span> <span class="nt">a</span><span class="o">,</span> <span class="nc">.article</span> <span class="nc">.sidebar</span> <span class="nc">.signup</span> <span class="nt">a</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">margin-top</span><span class="o">:</span> <span class="m">22px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.registration</span> <span class="nc">.button</span><span class="o">,</span> <span class="nc">.registration</span> <span class="nc">.article</span> <span class="nt">a</span><span class="o">,</span> <span class="nc">.article</span> <span class="nc">.registration</span> <span class="nt">a</span><span class="o">,</span> <span class="nc">.remember-password</span> <span class="nc">.button</span><span class="o">,</span> <span class="nc">.remember-password</span> <span class="nc">.article</span> <span class="nt">a</span><span class="o">,</span> <span class="nc">.article</span> <span class="nc">.remember-password</span> <span class="nt">a</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">margin-bottom</span><span class="o">:</span> <span class="m">33px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.edit-account</span> <span class="nc">.delete-area</span> <span class="nc">.button</span><span class="o">,</span> <span class="nc">.edit-account</span> <span class="nc">.delete-area</span> <span class="nc">.article</span> <span class="nt">a</span><span class="o">,</span> <span class="nc">.article</span> <span class="nc">.edit-account</span> <span class="nc">.delete-area</span> <span class="nt">a</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><code>.button</code> is a class that is very likely to be customized depending on its containing form, so if with
+just 3 appearances generates this dissaster, with 10 appearances just let your imagination fly.</p>
+
+<p>So the rule of thumb is: <em>&ldquo;Only extend a selector if you are absolutely sure that it is never reused in several places&rdquo;</em>.</p>
+
+<p>But the bad part is that you can&rsquo;t always be sure of this, and even if you are sure that at this moment you satisfy that rule,
+in the future, you or one of your coworkers can, inadvertently, screw things up.</p>
+
+<h2>%placeholders</h2>
+
+<p>Placeholders are an killer-feature added in sass 3.2, and they come to fix the mess I described before.</p>
+
+<p>Unlike normal selectors, like <code>.classes</code> or <code>#ids</code>, placeholders won&rsquo;t be never compiled. In other words, this little piece of sass</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scss'><span class='line'><span class="err">%</span><span class="nt">button</span><span class="p">{</span>
+</span><span class='line'>  <span class="na">display</span><span class="o">:</span> <span class="no">block</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">padding</span><span class="o">:</span> <span class="mi">10</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">background</span><span class="o">:</span> <span class="nb">green</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nt">a</span><span class="p">{</span> <span class="na">color</span><span class="o">:</span> <span class="nb">blue</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>will generate</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nt">a</span><span class="p">{</span> <span class="k">color</span><span class="o">:</span> <span class="nb">blue</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>There is no reference to <code>%button</code> because placeholders are just named sets of styles meant to be extended by
+other selectors, and don&rsquo;t have existence on its own.</p>
+
+<p>Since they don&rsquo;t have existence on its own, they can&rsquo;t be nested, so you can use <code>@extend %placeholder-name</code> with complete safety.</p>
+
+<p>The previous messy example that used <code>@extend</code> on a class could have been written using placeholders this way:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='scss'><span class='line'><span class="nc">.button</span><span class="o">,</span> <span class="err">%</span><span class="nt">button</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">display</span><span class="o">:</span> <span class="no">block</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">padding</span><span class="o">:</span> <span class="mi">10</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">background</span><span class="o">:</span> <span class="nb">green</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.sidebar</span> <span class="nc">.signup</span> <span class="nc">.button</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">margin-top</span><span class="o">:</span> <span class="mi">22</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.registration</span><span class="o">,</span> <span class="nc">.remember-password</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nc">.button</span>  <span class="p">{</span>
+</span><span class='line'>    <span class="na">margin-bottom</span><span class="o">:</span> <span class="mi">33</span><span class="kt">px</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.edit-account</span> <span class="nc">.delete-area</span> <span class="nc">.button</span><span class="p">{</span>
+</span><span class='line'>  <span class="na">background-color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</span><span class='line'>  <span class="na">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.article</span> <span class="nt">a</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">@extend</span> <span class="err">%</span><span class="nt">button</span><span class="o">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>and you only get the rules you intended to get:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nc">.button</span><span class="o">,</span> <span class="nc">.article</span> <span class="nt">a</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">display</span><span class="o">:</span> <span class="k">block</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">padding</span><span class="o">:</span> <span class="m">10px</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">background</span><span class="o">:</span> <span class="nb">green</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.sidebar</span> <span class="nc">.signup</span> <span class="nc">.button</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">margin-top</span><span class="o">:</span> <span class="m">22px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.registration</span> <span class="nc">.button</span><span class="o">,</span> <span class="nc">.remember-password</span> <span class="nc">.button</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">margin-bottom</span><span class="o">:</span> <span class="m">33px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span><span class="nt">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nt">p</span><span class="o">&gt;</span><span class="nc">.edit-account</span> <span class="nc">.delete-area</span> <span class="nc">.button</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">background-color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<h2>Wrapping up</h2>
+
+<p>After reading about the differences between mixins, extending classes and extending placeholders, these
+are some of the golden rules that I follow when writing stylesheets:</p>
+
+<ul>
+<li>NEVER declare mixins that don&rsquo;t accept params: This are not mixins, the are classes/placeholders</li>
+<li>NEVER (or almost never) extend normal selectors. You can get unexpected results if that selector appears nested somewhere else on the stylesheets. Use placeholders instead.</li>
+<li>Don&rsquo;t over-nest selectors. With sass is easy to forget about the chain an create infamous selectors with 6-7 chained rules.</li>
+<li>Don&rsquo;t use tag names in selectors if you can avoid it. That not a taxative rule, but the are less efficient that classes or ids.</li>
+<li>Don&rsquo;t use inheritance operator(&ldquo;>&rdquo;). It is VERY unefficient.</li>
+<li>Don&rsquo;t use the sibling selector(&ldquo;+&rdquo;). It is VERY unefficient AND is tightly coupled to your current markup. Some javascript libraries,
+like Ember.js by example, can insert invisible elements and break that kind of rules.</li>
+<li>Don&rsquo;t trust blindly on what you think that sass is generating. Check the generated css from time to time. You can discover mistakes than are unnoted in sass.</li>
+<li>Create a colour pallete using variables from the beginning. If you don&rsquo;t do so, you can easily end with 18 different tones
+of gray thar are only used in one or two places.</li>
+<li>Refactor. While most people cares about its backend/frontend code, the percentage of people that just open existing stylesheets and adds some new rules to
+style that new widget he created without trying to reuse existing styles is much higher.</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

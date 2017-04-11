@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Git | Coder idiosyncrasy]]></title>
+  <link href="http://miguelcamba.com/blog/categories/git/atom.xml" rel="self"/>
+  <link href="http://miguelcamba.com/"/>
+  <updated>2017-04-12T00:14:24+01:00</updated>
+  <id>http://miguelcamba.com/</id>
+  <author>
+    <name><![CDATA[Miguel Camba]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Git Tip: Merge Branches Taking Always Changes From One of Them]]></title>
+    <link href="http://miguelcamba.com/blog/2013/04/24/git-tip-merge-branches-taking-always-changes-from-one-of-them/"/>
+    <updated>2013-04-24T02:56:00+01:00</updated>
+    <id>http://miguelcamba.com/blog/2013/04/24/git-tip-merge-branches-taking-always-changes-from-one-of-them</id>
+    <content type="html"><![CDATA[<p>This is a trick I discovered a few days ago and made me cry remembering the time I lost fixing manually
+conflics when I already knew that the changes I wanted were all from same branch.</p>
+
+<p>Never again using merge strategies.</p>
+
+<!--more-->
+
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git merge [-s recursive] -X[theirs|ours]</span></code></pre></td></tr></table></div></figure></p>
+
+<p>If you, being in the branch <strong>master</strong>, run <code>git merge -Xtheirs experimental_feature</code> the conflics will
+be automatically resolved taking the changes from the <strong>experimental_feature</strong> branch.
+The opposite, <code>git merge -Xours experimental_feature</code>, will keep the code from the current branch.</p>
+
+<p>The <code>-s recursive</code> forces the merging strategy to the <em>recursive</em> mode, which is the only strategy that
+accepts the <strong>theirs</strong> and <strong>ours</strong> options. I did not know there where different strategies for
+merge branches, but there are several. This is the default strategy when pulling or mergin <em>one</em>
+branch into another, so most of the time won&rsquo;t have to specify this but is good to know. <em>(did you even
+know that you can merge more than two branches at once?)</em></p>
+
+<p>Hope it helps.</p>
+
+<p>Happy merging.</p>
+]]></content>
+  </entry>
+  
+</feed>

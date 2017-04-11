@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Me | Coder idiosyncrasy]]></title>
+  <link href="http://miguelcamba.com/blog/categories/me/atom.xml" rel="self"/>
+  <link href="http://miguelcamba.com/"/>
+  <updated>2017-04-12T00:14:24+01:00</updated>
+  <id>http://miguelcamba.com/</id>
+  <author>
+    <name><![CDATA[Miguel Camba]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[I Am Back]]></title>
+    <link href="http://miguelcamba.com/blog/2013/04/22/i-am-back/"/>
+    <updated>2013-04-22T20:21:58+01:00</updated>
+    <id>http://miguelcamba.com/blog/2013/04/22/i-am-back</id>
+    <content type="html"><![CDATA[<p>Hi. This is my new blog.</p>
+
+<p>Some time ago I had another blog called &ldquo;masquerailes&rdquo;, where I wrote half a docen posts about
+development, specially about ruby, in Spanish. Lots of things happened, now I live in another city
+in the other side of the country and changed my job twice, but at the end my calling remains untouch.</p>
+
+<p>Coding.</p>
+
+<!--more-->
+
+
+<p>I love coding. I feel very fortunate for have made of my hobby a way of living.
+But life has a lot of facets, and even if I love to make experiments and research on coding topics,
+I also had lots of things that drawn my attention enough to stop writting my old blog. That are not
+bad things, build a family and have other hobbies are always a good thing to have, but I&rsquo;ve realized I miss
+to spend more time being creative.</p>
+
+<p>At work most people can&rsquo;t be as creative as they would like, because the <strong>real</strong> work is always there,
+waiting to be done, and deadline exist. When you have milestones to reach and deadlines to respect, you
+tend to follow the path you know better, even when if you would like to try some new tools or
+patterns that could fit better.</p>
+
+<p><em>That&rsquo;s why I write this blog.</em></p>
+
+<p>I want to force myself to push my limits, to exit my confort zone and write about topics I know well
+and want to know better (by sharing with the world a small portion of what I gathered from it) and to
+make me research on topics I would like to know more. And incidentally, to practice my English.</p>
+
+<p>So my first blog post will be about creating your own blog using Jekyll and Octopress and host it for
+free in github pages. This one you are reading right now :)</p>
+
+<p>See you soon.</p>
+]]></content>
+  </entry>
+  
+</feed>

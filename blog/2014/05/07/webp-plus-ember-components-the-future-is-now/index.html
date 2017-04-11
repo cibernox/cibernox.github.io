@@ -1,0 +1,379 @@
+
+<!doctype html>
+<html lang="pt-br">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  
+
+  
+
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=860">
+
+  <meta name="author" content="Miguel Camba" />
+  <link rel="publisher" href="https://plus.google.com/+104848632337303003619" />
+  <meta property="og:title" content="WebP + Ember Components. The Future Is Now - Coder idiosyncrasy" />
+  <meta property="og:site_name" content="Coder idiosyncrasy" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="pt-BR" />
+  <meta name="description" content="Want to use webp" />
+  <meta property="og:description" content="Want to use webp" />
+  <meta property="og:url" content="http://miguelcamba.com/blog/2014/05/07/webp-plus-ember-components-the-future-is-now/" />
+  <meta property="og:image" content="http://miguelcamba.com/images/" />
+
+  <meta property="article:author" content="https://www.facebook.com/" />
+  <meta property="article:publisher" content="https://www.facebook.com/" />
+
+  
+    <meta name="keywords" content="Ember,ember.js,components,webp,feature-detection" />
+  
+
+  <title>WebP + Ember Components. The Future Is Now - Coder idiosyncrasy</title>
+
+  <link rel="canonical" href="http://miguelcamba.com/blog/2014/05/07/webp-plus-ember-components-the-future-is-now">
+  <link href="  /favicon.ico" rel="icon">
+  <link href="http://fonts.googleapis.com/css?family=Crete+Round:400" rel="stylesheet" type="text/css">
+  <link href="  /stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Coder idiosyncrasy" type="application/atom+xml">
+</head>
+
+  <body  id="post" >
+    <div class="cover-image"></div>
+
+<header id="header" role="banner" class="internal-page">
+  <div class="content">
+    <h1><a href="  /">Coder idiosyncrasy</a></h1>
+    <h1 id="second-link"><a href="/talks">Talks</a></h1>
+    <h1 id="third-link"><a href="/about">About</a></h1>
+    
+  </div>
+</header>
+
+    <main role="main">
+      <div class="content">
+  <article role="article">
+    
+  <header>
+    <h1>
+    
+      
+        WebP + Ember Components. The Future Is Now
+      
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2014-05-07T21:09:00+01:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:09 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/ember-dot-js/'>ember.js</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>This past weeked I attended to Barcelona&rsquo;s <a href="http://futurejs.org/">Future JS</a> conference. It was an amazing conference and
+the level of the talks was outstanding.</p>
+
+<p>The <em>leitmotiv</em> of the whole conference was, as its name suggest, the future of the javascript language
+and the web: new APIs, new programming paradigms, web components&hellip; everything that is fashionable in the
+web development world.</p>
+
+<p>Today I want to talk about about web components and how they are for me, as concept, the most missed feature
+in the web since ever, not only because they are awesome on their own, but because they can push the web
+forward in new ways by helping us to support new features in new browsers and degrade gracefully in more crappy
+ones.</p>
+
+<!--more-->
+
+
+<p>I&rsquo;ve been a heavy user of Ember for a year now and I love how Ember&rsquo;s components can bring us the power of
+the newest features before thay are implementeda cross all browser, so this demo will leverage
+its advantages to conditionally display the best possible image format.</p>
+
+<p>WebP is a new image format created by google (but opensource) that allows images with similar quality but with
+much lower weight. Since bandwidth is a valuable resource, specially for mobile devices, I want to use
+webp right now, but it turns out that at the time of writting that post, only Chrome and Opera support
+this image format. Neither firefox nor safari or IE.</p>
+
+<p>There is a couple ways of acomplish that task on the server side.</p>
+
+<p>One is by detecting in your nginx the images support of the browser by reading a header of the request,
+but I serve images from a CDN, so that solution is not for me.</p>
+
+<p>The other one depends on your CDN provider. Some of them support that very same detection: when a
+browser requests an image, <code>landscape.jpg</code> by example, they will under the hood serve
+to browser with support the webp image enmascarated with the same name.
+I don&rsquo;t like this solution either because:</p>
+
+<p>A) It forces you to have a webp version of every non-webp image, which is not always easy or even possible.</p>
+
+<p>B) The worst one: IT LIES. The extension of the image says that is a JPG file but it isn&rsquo;t. If you save the image and
+try to open it with you OS image viewer, it will say that the image is damaged. For some uses it might not be
+a problem, but it doesn&rsquo;t feels right to me.</p>
+
+<p>With ember components it&rsquo;s very easy to detect the support in the client side, then ask for one format
+or another, and also you can out-out of this behavior in a very easy way.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">App</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">create</span><span class="p">({});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">deferReadiness</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">image</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Image</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">image</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">App</span><span class="p">.</span><span class="nx">SmartImgComponent</span><span class="p">.</span><span class="nx">reopen</span><span class="p">({</span><span class="nx">webpSupported</span><span class="o">:</span> <span class="kc">false</span><span class="p">});</span>
+</span><span class='line'>    <span class="nx">App</span><span class="p">.</span><span class="nx">advanceReadiness</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>  <span class="nx">image</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">App</span><span class="p">.</span><span class="nx">SmartImgComponent</span><span class="p">.</span><span class="nx">reopen</span><span class="p">({</span><span class="nx">webpSupported</span><span class="o">:</span> <span class="nx">image</span><span class="p">.</span><span class="nx">width</span> <span class="o">==</span> <span class="mi">1</span><span class="p">});</span>
+</span><span class='line'>    <span class="nx">App</span><span class="p">.</span><span class="nx">advanceReadiness</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>  <span class="nx">image</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="s1">&#39;data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="p">})();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">SmartImgComponent</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">tagName</span><span class="o">:</span> <span class="s1">&#39;img&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">attributeBindings</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;bestSrc:src&#39;</span><span class="p">],</span>
+</span><span class='line'>  <span class="nx">webp</span><span class="o">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">bestSrc</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">src</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;webpSupported&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;webp&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">src</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\.(png|jpg|jpeg)$/</span><span class="p">,</span> <span class="s1">&#39;.webp&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">src</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}.</span><span class="nx">property</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it.</p>
+
+<p><code>SmartImgComponent</code> is an ember component that is used like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">td</span><span class="o">&gt;</span><span class="p">{{</span><span class="nx">smart</span><span class="o">-</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;https://www.gstatic.com/webp/gallery/1.png&quot;</span> <span class="nx">webp</span><span class="o">=</span><span class="kc">false</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/td&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">td</span><span class="o">&gt;</span><span class="p">{{</span><span class="nx">smart</span><span class="o">-</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="s2">&quot;https://www.gstatic.com/webp/gallery/1.png&quot;</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/td&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It receives the png/jpg version of the image and applying a simple rule, in my case just change the extension,
+it outputs an <code>&lt;img&gt;</code> tag with an src to the good url, and you can opt-out to this behaviour using
+the <code>webp=false</code> attribute.</p>
+
+<p>The only trick I&rsquo;ve done here has to do with the web support detection. Since is an async test, I need to
+pause the start up of the application until I know the support, and then I reopen the component prototype
+to add the proper flag and resume the application&rsquo;s start up.</p>
+
+<p>Here is a jsbin showing this in practice: <a href="http://jsbin.com/ucanam/4910/edit">Smart Img Component</a></p>
+
+<p>It&rsquo;s easy for me to imagine more use cases where ember components can be used to detect brower features and
+offer a well suited fallback when some browsers doesn&rsquo;t support the native thing yet.</p>
+
+<p>You don&rsquo;t need to wait for the future. Implement it.</p>
+
+
+
+    <footer>
+      
+        <div class="sharing">
+  
+    <a href="//twitter.com/share" class="twitter-share-button" data-url="http://miguelcamba.com/blog/2014/05/07/webp-plus-ember-components-the-future-is-now/" data-via="miguelcamba" data-counturl="http://miguelcamba.com/blog/2014/05/07/webp-plus-ember-components-the-future-is-now/">Tweet</a>
+  
+
+  
+    <div class="fb-like" data-href="http://miguelcamba.com/blog/2014/05/07/webp-plus-ember-components-the-future-is-now/" data-layout="button_count" data-action="recommend" data-show-faces="true" data-share="true"></div>
+  
+</div>
+
+      
+
+      <div class="about-author">
+  <img src="http://www.gravatar.com/avatar/aadced6e13c05d42faaf1be3bbb88b83?s=135" width="135" height="135" alt="Miguel Camba" />
+  <h3><a href="  /about">Miguel Camba</a></h3>
+  
+  <div class="author-description">I&#8217;m a web developer from Spain living in London. I do most of my work in Ruby/Rails and Javascript/Ember.js but I like to experiment with bleeding edge technologies. If you need help building your product, I might be able to help you.</div>
+  
+  <ul class="social-links">
+    <li>
+      <a href="https://github.com/cibernox" target="_blank">
+        <i class="icon-github">GitHub</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/miguelcamba" target="_blank">
+        <i class="icon-linkedin">Facebook</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/miguelcamba" target="_blank">
+        <i class="icon-twitter">Twitter</i>
+      </a>
+    </li>
+    <li>
+      <a href="  /atom.xml" target="_blank">
+        <i class="icon-feed">Feed</i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+      
+        <h4>Also read:</h4>
+        <div class="others-posts">
+          
+            <a class="prev-post" href="  /blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/" title="Post anterior: Benchmarking ruby 2.1 and rubinius 2.0">
+              Benchmarking ruby 2.1 and rubinius 2.0
+            </a>
+          
+          
+            <a class="next-post" href="  /blog/2014/08/10/import-bootstrap-glyphicons-in-ember-cli/" title="Próximo post: Import bootstrap glyphicons in ember-cli">
+              Import bootstrap glyphicons in ember-cli
+            </a>
+          
+        </div>
+      
+    </footer>
+  </article>
+  
+  <section class="post-comments">
+    <header>
+      <h2>Comments:</h2>
+    </header>
+    
+      <div id="disqus_thread"></div>
+    
+  </section>
+
+
+</div>
+
+    </main>
+    <footer id="footer" role="contentinfo">
+  <div class="content">
+    <p class="copyright">Copyright &copy; 2017 - Miguel Camba</p>
+    <p class="powered-by">Powered by <a href="http://octopress.org">Octopress</a></p>
+  </div>
+</footer>
+
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-40004935-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="  /javascripts/libs/jquery.min.js"><\/script>')</script>
+<script src="  /javascripts/application.js"></script>
+
+
+  
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id; js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+
+  
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+  
+    <script type="text/javascript">
+      var disqus_shortname = 'miguelcamba';
+      
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://miguelcamba.com/blog/2014/05/07/webp-plus-ember-components-the-future-is-now/';
+        var disqus_url = 'http://miguelcamba.com/blog/2014/05/07/webp-plus-ember-components-the-future-is-now/';
+        var disqus_script = 'embed.js';
+      
+
+      (function () {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }());
+    </script>
+  
+
+
+  </body>
+</html>

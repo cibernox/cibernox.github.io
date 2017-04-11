@@ -1,0 +1,465 @@
+
+<!doctype html>
+<html lang="pt-br">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  
+
+  
+
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=860">
+
+  <meta name="author" content="Miguel Camba" />
+  <link rel="publisher" href="https://plus.google.com/+104848632337303003619" />
+  <meta property="og:title" content="Benchmarking Ruby 2.1 and Rubinius 2.0 - Coder idiosyncrasy" />
+  <meta property="og:site_name" content="Coder idiosyncrasy" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="pt-BR" />
+  <meta name="description" content="Benchmark the latests versions of the main ruby implementations. Battle: ruby-2.0 vs ruby-2.1 vs jruby-1.7.4 vs rbx-2.0" />
+  <meta property="og:description" content="Benchmark the latests versions of the main ruby implementations. Battle: ruby-2.0 vs ruby-2.1 vs jruby-1.7.4 vs rbx-2.0" />
+  <meta property="og:url" content="http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/" />
+  <meta property="og:image" content="http://miguelcamba.com/images/" />
+
+  <meta property="article:author" content="https://www.facebook.com/" />
+  <meta property="article:publisher" content="https://www.facebook.com/" />
+
+  
+    <meta name="keywords" content="ruby,mri,rubinius,jruby,ruby 2.1,benchmark,performance" />
+  
+
+  <title>Benchmarking Ruby 2.1 and Rubinius 2.0 - Coder idiosyncrasy</title>
+
+  <link rel="canonical" href="http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0">
+  <link href="  /favicon.ico" rel="icon">
+  <link href="http://fonts.googleapis.com/css?family=Crete+Round:400" rel="stylesheet" type="text/css">
+  <link href="  /stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Coder idiosyncrasy" type="application/atom+xml">
+</head>
+
+  <body  id="post" >
+    <div class="cover-image"></div>
+
+<header id="header" role="banner" class="internal-page">
+  <div class="content">
+    <h1><a href="  /">Coder idiosyncrasy</a></h1>
+    <h1 id="second-link"><a href="/talks">Talks</a></h1>
+    <h1 id="third-link"><a href="/about">About</a></h1>
+    
+  </div>
+</header>
+
+    <main role="main">
+      <div class="content">
+  <article role="article">
+    
+  <header>
+    <h1>
+    
+      
+        Benchmarking Ruby 2.1 and Rubinius 2.0
+      
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-10-05T20:33:00+01:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:33 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/ruby/'>ruby</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <script type="text/javascript">
+  (function(){
+
+    var buildTable = function(data){
+      var header = data.shift();
+
+      var scoreboard = data[0].map(function(){ return 0; });
+      var totalTime = data[0].map(function(){ return 0; });
+
+      html = "";
+
+      html += '<table class="compact benchmark">'
+        html += '<thead>'
+          html += '<tr>'
+            header.forEach(function(e){
+              html += '<th>' + e + '</th>'
+            });
+          html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+          data.forEach(function(row){
+            html += '<tr>'
+              row.forEach(function(cell, index, array){
+                var cellClass = '';
+
+                if (index >= 2){
+                  var parsedValue = parseFloat(cell);
+                  var valuesArray = array.slice(2, array.length)
+                  var parsedArray = valuesArray
+                    .map(function(e){ return parseFloat(e) })
+                    .filter(function(e){ return !!e; })
+                  var allValuesAreCorrect = parsedArray.length == valuesArray.length;
+
+                  cellClass += 'value '
+
+                  if (!parsedValue){
+                    cellClass += 'wrong '
+                  } else {
+                    cell = parsedValue.toFixed(6)
+                    if (allValuesAreCorrect){ totalTime[index] += parsedValue }
+                    var isMaxValue = Math.max.apply(null, parsedArray) == parsedValue;
+                    if (isMaxValue){
+                      cellClass += 'slowest '
+                    } else {
+                      var isMinValue = Math.min.apply(null, parsedArray) == parsedValue;
+                      if (isMinValue){
+                        cellClass += 'fastest '
+                        scoreboard[index] += 1
+                      }
+                    }
+                  }
+                }
+
+                html += '<td class="'+cellClass+'">'
+                html += cell + '</td>'
+                html += '</td>'
+              });
+            html += '</tr>'
+          });
+        html += '</tbody>'
+        html += '<tfoot>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Victories</strong></td>'
+            scoreboard.slice(2,scoreboard.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'fastest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'slowest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e+'</td>'
+            });
+          html += '</tr>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Total time</strong></td>'
+            totalTime.slice(2,totalTime.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'slowest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'fastest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e.toFixed(6)+'</td>'
+            });
+          html += '</tr>'
+        html += '</tfoot>'
+      html += '</table>'
+
+      return html;
+    }
+
+    $(function(){
+
+      $.get("/javascripts/mri-rubies.json").success(function(json){
+        $('#table-ruby-mri-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+
+      $.get("/javascripts/all-rubies.json").success(function(json){
+        $('#table-ruby-all-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+      $.get("/javascripts/all-rubies-v2.json").success(function(json){
+        $('#table-ruby-all-benchmark-v2-placeholder').replaceWith(buildTable(json));
+      });
+    })
+
+  })();
+</script>
+
+
+<p>A few days ago a the first preview version of ruby 2.1 was released.</p>
+
+<p>It has many interesting improvements in the language, but the key ones are:</p>
+
+<ul>
+<li>Refinements</li>
+<li>Decimal Literals</li>
+<li>Frozen string literals</li>
+<li>Required keyword arguments</li>
+<li>Method definition returns Method Name</li>
+<li>String#scrub</li>
+<li>Named captures in StringScanner</li>
+</ul>
+
+
+<p>Some of this improvements are more exciting than others (thumbs up to frozen string, thumbs down to refinements),
+but as Yukuhiro Matsumoto said in his talk at the <a href="http://baruco.org/">Baruco</a>, which I attended, the main changes in this new release are
+internal, with the new generational garbage collector as the king of the party.</p>
+
+<!--more-->
+
+
+<p>I don&rsquo;t want to repeat content on the web, Konstantin Haase already wrote a great article explaining all the new features.
+<a href="http://rkh.im/ruby-2.1">Check it out</a> for more detailed information.</p>
+
+<p>It promises better memory handling and lower GC runtime, which its suposed to lead to better overall performance.</p>
+
+<p>I was curious about the numbers but I had not found any updated benchmark out there, so I run the benchmark myself to see it with my own eyes.</p>
+
+<p>For that task, I used the popular <a href="https://github.com/acangiano/ruby-benchmark-suite">ruby-benchmark-suite</a>, which is quite old but has
+lots of tests and has become almost a standard.</p>
+
+<p>The benchmark was run in my 2012 macbook air, with a core i7 2.0GHZ (2 physical core, 4 logical cores due to hyperthreading)
+and 8GB of ram. It takes about 25 minutes per implementation, just in case you want to run it too.</p>
+
+<p>Just to clarify some details about how I performed the calculation in the bottom of the table, when I sumarize the
+victories I just count the victories of each implementation, so raising an exception is a failure, but when measuring the total
+time, if any of the implementations failed on that benchmark then its time is not computed in the total time of any implemetation.</p>
+
+<p>These are the results of the three MRI implementations:</p>
+
+<div id="table-ruby-mri-benchmark-placeholder"></div>
+
+
+<p>From this results we can say that, in general, ruby 2.1 is faster. It is the fastest implementation in
+more tests than 1.9 and 2.0 together, even considering that it fails in some benchmarks.</p>
+
+<p>The total time taken by ruby 2.1 is also noticeable lower. Is about a 23% lower than 2.0 and a 27% lower whan 1.9.3.
+As I see, the main reason of this huge diference is that some specific tasks, ruby 2.1 is several times faster than
+previous implementations, by example in the  <code>micro/bm_gc_array.rb</code> benchmark there is a 500% performance gain.</p>
+
+<p>Probably in real word examples the performance gain will be around 5%, which is anyway a significant improvement.</p>
+
+<p>But it turns out that 2 days ago, while I was writting this post rubinius 2.0 <a href="http://rubini.us/2013/10/04/rubinius-2-0-released/">was released</a>.</p>
+
+<p>Rubinius is by far my favourite alternative ruby implementation and I was excited about that anouncement.
+How will rubinius perform against the other implementations? And jruby?</p>
+
+<p>I&rsquo;ve run the same benchmark on <code>rbx-2.0.0</code> working in ruby 2.1 mode and also against <code>jruby 1.7.4</code> running on java 1.7.0_40-b43,
+but in this case in ruby 2.0 mode.</p>
+
+<p>All the cutting edge versions avaliable right now.</p>
+
+<div id="table-ruby-all-benchmark-placeholder"></div>
+
+
+<p>Wow!! I didn&rsquo;t expect that. Rubinius wins in twice as many tests as the second one (ruby 2.1) and also beats jruby
+in all the multithreaded tests.</p>
+
+<p>Both, jruby and rubinius outperforms MRI&rsquo;s implementations by an order of magnitude when it comes to parallel processing, that
+was expected, but rubinius also doubles the performance on other math tasks.
+And jruby also performs very well, and probably would perform better in a computer with more than 2 cores.</p>
+
+<p>Even if ruby 2.1 has the lower total time, this benchmark suite was written 4 years ago. The computer world have changed since then.
+Parallel computing is now the present, and I think that both rubinius and jruby have a brilliant future when it comes
+to scale our applications to the multi-core world we live now.</p>
+
+<h2>Update</h2>
+
+<p>After some controversy yesterday, I&rsquo;ve repeated the benchmark with some minor changes to make the bechmark more realistic.
+As always, is impossible to a syntetic benchmark like this to be trustworthy when it comes to reproduce the real performance that you
+will get in your applications.</p>
+
+<p>I&rsquo;ve updated the input size of many benchamarks that runned too fast (in less than a second) to make then more long living. Not in every test, because
+sometimes it was not straightforward.
+I also set the flag <code>JRUBY_OPTS=-X+C</code> which forces jruby to use the JIT compiler even if the script is very simple.</p>
+
+<div id="table-ruby-all-benchmark-v2-placeholder"></div>
+
+
+<p>First of all, notice that with the new input sizes some tests that did not fail in the first run failed in some implementations.</p>
+
+<p>With the new benchmark the landscape changed a bit, but no so much. And the alternative implementations shine even more.</p>
+
+<p>Rubinius still is the implementation that wins in more tests, but ruby 2.1 is not longer the second one. Now jruby has the honor.
+And also jruby wins an almost all the macro benchmarks, which are the most complex and generic ones.</p>
+
+<p>On the other handle, ruby 2.1 still has the lower total time but jruby is just behind, very close. The diference of time between jruby and
+rubinius has increased so the longer tests and the JIT compiler favor jruby more than rbx.</p>
+
+<p>I want to emphasize this because I feel that the more complex and long-living the applications are, the more advantage will the alternative
+implementations take from that situation.</p>
+
+
+
+    <footer>
+      
+        <div class="sharing">
+  
+    <a href="//twitter.com/share" class="twitter-share-button" data-url="http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/" data-via="miguelcamba" data-counturl="http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/">Tweet</a>
+  
+
+  
+    <div class="fb-like" data-href="http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/" data-layout="button_count" data-action="recommend" data-show-faces="true" data-share="true"></div>
+  
+</div>
+
+      
+
+      <div class="about-author">
+  <img src="http://www.gravatar.com/avatar/aadced6e13c05d42faaf1be3bbb88b83?s=135" width="135" height="135" alt="Miguel Camba" />
+  <h3><a href="  /about">Miguel Camba</a></h3>
+  
+  <div class="author-description">I&#8217;m a web developer from Spain living in London. I do most of my work in Ruby/Rails and Javascript/Ember.js but I like to experiment with bleeding edge technologies. If you need help building your product, I might be able to help you.</div>
+  
+  <ul class="social-links">
+    <li>
+      <a href="https://github.com/cibernox" target="_blank">
+        <i class="icon-github">GitHub</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/miguelcamba" target="_blank">
+        <i class="icon-linkedin">Facebook</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/miguelcamba" target="_blank">
+        <i class="icon-twitter">Twitter</i>
+      </a>
+    </li>
+    <li>
+      <a href="  /atom.xml" target="_blank">
+        <i class="icon-feed">Feed</i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+      
+        <h4>Also read:</h4>
+        <div class="others-posts">
+          
+            <a class="prev-post" href="  /blog/2013/09/16/quick-tip-show-surrounding-lines-with-grep/" title="Post anterior: Quick tip: Show surrounding lines with grep">
+              Quick tip: Show surrounding lines with grep
+            </a>
+          
+          
+            <a class="next-post" href="  /blog/2014/05/07/webp-plus-ember-components-the-future-is-now/" title="Próximo post: WebP + Ember components. The future is now">
+              WebP + Ember components. The future is now
+            </a>
+          
+        </div>
+      
+    </footer>
+  </article>
+  
+  <section class="post-comments">
+    <header>
+      <h2>Comments:</h2>
+    </header>
+    
+      <div id="disqus_thread"></div>
+    
+  </section>
+
+
+</div>
+
+    </main>
+    <footer id="footer" role="contentinfo">
+  <div class="content">
+    <p class="copyright">Copyright &copy; 2017 - Miguel Camba</p>
+    <p class="powered-by">Powered by <a href="http://octopress.org">Octopress</a></p>
+  </div>
+</footer>
+
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-40004935-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="  /javascripts/libs/jquery.min.js"><\/script>')</script>
+<script src="  /javascripts/application.js"></script>
+
+
+  
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id; js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+
+  
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+  
+    <script type="text/javascript">
+      var disqus_shortname = 'miguelcamba';
+      
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/';
+        var disqus_url = 'http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/';
+        var disqus_script = 'embed.js';
+      
+
+      (function () {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }());
+    </script>
+  
+
+
+  </body>
+</html>

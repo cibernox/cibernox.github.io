@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Request | Coder idiosyncrasy]]></title>
+  <link href="http://miguelcamba.com/blog/categories/request/atom.xml" rel="self"/>
+  <link href="http://miguelcamba.com/"/>
+  <updated>2017-04-12T00:14:24+01:00</updated>
+  <id>http://miguelcamba.com/</id>
+  <author>
+    <name><![CDATA[Miguel Camba]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to: Tamper Requests With Service Workers]]></title>
+    <link href="http://miguelcamba.com/blog/2015/02/15/how-to-tamper-requests-with-service-workers/"/>
+    <updated>2015-02-15T14:41:24+00:00</updated>
+    <id>http://miguelcamba.com/blog/2015/02/15/how-to-tamper-requests-with-service-workers</id>
+    <content type="html"><![CDATA[<p>Service Workers are coming to town. By the time of this writing you can use them in Chrome stable
+and in nightly versions of firefox. Not all features are ready, but the most basic ones are, so
+you can start using them today.</p>
+
+<p>There isn&rsquo;t still much documentation out there about how to use it, this are my two cents:
+How to tamper requests/responses with service workers.</p>
+
+<!--more-->
+
+
+<h3>Service workers might not work as you think</h3>
+
+<p>I was playing with service workers to add offline capabilities to a pet project of mine (<a href="https://github.com/cibernox/mobile-patterns">mobile-patterns</a>)
+and I wanted to return responses from cache when there is no connection available.</p>
+
+<p>It was very easy. The <a href="http://jakearchibald.com/2014/offline-cookbook">offline cookbook</a> that Jake
+Archibald put together has lots of good examples.</p>
+
+<p>However, I wanted to let my app know that a response came from the cache instead of from the server.
+I am not sure if that is a good practice (time will make us more aware of what is a good idea and what is not),
+but I just wanted to do it, so I started inspecting the response and trying several ideas, but none
+of it worked as I expected, and that was because I was not understanding how Service Workers and
+Requests/Responses are designed.</p>
+
+<h3>Request and responses are not normal objects, they are streams.</h3>
+
+<p>I misundestood this until I read <a href="http://www.w3.org/TR/2015/WD-service-workers-20150205/">the spec</a>
+and the <a href="https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorker_API">article in MDN</a>. Well,
+to be completely honest I haven&rsquo;t really read the spec cover to cover, but read some parts.</p>
+
+<p>Service Workers is a low level API on purpose, so when we mangle responses we are playing with very
+low level objects. It turns out that the responses from the server are streams containinig binary data.</p>
+
+<p>Streams can only be consumed once. That means that if you read the content of a response and then
+you forward that response to the browser, the browser will not be able to read it because it has
+already been consumed.</p>
+
+<p>Every time you want to mangle a response and the return it, make a clone and mangle the clone instead</p>
+
+<pre><code class="js">fetch(fetchRequest).then(function(response) {
+  var clonedResponse = response.clone();
+
+  /* Do your stuff with the clon and return the original response */
+
+  return response;
+})
+</code></pre>
+
+<h3>In the Service Workers world, promises are everywhere.</h3>
+
+<p>Once you have a service worker in place, all requests that your web performs will pass throught it.
+That means that any blocking code in your service worker will kill performance. For that reason, pretty
+much everything in the service workers API returns a Promise.</p>
+
+<p><code>caches.match</code> returns a promise that resolves to some cached response. Responses have a <code>blob</code>, <code>text</code> and
+<code>json</code> methods, and all of them return a Promise.</p>
+
+<p>You have to go asynchronous.</p>
+
+<h3>The content of a response is a Blob</h3>
+
+<p>Reponses are read-only, so if you want to tamper a response, you need play with the content and return
+a new response instead, and the constructor of a response expects a Blob object.</p>
+
+<p>In my example, I was receiving a JSON object and I wanted to add a key to the json. I knew that Blob
+existed, but I was not familiar with them.</p>
+
+<p>This is the code that obtains a response from the cache, reads its JSON, adds some information to it
+and returns a new response with the modified content but respecting the original headers.</p>
+
+<pre><code class="js">return cachedResponse.then(function(response) {
+  return response.json().then(function(json) {
+    json.myCustomField = "you've been rickrolled by a service worker";
+
+    var blob = new Blob([JSON.stringify(json)], { type: 'application/json' });
+
+    return new Response(blob, { headers: response.headers });
+  })
+});
+</code></pre>
+
+<h3>Full example</h3>
+
+<p>You can see a full example with comments <a href="https://github.com/cibernox/mobile-patterns/blob/7d6189a281d39ce558b2db8867fa2e804b75bd41/workers/offline-support.js">here</a>.</p>
+
+<p><strong>Start using Service Workers today!</strong></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby | Coder idiosyncrasy]]></title>
+  <link href="http://miguelcamba.com/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://miguelcamba.com/"/>
+  <updated>2017-04-12T00:14:24+01:00</updated>
+  <id>http://miguelcamba.com/</id>
+  <author>
+    <name><![CDATA[Miguel Camba]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Benchmarking Ruby 2.1 and Rubinius 2.0]]></title>
+    <link href="http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/"/>
+    <updated>2013-10-05T20:33:00+01:00</updated>
+    <id>http://miguelcamba.com/blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0</id>
+    <content type="html"><![CDATA[<script type="text/javascript">
+  (function(){
+
+    var buildTable = function(data){
+      var header = data.shift();
+
+      var scoreboard = data[0].map(function(){ return 0; });
+      var totalTime = data[0].map(function(){ return 0; });
+
+      html = "";
+
+      html += '<table class="compact benchmark">'
+        html += '<thead>'
+          html += '<tr>'
+            header.forEach(function(e){
+              html += '<th>' + e + '</th>'
+            });
+          html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+          data.forEach(function(row){
+            html += '<tr>'
+              row.forEach(function(cell, index, array){
+                var cellClass = '';
+
+                if (index >= 2){
+                  var parsedValue = parseFloat(cell);
+                  var valuesArray = array.slice(2, array.length)
+                  var parsedArray = valuesArray
+                    .map(function(e){ return parseFloat(e) })
+                    .filter(function(e){ return !!e; })
+                  var allValuesAreCorrect = parsedArray.length == valuesArray.length;
+
+                  cellClass += 'value '
+
+                  if (!parsedValue){
+                    cellClass += 'wrong '
+                  } else {
+                    cell = parsedValue.toFixed(6)
+                    if (allValuesAreCorrect){ totalTime[index] += parsedValue }
+                    var isMaxValue = Math.max.apply(null, parsedArray) == parsedValue;
+                    if (isMaxValue){
+                      cellClass += 'slowest '
+                    } else {
+                      var isMinValue = Math.min.apply(null, parsedArray) == parsedValue;
+                      if (isMinValue){
+                        cellClass += 'fastest '
+                        scoreboard[index] += 1
+                      }
+                    }
+                  }
+                }
+
+                html += '<td class="'+cellClass+'">'
+                html += cell + '</td>'
+                html += '</td>'
+              });
+            html += '</tr>'
+          });
+        html += '</tbody>'
+        html += '<tfoot>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Victories</strong></td>'
+            scoreboard.slice(2,scoreboard.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'fastest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'slowest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e+'</td>'
+            });
+          html += '</tr>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Total time</strong></td>'
+            totalTime.slice(2,totalTime.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'slowest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'fastest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e.toFixed(6)+'</td>'
+            });
+          html += '</tr>'
+        html += '</tfoot>'
+      html += '</table>'
+
+      return html;
+    }
+
+    $(function(){
+
+      $.get("/javascripts/mri-rubies.json").success(function(json){
+        $('#table-ruby-mri-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+
+      $.get("/javascripts/all-rubies.json").success(function(json){
+        $('#table-ruby-all-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+      $.get("/javascripts/all-rubies-v2.json").success(function(json){
+        $('#table-ruby-all-benchmark-v2-placeholder').replaceWith(buildTable(json));
+      });
+    })
+
+  })();
+</script>
+
+
+<p>A few days ago a the first preview version of ruby 2.1 was released.</p>
+
+<p>It has many interesting improvements in the language, but the key ones are:</p>
+
+<ul>
+<li>Refinements</li>
+<li>Decimal Literals</li>
+<li>Frozen string literals</li>
+<li>Required keyword arguments</li>
+<li>Method definition returns Method Name</li>
+<li>String#scrub</li>
+<li>Named captures in StringScanner</li>
+</ul>
+
+
+<p>Some of this improvements are more exciting than others (thumbs up to frozen string, thumbs down to refinements),
+but as Yukuhiro Matsumoto said in his talk at the <a href="http://baruco.org/">Baruco</a>, which I attended, the main changes in this new release are
+internal, with the new generational garbage collector as the king of the party.</p>
+
+<!--more-->
+
+
+<p>I don&rsquo;t want to repeat content on the web, Konstantin Haase already wrote a great article explaining all the new features.
+<a href="http://rkh.im/ruby-2.1">Check it out</a> for more detailed information.</p>
+
+<p>It promises better memory handling and lower GC runtime, which its suposed to lead to better overall performance.</p>
+
+<p>I was curious about the numbers but I had not found any updated benchmark out there, so I run the benchmark myself to see it with my own eyes.</p>
+
+<p>For that task, I used the popular <a href="https://github.com/acangiano/ruby-benchmark-suite">ruby-benchmark-suite</a>, which is quite old but has
+lots of tests and has become almost a standard.</p>
+
+<p>The benchmark was run in my 2012 macbook air, with a core i7 2.0GHZ (2 physical core, 4 logical cores due to hyperthreading)
+and 8GB of ram. It takes about 25 minutes per implementation, just in case you want to run it too.</p>
+
+<p>Just to clarify some details about how I performed the calculation in the bottom of the table, when I sumarize the
+victories I just count the victories of each implementation, so raising an exception is a failure, but when measuring the total
+time, if any of the implementations failed on that benchmark then its time is not computed in the total time of any implemetation.</p>
+
+<p>These are the results of the three MRI implementations:</p>
+
+<div id="table-ruby-mri-benchmark-placeholder"></div>
+
+
+<p>From this results we can say that, in general, ruby 2.1 is faster. It is the fastest implementation in
+more tests than 1.9 and 2.0 together, even considering that it fails in some benchmarks.</p>
+
+<p>The total time taken by ruby 2.1 is also noticeable lower. Is about a 23% lower than 2.0 and a 27% lower whan 1.9.3.
+As I see, the main reason of this huge diference is that some specific tasks, ruby 2.1 is several times faster than
+previous implementations, by example in the  <code>micro/bm_gc_array.rb</code> benchmark there is a 500% performance gain.</p>
+
+<p>Probably in real word examples the performance gain will be around 5%, which is anyway a significant improvement.</p>
+
+<p>But it turns out that 2 days ago, while I was writting this post rubinius 2.0 <a href="http://rubini.us/2013/10/04/rubinius-2-0-released/">was released</a>.</p>
+
+<p>Rubinius is by far my favourite alternative ruby implementation and I was excited about that anouncement.
+How will rubinius perform against the other implementations? And jruby?</p>
+
+<p>I&rsquo;ve run the same benchmark on <code>rbx-2.0.0</code> working in ruby 2.1 mode and also against <code>jruby 1.7.4</code> running on java 1.7.0_40-b43,
+but in this case in ruby 2.0 mode.</p>
+
+<p>All the cutting edge versions avaliable right now.</p>
+
+<div id="table-ruby-all-benchmark-placeholder"></div>
+
+
+<p>Wow!! I didn&rsquo;t expect that. Rubinius wins in twice as many tests as the second one (ruby 2.1) and also beats jruby
+in all the multithreaded tests.</p>
+
+<p>Both, jruby and rubinius outperforms MRI&rsquo;s implementations by an order of magnitude when it comes to parallel processing, that
+was expected, but rubinius also doubles the performance on other math tasks.
+And jruby also performs very well, and probably would perform better in a computer with more than 2 cores.</p>
+
+<p>Even if ruby 2.1 has the lower total time, this benchmark suite was written 4 years ago. The computer world have changed since then.
+Parallel computing is now the present, and I think that both rubinius and jruby have a brilliant future when it comes
+to scale our applications to the multi-core world we live now.</p>
+
+<h2>Update</h2>
+
+<p>After some controversy yesterday, I&rsquo;ve repeated the benchmark with some minor changes to make the bechmark more realistic.
+As always, is impossible to a syntetic benchmark like this to be trustworthy when it comes to reproduce the real performance that you
+will get in your applications.</p>
+
+<p>I&rsquo;ve updated the input size of many benchamarks that runned too fast (in less than a second) to make then more long living. Not in every test, because
+sometimes it was not straightforward.
+I also set the flag <code>JRUBY_OPTS=-X+C</code> which forces jruby to use the JIT compiler even if the script is very simple.</p>
+
+<div id="table-ruby-all-benchmark-v2-placeholder"></div>
+
+
+<p>First of all, notice that with the new input sizes some tests that did not fail in the first run failed in some implementations.</p>
+
+<p>With the new benchmark the landscape changed a bit, but no so much. And the alternative implementations shine even more.</p>
+
+<p>Rubinius still is the implementation that wins in more tests, but ruby 2.1 is not longer the second one. Now jruby has the honor.
+And also jruby wins an almost all the macro benchmarks, which are the most complex and generic ones.</p>
+
+<p>On the other handle, ruby 2.1 still has the lower total time but jruby is just behind, very close. The diference of time between jruby and
+rubinius has increased so the longer tests and the JIT compiler favor jruby more than rbx.</p>
+
+<p>I want to emphasize this because I feel that the more complex and long-living the applications are, the more advantage will the alternative
+implementations take from that situation.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rubytapas.com Downloader. How to Download Files From Https With Authentication]]></title>
+    <link href="http://miguelcamba.com/blog/2013/05/04/rubytapas-dot-com-downloader-how-to-download-files-from-https-with-authentication/"/>
+    <updated>2013-05-04T02:14:00+01:00</updated>
+    <id>http://miguelcamba.com/blog/2013/05/04/rubytapas-dot-com-downloader-how-to-download-files-from-https-with-authentication</id>
+    <content type="html"><![CDATA[<p>A few days ago I susbcribed to <a href="http://www.rubytapas.com/">Rubytapas</a>, a series of short screencasts about ruby
+by <a href="http://devblog.avdi.org/">Advi Grimm</a>.</p>
+
+<p>First of all, I have to recommend you to give it a try. A constant source of small pills filled with ruby wisdom.
+I&rsquo;ve discovered many usefull tricks. It totally worths the 9$/month.</p>
+
+<h3>The problem</h3>
+
+<p>After my subscription, I wanted to download the old episodes (a few days ago Avdi published the 100th episode)
+but I didn&rsquo;t want to do it manually. I googled for a script but I didn&rsquo;t found any, so I decided to write one.</p>
+
+<!--more-->
+
+
+<p>The problem I found was to download files from an <strong>HTTPS</strong> source that was behind a login form. My first
+idea was to use a pure ruby solution like the <code>HTTParty</code> gem, but after a few failed attemps I realized that
+<code>curl</code> already has all that I need.</p>
+
+<h3>The idea</h3>
+
+<p>I&rsquo;ve used curl with https a few times, but always with public documents, not with files that was behind an authentication
+form, but curl has built-in support for cookies.</p>
+
+<p>To save a cookie you pass the <strong>-c</strong> option for specify the file where to save the cookie, and the <strong>-d</strong>
+option for pass a query string with the authentication params.</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -c file_name_of_the_cookie.txt -d &ldquo;username=example@mail.com&amp;password=myPassword123&rdquo; &lt;a href="http://rubytapas.dpdcart.com/subscriber/login?__dpd_cart=8f511233-b72b-4a8c-8c37-fadc74fbc3a1">http://rubytapas.dpdcart.com/subscriber/login?__dpd_cart=8f511233-b72b-4a8c-8c37-fadc74fbc3a1&lt;/a></span></code></pre></td></tr></table></div></figure></p>
+
+<p>After that, you&rsquo;ll have the cookie saved in a file. Loading that cookie with the <strong>-b</strong> option you can
+download files behind the authetication process.</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -o episode.mp4 -b cookie-file.txt -d &ldquo;username=my-email@example.com&amp;password=myPassword123&rdquo; &lt;a href="https://rubytapas.dpdcart.com/subscriber/download?file_id=446">https://rubytapas.dpdcart.com/subscriber/download?file_id=446&lt;/a></span></code></pre></td></tr></table></div></figure></p>
+
+<p>It works! It&rsquo;s time to write the script.</p>
+
+<h3>The solution</h3>
+
+<p>First of all we need to know how many episodes have been published and the files we want to download for each one.
+If only there was a place from where to obtain the basic information that is published in a compact and organized way!
+Oh, there is one. The RSS!</p>
+
+<p>The rss can be easily obtained with a get request. It requires basic authentication, but doesn&rsquo;t need to
+set a cookie since there is no need to keep alive any session, so use your favorite http client. Mine is HTTParty,
+<em>mainly because of its cool name</em>.</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">rss</span> <span class="o">=</span> <span class="no">HTTParty</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;https://rubytapas.dpdcart.com/feed&quot;</span><span class="o">&gt;</span><span class="ss">https</span><span class="p">:</span><span class="sr">//</span><span class="n">rubytapas</span><span class="o">.</span><span class="n">dpdcart</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">feed</span><span class="o">&lt;</span><span class="sr">/a&gt;&amp;rdquo;, basic_auth: { username: &amp;ldquo;&lt;a href=&quot;&amp;#109;&amp;#97;&amp;#x69;&amp;#108;&amp;#x74;&amp;#x6f;&amp;#x3a;&amp;#109;&amp;#x79;&amp;#64;&amp;#101;&amp;#109;&amp;#97;&amp;#x69;&amp;#x6c;&amp;#x2e;&amp;#99;&amp;#x6f;&amp;#x6d;&quot;&gt;&amp;#109;&amp;#x79;&amp;#x40;&amp;#x65;&amp;#109;&amp;#97;&amp;#x69;&amp;#108;&amp;#46;&amp;#x63;&amp;#x6f;&amp;#109;&lt;/</span><span class="n">a</span><span class="o">&gt;&amp;</span><span class="n">rdquo</span><span class="p">;,</span> <span class="ss">password</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">myPassword123</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span> <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>The rss file is an XML file that can be parsed and inspected with <a href="http://nokogiri.org/">nokogiri</a>.
+Each episode in the rss looks like this:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;item&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span><span class="ni">&amp;lt;</span>![CDATA[092 Coincidental Duplication Redux]]<span class="ni">&amp;gt;</span><span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;link&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;https://rubytapas.dpdcart.com/subscriber/post?id=185&quot;</span><span class="nt">&gt;</span>https://rubytapas.dpdcart.com/subscriber/post?id=185<span class="nt">&lt;/a&gt;&lt;/link&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;description&gt;</span><span class="ni">&amp;lt;</span>![CDATA[<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-entry&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;blog-content&quot;</span><span class="nt">&gt;&lt;p&gt;</span>Katrina Owen contributed an example of coincidental duplication I liked so much I decided to make a second episode about it. Enjoy!<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;h3&gt;</span>Attached Files<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;ul&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;https://rubytapas.dpdcart.com/subscriber/download?file_id=445&quot;</span><span class="nt">&gt;</span>092-coincidental-duplication-redux.html<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;https://rubytapas.dpdcart.com/subscriber/download?file_id=446&quot;</span><span class="nt">&gt;</span>092-coincidental-duplication-redux.mp4<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;https://rubytapas.dpdcart.com/subscriber/download?file_id=447&quot;</span><span class="nt">&gt;</span>092-coincidental-duplication-redux.rb<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/ul&gt;&lt;/div&gt;</span>]]<span class="ni">&amp;gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/description&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;guid</span> <span class="na">isPermaLink=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span>dpd-5b84a418456992f342a46fe896aa2835b09bd7f4<span class="nt">&lt;/guid&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;pubDate&gt;</span>Fri, 03 May 2013 09:00:00 -0400<span class="nt">&lt;/pubDate&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;enclosure</span> <span class="na">url=</span><span class="s">&quot;https://rubytapas.dpdcart.com/feed/download/446/092-coincidental-duplication-redux.mp4&quot;</span> <span class="na">length=</span><span class="s">&quot;21645987&quot;</span> <span class="na">type=</span><span class="s">&quot;video/mp4&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="ni">&amp;lt;</span>itunes:subtitle&gt;Another example of over-DRYing code<span class="ni">&amp;lt;</span>/itunes:subtitle&gt;
+</span><span class='line'>  <span class="ni">&amp;lt;</span>itunes:image href=<span class="ni">&amp;ldquo;</span><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;https://getdpd.com/uploads/ruby-tapas.png&quot;</span><span class="nt">&gt;</span>https://getdpd.com/uploads/ruby-tapas.png<span class="nt">&lt;/a&gt;</span><span class="ni">&amp;rdquo;</span>/&gt;
+</span><span class='line'><span class="nt">&lt;/item&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Each <code>&lt;item&gt;&lt;/item&gt;</code> is an episode. Its title is inside a <code>&lt;title&gt;&lt;/title&gt;</code> and the <code>&lt;description&gt;&lt;/desctiption&gt;</code> contains some html
+with one link for each file. The file&rsquo;s url is in the <em>href</em> attribute and the name in the text of the link.</p>
+
+<p>That was all I needed to know. Here is the script.</p>
+
+<p><figure class='code'><figcaption><span>rubytapas_downloader.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="nb">require</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">httparty</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span>
+</span><span class='line'><span class="nb">require</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">nokogiri</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;USERNAME = &amp;ldquo;&lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#x69;&amp;#x6c;&amp;#x74;&amp;#x6f;&amp;#58;&amp;#x65;&amp;#109;&amp;#x61;&amp;#x69;&amp;#108;&amp;#x2d;&amp;#117;&amp;#x73;&amp;#x65;&amp;#x64;&amp;#x40;&amp;#105;&amp;#x6e;&amp;#45;&amp;#x72;&amp;#101;&amp;#103;&amp;#105;&amp;#x73;&amp;#116;&amp;#114;&amp;#97;&amp;#x74;&amp;#105;&amp;#111;&amp;#x6e;&amp;#46;&amp;#x63;&amp;#111;&amp;#x6d;&quot;&gt;&amp;#101;&amp;#x6d;&amp;#x61;&amp;#x69;&amp;#x6c;&amp;#x2d;&amp;#117;&amp;#x73;&amp;#x65;&amp;#x64;&amp;#64;&amp;#105;&amp;#110;&amp;#45;&amp;#114;&amp;#x65;&amp;#103;&amp;#105;&amp;#x73;&amp;#116;&amp;#x72;&amp;#x61;&amp;#116;&amp;#105;&amp;#111;&amp;#110;&amp;#x2e;&amp;#99;&amp;#111;&amp;#x6d;&lt;/</span><span class="n">a</span><span class="o">&gt;&amp;</span><span class="n">rdquo</span><span class="p">;</span>
+</span><span class='line'><span class="no">PASSWORD</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">your</span><span class="o">-</span><span class="n">password</span><span class="o">-</span><span class="n">here</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span>
+</span><span class='line'><span class="no">COOKIE_FILE</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">cookies</span><span class="o">.</span><span class="n">txt</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span> <span class="c1"># by example&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">class</span> <span class="nc">RubytapasDownloader</span>
+</span><span class='line'>  <span class="no">FEED_URL</span>  <span class="o">=</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;https://rubytapas.dpdcart.com/feed&quot;</span><span class="o">&gt;</span><span class="ss">https</span><span class="p">:</span><span class="sr">//</span><span class="n">rubytapas</span><span class="o">.</span><span class="n">dpdcart</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">feed</span><span class="o">&lt;</span><span class="sr">/a&gt;&amp;rdquo;</span>
+</span><span class='line'><span class="sr">  LOGIN_URL = &amp;ldquo;&lt;a href=&quot;http:/</span><span class="o">/</span><span class="n">rubytapas</span><span class="o">.</span><span class="n">dpdcart</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">subscriber</span><span class="o">/</span><span class="n">login?__dpd_cart</span><span class="o">=</span><span class="mi">8</span><span class="n">f511233</span><span class="o">-</span><span class="n">b72b</span><span class="o">-</span><span class="mi">4</span><span class="n">a8c</span><span class="o">-</span><span class="mi">8</span><span class="n">c37</span><span class="o">-</span><span class="n">fadc74fbc3a1</span><span class="s2">&quot;&gt;http://rubytapas.dpdcart.com/subscriber/login?__dpd_cart=8f511233-b72b-4a8c-8c37-fadc74fbc3a1&lt;/a&gt;&amp;rdquo;&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">&lt;p&gt;  ##</span>
+</span><span class='line'><span class="s2">  # Fetchs and parses the rss feed. Generates the episodes</span>
+</span><span class='line'><span class="s2">  #</span>
+</span><span class='line'><span class="s2">  def initialize</span>
+</span><span class='line'><span class="s2">    rss = HTTParty.get(FEED_URL, basic_auth: { username: USERNAME, password: PASSWORD })</span>
+</span><span class='line'><span class="s2">    @episodes = Nokogiri::XML(rss).css(&amp;lsquo;item&amp;rsquo;).map{ |item| Episode.new(item) }</span>
+</span><span class='line'><span class="s2">  end&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">&lt;p&gt;  ##</span>
+</span><span class='line'><span class="s2">  # Downloads the new episodes with curl.</span>
+</span><span class='line'><span class="s2">  #</span>
+</span><span class='line'><span class="s2">  def launch</span>
+</span><span class='line'><span class="s2">    puts &amp;ldquo;&amp;mdash; LAUNCHING RUBYTAPAS DOWNLOADER &amp;mdash;&amp;rdquo;&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">&lt;pre&gt;&lt;code&gt;puts &quot;</span><span class="o">---</span> <span class="no">LOG</span> <span class="no">IN</span> <span class="no">AND</span> <span class="no">SAVE</span> <span class="no">COOKIE</span> <span class="o">---</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="s2">login_and_save_cookie</span>
+</span><span class='line'>
+</span><span class='line'><span class="s2">new_episodes = @episodes.reject(&amp;amp;:downloaded?)</span>
+</span><span class='line'><span class="s2">count = new_episodes.size</span>
+</span><span class='line'><span class="s2">puts &quot;</span><span class="c1">#{count} NEW EPISODES&quot;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="n">new_episodes</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">episode</span><span class="p">,</span> <span class="n">index</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;DOWNLOADING </span><span class="si">#{</span><span class="n">episode</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> (</span><span class="si">#{</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s2"> of </span><span class="si">#{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span class='line'>  <span class="n">episode</span><span class="o">.</span><span class="n">download!</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="s2">&quot;--- FINISHED RUBYTAPAS DOWNLOADER ---&quot;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">rescue</span> <span class="no">Exception</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</span><span class='line'>    <span class="nb">puts</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="o">&amp;</span><span class="n">mdash</span><span class="p">;</span> <span class="no">EXCEPTION</span> <span class="no">RAISED</span> <span class="no">WHILE</span> <span class="no">DOWNLOADING</span> <span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span>
+</span><span class='line'>    <span class="nb">puts</span> <span class="n">e</span><span class="o">.</span><span class="n">inspect</span>
+</span><span class='line'>  <span class="k">ensure</span>
+</span><span class='line'>    <span class="no">File</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="no">COOKIE_FILE</span><span class="p">)</span> <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">exist?</span><span class="p">(</span><span class="no">COOKIE_FILE</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;private&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">def</span> <span class="nf">login_and_save_cookie</span>
+</span><span class='line'>    <span class="nb">system</span> <span class="sx">%Q{curl -c </span><span class="si">#{</span><span class="no">COOKIE_FILE</span><span class="si">}</span><span class="sx"> -d &amp;ldquo;username=</span><span class="si">#{</span><span class="no">USERNAME</span><span class="si">}</span><span class="sx">&amp;amp;password=</span><span class="si">#{</span><span class="no">PASSWORD</span><span class="si">}</span><span class="sx">&amp;rdquo; </span><span class="si">#{</span><span class="no">LOGIN_URL</span><span class="si">}</span><span class="sx">}</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="k">class</span> <span class="nc">Episode</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:files</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  ##</span>
+</span><span class='line'><span class="sr">  # Extracts informations from the parsed XML node</span>
+</span><span class='line'><span class="sr">  #</span>
+</span><span class='line'><span class="sr">  def initialize(parsed_rss_item)</span>
+</span><span class='line'><span class="sr">    @title = parsed_rss_item.css(&amp;lsquo;title&amp;rsquo;).text.gsub(/</span><span class="p">\</span><span class="n">s</span><span class="o">|</span><span class="p">\</span><span class="n">W</span><span class="o">/</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">-&amp;</span><span class="n">rsquo</span><span class="p">;)</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">-&amp;</span><span class="n">rsquo</span><span class="p">;)</span>
+</span><span class='line'>    <span class="vi">@files</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="n">parsed_description</span> <span class="o">=</span> <span class="no">Nokogiri</span><span class="o">::</span><span class="no">XML</span><span class="p">(</span><span class="n">parsed_rss_item</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">description</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">parsed_description</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">a</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">link</span><span class="o">|</span>
+</span><span class='line'>      <span class="vi">@files</span><span class="o">[</span><span class="n">link</span><span class="o">.</span><span class="n">text</span><span class="o">]</span> <span class="o">=</span> <span class="n">link</span><span class="o">[</span><span class="ss">:href</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  ##</span>
+</span><span class='line'><span class="sr">  # Simplest approach: If there is a folder named like the episode, it is already downloaded</span>
+</span><span class='line'><span class="sr">  # TODO: Per-file checking instead of just a folder checking</span>
+</span><span class='line'><span class="sr">  #</span>
+</span><span class='line'><span class="sr">  def downloaded?</span>
+</span><span class='line'><span class="sr">    Dir.exist?(title)</span>
+</span><span class='line'><span class="sr">  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">def</span> <span class="nf">download!</span>
+</span><span class='line'>    <span class="no">Dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">files</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">filename</span><span class="p">,</span> <span class="n">url</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">file_path</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</span><span class='line'>      <span class="nb">system</span> <span class="sx">%Q{curl -o </span><span class="si">#{</span><span class="n">file_path</span><span class="si">}</span><span class="sx"> -b </span><span class="si">#{</span><span class="no">COOKIE_FILE</span><span class="si">}</span><span class="sx"> -d &amp;ldquo;username=</span><span class="si">#{</span><span class="no">USERNAME</span><span class="si">}</span><span class="sx">&amp;amp;password=</span><span class="si">#{</span><span class="no">PASSWORD</span><span class="si">}</span><span class="sx">&amp;rdquo; </span><span class="si">#{</span><span class="n">url</span><span class="si">}</span><span class="sx">}</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;RubytapasDownloader.new.launch</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>You can find the code up to date in my github: <a href="https://github.com/cibernox/rubytapas_downloader">https://github.com/cibernox/rubytapas_downloader</a></p>
+
+<p>Happy hacking! ;)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tweak and Improve Your New Octopress Blog]]></title>
+    <link href="http://miguelcamba.com/blog/2013/04/22/tweak-and-improve-your-new-octopress-blog/"/>
+    <updated>2013-04-22T20:28:23+01:00</updated>
+    <id>http://miguelcamba.com/blog/2013/04/22/tweak-and-improve-your-new-octopress-blog</id>
+    <content type="html"><![CDATA[<p>After publish your blog, there is still a few things you can do to improve it. These are some of them:</p>
+
+<h3>Point your own domain to GitHub pages</h3>
+
+<p>This is a must have. Have your own domain is cool. If you don&rsquo;t like the <em>.github.io</em> at the end of the address bar,
+you can point your domain to github.</p>
+
+<!--more-->
+
+
+<ul>
+<li>Create a file named <code>CNAME</code> in the root of your repository with the nude name of domain. With nude I mean
+without <code>www.</code> of <code>http://</code>.
+<figure class='code'><figcaption><span>CNAME </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>miguelcamba.com</span></code></pre></td></tr></table></div></figure></li>
+<li>Configure the DNS in your domain control panel. Make the root domain (<em>the @</em>) point to <code>204.232.175.78</code>, which is
+github&rsquo;s IP, and the <em>www</em> subdomain to <code>your-username.github.com</code>. Screenshot from my namecheap configuration.</li>
+</ul>
+
+
+<p><img class="center" src="/images/dns_configuration.jpg"></p>
+
+<p>And wait the dns changes to propagate. For me it took less than 15 minutes but can take much longer.</p>
+
+<h3>Add a new page to your blog</h3>
+
+<p>The main part of your blog are the posts but with octopress you can create any page or section that makes sense to you.
+Some ideas: Host the documentation/demo of one of your opensource proyects, an about-me section, a portfolio&hellip;</p>
+
+<p>The pages can be places anywhere in the <strong>/source</strong> folder, but there is 2 main aproaches.</p>
+
+<ul>
+<li>If you want the url to look like <em>domain.com/about-me</em> you must create a file <strong>/source/about-me/index.markdown</strong>.
+You can use the rake task <code>rake new_page[about-me]</code></li>
+<li>If you want the url to look like <em>domain.com/about-me.html</em> you must create a file <strong>/source/about-me.markdown</strong>.
+You can use the rake task <code>rake new_page[about-me.html]</code></li>
+</ul>
+
+
+<p>Creating this page is more or less like build an static html side with some simple suport for layouts and
+partials. The first lines of each page have some comments to configure which layout you want, enable or disable
+the footer and more.</p>
+
+<h3>Add google analytics</h3>
+
+<p>Octopress is the essence of a blog generator. It only server static content, so it don&rsquo;t provides you
+an admin area to record and see the trafic and see the stats. This is not a big deal since google analytics is
+the most powerfull tool you can desire in this area, and octopress has built-in support for it out of the box.</p>
+
+<p>Create a free acount if you don&rsquo;t have one, and add a <em>New account</em> for your blog. During this process you
+will get an ID number like <em>AB-12345678-9</em>.</p>
+
+<p>Go and edit your the config file and add this id to the google analytics key.</p>
+
+<h2><figure class='code'><figcaption><span>_config.yml </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">&lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;h1&gt;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;h1&gt;Google Analytics Configuration&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;h1&gt;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;p&gt;google_analytics_tracking_id</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">AB-12345678-9</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><strong>Done.</strong></p>
+
+<h3>Basic SEO considerations</h3>
+
+<p>First of all, I need to say that I am <strong>NOT</strong> a fan of SEO. In fact, for me is the biggest lie of the modern times, but still
+there is a few good practices that you should follow to help google to do its job.</p>
+
+<h5>Keywords &amp; description</h5>
+
+<p>You should add keywords for your blog and for every post you create. This keywords will help google to know
+for what searches your content can be a good result, so pick the words wisely. Think about the words you would
+type in google to find your own article, but pick just half a docen.</p>
+
+<p>By example, the previous post could have these keywords: <strong>tutorial,create,octopress,2.1,host,github pages,deploy</strong></p>
+
+<p>The description is also important for google, since it&rsquo;s the phase that will show under the link when this blog post
+is listed as a search result.</p>
+
+<p>You can these information in the comments section at the beginning of each <em>.markdown</em> file, like the posts.</p>
+
+<h2><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/h2>
+</span><span class='line'>
+</span><span class='line'>&lt;p>layout: post
+</span><span class='line'>title: &ldquo;Tutorial: Create a blog with octopress and host it in github pages&rdquo;
+</span><span class='line'>date: 2013-04-22T21:24:21+02:00
+</span><span class='line'>comments: true
+</span><span class='line'>categories: [ruby,octopress]
+</span><span class='line'>keywords: tutorial,create,octopress,host,github pages,deploy&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h2>description: What is octopress and how create and deploy your blog in github pages&lt;/h2>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></p>
+
+<p>The keywords and the description will be added automatically to the <code>&lt;head&gt;</code> tag.</p>
+
+<p>But there is still a things that can be improved. At the time of writting this, the description was missing
+in the posts, and there is no keywords for the blog level. A few lines fixed that problem.</p>
+
+<p><figure class='code'><figcaption><span>/source/_includes/head.html </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="ni">&amp;lt;</span>!DOCTYPE html&gt;<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">&lt;!--[if IEMobile 7 ]&gt;&lt;html class=&quot;no-js iem7&quot;&gt;&lt;![endif]--&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c">&lt;!--[if lt IE 9]&gt;&lt;html class=&quot;no-js lte-ie8&quot;&gt;&lt;![endif]--&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c">&lt;!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]&gt;&lt;!--&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;&lt;html</span> <span class="na">class=</span><span class="s">&quot;no-js&quot;</span> <span class="na">lang=</span><span class="s">&quot;en&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!--&lt;![endif]--&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;utf-8&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;author&quot;</span> <span class="na">content=</span><span class="s">&quot;{{ site.author }}&quot;</span><span class="nt">&gt;&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>  {% capture description %}{% if page.description %}{{ page.description }}{% elsif site.description %}{{ site.description }}{% endif %}{% endcapture %}
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;description&quot;</span> <span class="na">content=</span><span class="s">&quot;{{ description }}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  {% capture keywords %}{% if page.keywords %}{{ page.keywords }}{% elsif site.keywords %}{{ site.keywords }}{% endif %}{% endcapture %}
+</span><span class='line'>  <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;keywords&quot;</span> <span class="na">content=</span><span class="s">&quot;{{ keywords }}&quot;</span><span class="nt">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>The general keywords and description for your blog should be placed in <strong>_config.yml</strong></p>
+
+<h5>Categorize your posts</h5>
+
+<p>Don&rsquo;t forget to add a category (or categories) for each post. Users will be able to find related posts and google
+will apreciate also this information.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tutorial: Create a Blog With Octopress and Host It in Github Pages]]></title>
+    <link href="http://miguelcamba.com/blog/2013/04/22/tutorial-create-a-blog-with-octopress-and-host-it-in-github-pages/"/>
+    <updated>2013-04-22T20:24:21+01:00</updated>
+    <id>http://miguelcamba.com/blog/2013/04/22/tutorial-create-a-blog-with-octopress-and-host-it-in-github-pages</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ll start talking about the last thing I started to experiment with, that is this very blog you are
+reading right now, built with Jekyll + Octopress.</p>
+
+<!--more-->
+
+
+<h3>Jekyll.</h3>
+
+<p>Straight-forward definition taken directy from the Github&rsquo;s repository description.</p>
+
+<p><blockquote><p>Jekyll is a blog-aware, static site generator in Ruby</p><footer><strong><a href="https://github.com/mojombo/jekyll">https://github.com/mojombo/jekyll</a></strong></footer></blockquote></p>
+
+<p>What does that means? The concept of Jekyll is a bit different from the usual blog engine you might
+be used to see arround (read: <em>Wordpress</em>).</p>
+
+<p>The tipical blog engine is some kind of web app that integrates administration tools, 3rd party plugins,
+WYSIWYG editor, login system, automatic draft saving, flux condenser&hellip; and also serves your static posts.
+As you see, most of the features a blog platform provides are not part of a <strong>real</strong> blog&rsquo;s <em>raison d&#8217;etre</em>,
+which is to publish content to the world and allow the world to reach that content. Jekyll gets rid of all
+these non-esential features. Is just a blog <em>generator</em>.</p>
+
+<p>The keyword here is <strong>generator</strong>. Jekyll don&rsquo;t serves your blog, it only generates the blog as a bunch of static
+pages. No content is built at runtime, the html is created at complilation time. This makes the blog
+super-simple and blazing fast from the outside. No server processing, your blog is prebuilt.</p>
+
+<p>What we loss in exchange? Well, almost everything else. You don&rsquo;t have an admin area, you don&rsquo;t have
+an online editor, but hey! <code>We are programmers</code>.</p>
+
+<ul>
+<li>We don&rsquo;t need to save drafts, we have even a better tool called version control systems.</li>
+<li>We don&rsquo;t like text processors with lots of buttons and menus, we are used to write plain text, and we do it much faster in Markdown in owr favourite text editor.</li>
+<li>We don&rsquo;t need to admin tools. We make changes, commit those changes and push them.</li>
+</ul>
+
+
+<p>Of course, this means that Jekyll is not for everybody. Is built for people that is familiar with the
+development process and wants to have full control over the process. Each blog posts is placed in a
+markdown file (it can also be textile of just plain HTML if your prefer) following some naming and
+directory structure conventions, and then compiled into the final html structure that will be accessible
+from the outside.</p>
+
+<p>Writing, styling, compiling and adding javascripts is up to you, and now is where Octopress comes into
+the scene.</p>
+
+<h3>Octopress</h3>
+
+<p>Octopress is blogging framework built on top of Jekyll.
+It extends Jekyll in several ways, but the main ones are:</p>
+
+<ul>
+<li>Support for themes. Easy to install, based on HTML5 semantics, and mobile-friendly.</li>
+<li>Provides a complete collection of plugins for common things like comments, share in social networks
+and more. Since octopress is very focused into programming world, there is also plugins to embed code
+from files in our local system, from gists and even from github&rsquo;s commits, with syntax highlighting
+and all the refinements you can desire.</li>
+<li>A collection of rake tasks that automates development and deploy.</li>
+</ul>
+
+
+<p>For this tutorial I&rsquo;ll be using the latest code direclty from the master branch and ruby 2.0.</p>
+
+<h3>Instalation</h3>
+
+<p>The fist step is to get octopress, cloning the repo and give it the name you want for your blog.</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone git://github.com/imathis/octopress.git coder_blog</span></code></pre></td></tr></table></div></figure></p>
+
+<p>You&rsquo;ll see that octopress has a <code>.rbenv-version</code> file in the root folder that specify ruby 1.9.3-p194 as the desired version.
+Maybe you want to update that file to the fresh ruby <code>2.0.0-p0</code> as I did. It&rsquo;s totally compatible. Living on the edge.</p>
+
+<p>Now you can install all dependencies with bundler and run our first rake task to install a theme.</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>bundle install
+</span><span class='line'>rake install</span></code></pre></td></tr></table></div></figure></p>
+
+<p><code>rake install</code> will install the default theme, but you can install any theme you like cloning the desired
+theme into the <code>.themes</code> folder and run the task with the name of the theme. By example, to install the fabric theme:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd octopress
+</span><span class='line'>$ git clone git://github.com/panks/fabric.git .themes/fabric
+</span><span class='line'>$ rake install[&lsquo;fabric&rsquo;]
+</span><span class='line'>$ rake generate</span></code></pre></td></tr></table></div></figure></p>
+
+<p>You can see a list with some available themes <a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes">here</a> but there is a lot more.</p>
+
+<h3>Configuration</h3>
+
+<p>The next step is to configure the basics of your blog.
+Current master branch <em>(octopress 2.0)</em> only has a single configuration file (<code>_config.yml</code>)</p>
+
+<p>Let&rsquo;s fill only the minimum information.</p>
+
+<p><figure class='code'><figcaption><span>_config.yml </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;p&gt;url</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">fake.coderblog.com</span>
+</span><span class='line'><span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Coder blog</span>
+</span><span class='line'><span class="l-Scalar-Plain">subtitle</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">For example purposes only</span>
+</span><span class='line'><span class="l-Scalar-Plain">author</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Miguel Camba</span>
+</span><span class='line'><span class="l-Scalar-Plain">simple_search</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">&lt;a href=&quot;http://google.com/search&quot;&gt;http://google.com/search&lt;/a&gt;</span>
+</span><span class='line'><span class="l-Scalar-Plain">description</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Simple blog built with octopress&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;h1&gt;&amp;hellip;&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;h1&gt;Lots of configuration parameters.&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;p&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<h3>The first post</h3>
+
+<p>Now we can create our first post. The naming convention is explained perfectly in the official documentation:
+Blog posts must be stored in the <strong>source/_posts</strong> directory and named according to Jekyll’s naming conventions: <code>YYYY-MM-DD-post-title.markdown</code>.</p>
+
+<p>Instead of generate the file manually, it&rsquo;s much easier to use the built-in rake task <code>rake new_post["Title of the post"]</code>
+This task creates a new post with the given title as long as some metadata used by octopress. This is the comments
+of this very post.</p>
+
+<h2><figure class='code'><figcaption><span>2013-04-15-tutorial-create-an-octopress-blog-and-host-it-in-github-pages.markdown</span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">&lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;p&gt;layout</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">post</span>
+</span><span class='line'><span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="nl">&amp;ldquo</span><span class="l-Scalar-Plain">;Tutorial</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Create a blog with octopress and host it in github pages&amp;rdquo;</span>
+</span><span class='line'><span class="l-Scalar-Plain">date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2013-04-22T21:24:21+02:00</span>
+</span><span class='line'><span class="l-Scalar-Plain">comments</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;h2&gt;categories</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="nv">ruby</span><span class="p-Indicator">,</span><span class="nv">octopress</span><span class="p-Indicator">]</span><span class="l-Scalar-Plain">&lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">&lt;p&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>And now, It&rsquo;s your turn. Write somethin interesting. Remember that each time you want to see the preview, you need to regenerate the
+blog, but there is another rake task for this too, the <code>rake preview</code> task regenerates the content watching for changes and
+starts a small server in port 4000 to serve the blog.</p>
+
+<p>Take a look also to <code>rake generate</code> (generates the content in the <strong>/public</strong> folder manually) and <code>rake watch</code>
+(watch for changes into <strong>/source</strong> and <strong>/sass</strong> folders and generates the files automatically)</p>
+
+<h3>Deploy to github pages</h3>
+
+<p>Github pages is an ideal host for this kind of blogs. It&rsquo;s free, fast, reliable and very very geek. In fact nowardays it has
+become the most accurate and widespread resume for coders, and so, github pages can be the best way to introduce yourself.</p>
+
+<p>To publish your blog in github pages, the first step is to create a github pages repository. It&rsquo;s really simple,
+and you can find the instructions here: <a href="https://help.github.com/articles/creating-pages-with-the-automatic-generator">Creating Pages with the automatic generator</a></p>
+
+<p>Once you have finished this steps, you&rsquo;ll have a repository named as <code>your-username.github.io</code>, almost empty. You want to deploy your first article to
+that empty repository, but you before that you should know how github pages work.</p>
+
+<p>Github pages expect to have <em>two branches</em>, the <strong>source</strong> branch and the <strong>master</strong> branch.
+The <strong>master</strong> branch is the one that github pages will show. The changes in the <strong>source</strong> branch won&rsquo;t be published
+until you push your changes to master. A very simple workflow we use very often while coding, applied to publishing.
+You can configure those branchs manually and add your github pages repository as a remote, but there is also a rake
+task that does all for you: <code>rake setup_github_pages[repo]</code>.</p>
+
+<p>In the case of this blog, I ran <code>rake setup_github_pages[git@github.com:cibernox/cibernox.github.io.git]</code> and the
+<code>rake deploy</code> to upload the blog. In a snap the blog will be accessible in the url **<a href="http://your-username.github.io**.">http://your-username.github.io**.</a></p>
+
+<p>Remember that <code>rake deploy</code> just generates the blog a push to the <strong>master</strong> branch. Your <strong>source</strong> branch won&rsquo;t be
+uploaded to github if you don&rsquo;t want to. You probably want, to have a secure backup online, among other reason. Commit your
+changes and do <code>git push origin source</code>.</p>
+
+<h5>Advice for deploy</h5>
+
+<p>I&rsquo;ve found a problem running the rake task that setups for github pages. If you have a <strong>CNAME</strong> file to
+specify the domain of your blog, the rake task will make some weird assumptions about naming that make the
+task fail. So, if you plan to redirect your domain to github pages, add the <strong>CNAME</strong> file after running this task.</p>
+
+<h3>Next steps</h3>
+
+<p>Now your blog is online, so what&rsquo;s next? These are only advices, but you may be interested in perform some of this tasks.</p>
+
+<ul>
+<li>Redirect your own domain to github pages. Because is cool to have your own domain.</li>
+<li>Add a entire new section. Like an about-me section (hubris is hubris).</li>
+<li>Add google analytics to see the visitants of your blog. Since octopress doesn&rsquo;t provide administration
+panel, google analytics is the most convenient way to keep an eye on the traffic of your blog.</li>
+<li>Basic SEO. I am <strong>NOT</strong> a fan of SEO. In fact, for me is the biggest lie of the modern times. But there is a few good practices
+that you should follow to help google to do its job.</li>
+</ul>
+
+
+<p>In the next article I&rsquo;ll be covering those topics. Stay tuned.</p>
+]]></content>
+  </entry>
+  
+</feed>

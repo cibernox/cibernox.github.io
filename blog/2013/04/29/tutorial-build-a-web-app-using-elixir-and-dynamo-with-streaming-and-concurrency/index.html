@@ -1,0 +1,688 @@
+
+<!doctype html>
+<html lang="pt-br">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  
+
+  
+
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=860">
+
+  <meta name="author" content="Miguel Camba" />
+  <link rel="publisher" href="https://plus.google.com/+104848632337303003619" />
+  <meta property="og:title" content="Tutorial: Build a Web App Using Elixir and Dynamo With Streaming and Concurrency - Coder idiosyncrasy" />
+  <meta property="og:site_name" content="Coder idiosyncrasy" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="pt-BR" />
+  <meta name="description" content="We are going to build step by step a simple web app that reads to fairy tales through streaming connections and handles multiple simultaneus &hellip;" />
+  <meta property="og:description" content="We are going to build step by step a simple web app that reads to fairy tales through streaming connections and handles multiple simultaneus conections." />
+  <meta property="og:url" content="http://miguelcamba.com/blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/" />
+  <meta property="og:image" content="http://miguelcamba.com/images/" />
+
+  <meta property="article:author" content="https://www.facebook.com/" />
+  <meta property="article:publisher" content="https://www.facebook.com/" />
+
+  
+    <meta name="keywords" content="elixir,erlang,dynamo,concurrent,streaming,server-side events,chunk" />
+  
+
+  <title>Tutorial: Build a Web App Using Elixir and Dynamo With Streaming and Concurrency - Coder idiosyncrasy</title>
+
+  <link rel="canonical" href="http://miguelcamba.com/blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency">
+  <link href="  /favicon.ico" rel="icon">
+  <link href="http://fonts.googleapis.com/css?family=Crete+Round:400" rel="stylesheet" type="text/css">
+  <link href="  /stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Coder idiosyncrasy" type="application/atom+xml">
+</head>
+
+  <body  id="post" >
+    <div class="cover-image"></div>
+
+<header id="header" role="banner" class="internal-page">
+  <div class="content">
+    <h1><a href="  /">Coder idiosyncrasy</a></h1>
+    <h1 id="second-link"><a href="/talks">Talks</a></h1>
+    <h1 id="third-link"><a href="/about">About</a></h1>
+    
+  </div>
+</header>
+
+    <main role="main">
+      <div class="content">
+  <article role="article">
+    
+  <header>
+    <h1>
+    
+      
+        Tutorial: Build a Web App Using Elixir and Dynamo With Streaming and Concurrency
+      
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-04-29T03:38:00+01:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:38 am</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/concurrency/'>concurrency</a>, <a class='category' href='  /blog/categories/elixir/'>elixir</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>Althoug I am mostly a Ruby developer, I like to play with unusual (to me) things from time to time, and
+concurrent programming is one of them. Functional programming is great for that, and elixir puts all the power
+of the Erlang VM in your hands without renounce to a nice and expresive syntax.</p>
+
+<!--more-->
+
+
+<p>Is well known that Ruby is not a good language to build concurrent code. MRI, the main ruby interpreter,
+has a global lock that prevents any code to run in parallel. It is true that other implementations like JRuby
+and Rubinius don&rsquo;t have that global lock, but still there are not optimal for concurrency, because the
+language itself is not designed for it:</p>
+
+<ul>
+<li><p>Ruby objects are mutable, so it has state. When the code is running in parallel, this may lead to strange
+behaviour and bugs due to unespected race conditions unless you are very carefull. And if you are too.</p></li>
+<li><p>The basic data-types (arrays, strings, hashes) are not prepared for parallel read/write. To solve this problem
+there is a gem called <a href="https://github.com/harukizaemon/hamster">hamster</a> that provides a set of real
+inmutable structures, but still, is not part of the core.</p></li>
+<li><p>The bast mayority of the libraries are not still thread safe.</p></li>
+</ul>
+
+
+<p>In summary, people that are serious about concurrency tends to use real state-less programming languages.
+Functional programming shines with all its bright at this, and one of the most popular programming languages
+is <strong>Erlang</strong>.</p>
+
+<h2>Erlang</h2>
+
+<p>Erlang was created in Ericsson in the late eigties and became opensource in the late nineties. Since then
+has grown in popularity for make easier to build fault-tolerant real-time applications. Is untyped, has garbage
+collection and works with message passing between processes. Today is more than a language, and has a
+virtual machine and a standar library focused in concurrency.</p>
+
+<p>It powers some of the most scalable systems in the world. Probably the best example is Whatsapp, with millions
+and millions of messages by minute. You should see <a href="http://www.erlang-factory.com/conference/SFBay2012/speakers/RickReed">this talk</a> of
+Rick Reed if you are curious about how they acomplished this magic.</p>
+
+<p>For me the problem with Erlang is Erlang itself. I don&rsquo;t like it.</p>
+
+<h2>Elixir</h2>
+
+<p>When I say that I don&rsquo;t like Erlang I mean that I don&rsquo;t like its syntax. Compared with the expresiviness of
+Ruby, Erlang is quite mathematical. This is not unexpected, all functional languages are. But since Erlang
+is also a runtime environment that executes bytecode, some other languages were build on top of this virtual
+machine on the same way that <strong>groovy</strong> or <strong>scala</strong> run on the java virtual machine.</p>
+
+<p>Jose Valim, a ruby hero and well known programmer (<a href="https://github.com/plataformatec/simple_form">simple_form</a>,
+<a href="https://github.com/plataformatec/devise">Devise</a>&hellip;) created <a href="http://elixir-lang.org/"><strong>Elixir</strong></a>,
+a language that compiles to erlang bytecode with a cleaner syntax, clearly inspired by its ruby background,
+and day by day is gaining popularity because it makes more pleasant to build Erlang applications.
+Besides, it can cohexist with pure erlang and you can call any erlang function without any perfomance
+penalty.</p>
+
+<h2>Dynamo</h2>
+
+<p>If elixir is ruby, <a href="https://github.com/elixir-lang/dynamo"><strong>dynamo</strong></a> is rails. Actually, it is more
+similar to sinatra than to rails, but the important thing is that it holds the role of <em>official</em> web
+framework for the language.</p>
+
+<p>It uses <a href="https://github.com/extend/cowboy">cowboy</a>, a web server written in pure erlang, so it scales
+very well with relatively low resources and is concurrent by conception, on the same way that node.js
+is naturally evented and make is interesting to build certain kind of services.</p>
+
+<h2>Requeriments</h2>
+
+<p>You need to have erlang installed in your computer in order to install elixir. You can download the
+latest erlang environment from <a href="https://www.erlang-solutions.com/downloads/download-erlang-otp">here</a>,
+and then proceed to install elixir. I installed it in maxOS with <em>homebrew</em> (<code>brew install elixir</code>).
+The <a href="http://elixir-lang.org/getting-started/introduction.html">official guide</a> has this topic covered for all operative systems.</p>
+
+<p>Dynamo requires as well to have installed <a href="https://github.com/basho/rebar">rebar</a> for compile apps.
+Now you can clone elixir repository to create your first app.</p>
+
+<h2>Proof of concept: A Storyteller</h2>
+
+<p>Let&rsquo;s build a simple web app. The idea is that I have some fairy tales in <em>.txt</em> files and I want to
+create a web service that sends the story to N browsers in chunks, line by line, with one second between them.
+I want to have lots of opened connections for a long period of time without bloking new incoming connections
+and without make polling from the client side.</p>
+
+<p>To create your first app and get dependencies:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="c"># Clone repo and enter its folder</span>
+</span><span class='line'>git clone git://github.com/elixir-lang/dynamo.git
+</span><span class='line'><span class="nb">cd </span>dynamo
+</span><span class='line'><span class="c"># Get dependencies and run tests</span>
+</span><span class='line'><span class="nv">MIX_ENV</span><span class="o">=</span><span class="nb">test </span>mix <span class="k">do</span> deps.get, <span class="nb">test</span>
+</span><span class='line'><span class="c"># Create the project</span>
+</span><span class='line'>mix dynamo ~/storyteller
+</span><span class='line'><span class="nb">cd</span> ~/storyteller
+</span><span class='line'><span class="c"># Install dependencies. Similar to bundler. Nice!</span>
+</span><span class='line'>mix deps.get
+</span><span class='line'><span class="c"># Start the server. By default in localhost:4000</span>
+</span><span class='line'>mix server
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can go to that url to check that everithing is ok till now.</p>
+
+<p>As with sinatra, dynamo has 2 basic components, the routers, under <code>web/routers</code> and the views, under <code>web/templates</code>.
+From the controller you tell the connection to render one of the avaliable templates.</p>
+
+<p>This is how the main router may look like in order to render the <code>index.html.eex</code> template in the root path:</p>
+
+<figure class='code'><figcaption><span>web/routers/application_router.ex </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ex'><span class='line'><span class="kd">defmodule</span> <span class="nc">ApplicationRouter</span> <span class="k">do</span>
+</span><span class='line'>  <span class="kn">use</span> <span class="nc">Dynamo.Router</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">prepare</span> <span class="k">do</span>
+</span><span class='line'>    <span class="c1"># Pick which parts of the request you want to fetch</span>
+</span><span class='line'>    <span class="c1"># You can comment the line below if you don&#39;t need</span>
+</span><span class='line'>    <span class="c1"># any of them or move them to a forwarded router</span>
+</span><span class='line'>    <span class="n">conn</span><span class="p">.</span><span class="n">fetch</span><span class="p">([</span><span class="ss">:cookies</span><span class="p">,</span> <span class="ss">:params</span><span class="p">])</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">get</span> <span class="s2">&quot;/&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">conn</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">assign</span><span class="p">(</span><span class="ss">:title</span><span class="p">,</span> <span class="s2">&quot;Welcome to Concurrent Story Teller v0.1!&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and the template:</p>
+
+<figure class='code'><figcaption><span>web/templates/index.html.eex </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE HTML&gt;</span>
+</span><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span><span class="err">&lt;</span>%= @title %&gt;<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">&quot;/static/favicon.ico&quot;</span> <span class="na">rel=</span><span class="s">&quot;icon&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">&quot;/static/storyteller.css&quot;</span> <span class="na">media=</span><span class="s">&quot;all&quot;</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;/static/storyteller.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;main-container&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;h1&gt;</span><span class="err">&lt;</span>%= @title %&gt;<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;section</span> <span class="na">class=</span><span class="s">&quot;stories-list&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;h2&gt;</span>Please, choose a story<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;article</span> <span class="na">class=</span><span class="s">&quot;story&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3&gt;</span>Red Riding<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/red-riding&quot;</span><span class="nt">&gt;</span>Read it to me!<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/article&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;article</span> <span class="na">class=</span><span class="s">&quot;story&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3&gt;</span>Snow white<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/snow-white&quot;</span><span class="nt">&gt;</span>Read it to me!<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/article&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;article</span> <span class="na">class=</span><span class="s">&quot;story&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;h3&gt;</span>Cinderella<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;/cinderella&quot;</span><span class="nt">&gt;</span>Read it to me!<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/article&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/section&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The extension <code>.eex</code> is like the <code>.erb</code> for ruby, and the code is also evaluated with <code>&lt;%= ... %&gt;</code> or <code>&lt;% ... %&gt;</code>.</p>
+
+<p>The static content, like the <em>favicon.ico</em> or the stylesheets/javascript files are served from the <code>/priv/static</code> folder
+but in the <code>/static/name-of-my-asset.css</code> route.</p>
+
+<p>I have 3 fairy tales, <strong>Snow white</strong>, <strong>Red riding</strong> and <strong>cinderella</strong> stored in tree <em>.txt</em> files in the root
+folder of the application. I want a page for each of this stories available under the  &ldquo;/name-of-the-tale&rdquo; path.</p>
+
+<p>If you have used sinatra or padrino, dynamo handles routing on a very similar way, so you only needs to enroute
+that url to a new action</p>
+
+<figure class='code'><figcaption><span>web/routers/application_router.ex </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ex'><span class='line'>  <span class="c1"># ....</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">get</span> <span class="s2">&quot;/:file_name&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">normalized_title</span> <span class="p">=</span> <span class="nc">String</span><span class="p">.</span><span class="n">capitalize</span><span class="p">(</span><span class="nc">String</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="n">conn</span><span class="p">.</span><span class="n">params</span><span class="p">[</span><span class="ss">:file_name</span><span class="p">],</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">conn</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">assign</span> <span class="ss">:title</span><span class="p">,</span> <span class="n">normalized_title</span>
+</span><span class='line'>    <span class="n">conn</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">assign</span> <span class="ss">:file_name</span><span class="p">,</span> <span class="n">conn</span><span class="p">.</span><span class="n">params</span><span class="p">[</span><span class="ss">:file_name</span><span class="p">]</span>
+</span><span class='line'>    <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;story.html&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and create the views</p>
+
+<figure class='code'><figcaption><span>web/layouts/story.html.eex </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE HTML&gt;</span>
+</span><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'><span class="nt">&lt;head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;title&gt;</span><span class="err">&lt;</span>%= @title %&gt;<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">&quot;/static/favicon.ico&quot;</span> <span class="na">rel=</span><span class="s">&quot;icon&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">&quot;/static/storyteller.css&quot;</span> <span class="na">media=</span><span class="s">&quot;all&quot;</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;/static/storyteller.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;/head&gt;</span>
+</span><span class='line'><span class="nt">&lt;body&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;main-container&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;h2&gt;</span><span class="err">&lt;</span>%= @title %&gt;<span class="nt">&lt;/h3&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;section</span> <span class="na">id=</span><span class="s">&quot;chat&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/section&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;play&quot;</span> <span class="na">href=</span><span class="s">&quot;/play/&lt;%= @file_name %&gt;&quot;</span><span class="nt">&gt;</span>Play!<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;div&gt;</span>
+</span><span class='line'><span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You have noticed that the variable we assign to the connection with <code>conn = conn.assign :title, normalized_title</code>
+are can be accessed in the templates as <code>@title</code>. It also can seem weird that all the time you are
+overwritting the same variable <code>conn</code> over and over. This is because in elixir all objects are inmutable.
+You can&rsquo;t modify the current connection to assign a variable to it. Instead of this, a new connection object
+is returned every time you modify it.</p>
+
+<p>This view can be DRYed using layouts, of course, but is ok for now.
+This view has a link to <strong>/play/name-of-the-story</strong>, the action that will send the chunked content.</p>
+
+<figure class='code'><figcaption><span>web/routers/application_router.ex </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='ex'><span class='line'>  <span class="c1"># ....</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">get</span> <span class="s2">&quot;/play/:story_name&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">conn</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">resp_content_type</span><span class="p">(</span><span class="s2">&quot;text/event-stream&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">conn</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">send_chunked</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">iterator</span> <span class="p">=</span> <span class="nc">File</span><span class="p">.</span><span class="n">iterator!</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">conn</span><span class="p">.</span><span class="n">params</span><span class="p">[</span><span class="ss">:story_name</span><span class="p">]</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nc">Enum</span><span class="p">.</span><span class="n">each</span> <span class="n">iterator</span><span class="p">,</span> <span class="k">fn</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="p">-&gt;</span>
+</span><span class='line'>      <span class="p">{</span> <span class="ss">:ok</span><span class="p">,</span> <span class="n">conn</span> <span class="p">}</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">chunk</span> <span class="s2">&quot;data: </span><span class="si">#{</span><span class="n">line</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class='line'>      <span class="n">await</span> <span class="n">conn</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">on_wake_up</span><span class="p">(</span><span class="ni">&amp;1</span><span class="p">,</span> <span class="ni">&amp;2</span><span class="p">),</span> <span class="n">on_time_out</span><span class="p">(</span><span class="ni">&amp;1</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">conn</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">defp</span> <span class="n">on_wake_up</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="c1"># Nothing</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">defp</span> <span class="n">on_time_out</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="c1"># Nothing</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this code I set the response header to <strong>text/event-stream</strong> because we want to use some javascript
+in the client side to listen to the new chunks without polling.
+The <code>conn.set_chunked(200)</code> returns a new connection prepared to send chunks, with <strong>transfer-encoding: chunked</strong>
+and <strong>connection: keep-alive</strong>.
+The <code>conn.chunk "message"</code> call sends a chunk the given message and returns a tuple, that can be
+<code>{ :ok, conn }</code> or <code>{ :error, failure }</code>. Assigning the tuple to <code>{ :ok, conn }</code> saves the connection and
+will raise an error if the first element of the tuple is no <code>:ok</code>, which means that something went wrong.</p>
+
+<p>Now let&rsquo;s test out code. The <strong>curl</strong> command is perfec for this.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -i http://localhost:4000/play/cinderella
+</span><span class='line'>HTTP/1.1 200 OK
+</span><span class='line'>transfer-encoding: chunked
+</span><span class='line'>connection: keep-alive
+</span><span class='line'>server: Cowboy
+</span><span class='line'>date: Mon, 29 Apr 2013 15:12:27 GMT
+</span><span class='line'>content-type: text/event-stream; charset=utf-8
+</span><span class='line'>cache-control: max-age=0, private, must-revalidate
+</span><span class='line'>
+</span><span class='line'>data: Once upon a time... there lived an unhappy young girl.
+</span><span class='line'>data: Unhappy she was, for her mother was dead, her father
+</span><span class='line'>data: had married another woman, a widow with two daughters,
+</span><span class='line'>data: and her stepmother didn't like her one little bit. All
+</span><span class='line'>data: the nice things, kind thoughts and loving touches were
+</span><span class='line'>data: for her own daughters. And not just the kind thoughts
+</span><span class='line'># ...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Aparently it works! Now lets do some javascript.</p>
+
+<figure class='code'><figcaption><span>/priv/static/storyteller.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;.play&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">ev</span><span class="p">){</span>
+</span><span class='line'>    <span class="nx">ev</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">source</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventSource</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">href</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">source</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">$line</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;&lt;p class=&quot;story-line&quot;&gt;&#39;</span> <span class="o">+</span> <span class="nx">e</span><span class="p">.</span><span class="nx">data</span> <span class="o">+</span> <span class="s1">&#39;&lt;/p&gt;&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">$line</span><span class="p">.</span><span class="nx">appendTo</span><span class="p">(</span><span class="s1">&#39;#chat&#39;</span><span class="p">).</span><span class="nx">hide</span><span class="p">().</span><span class="nx">fadeIn</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;html, body&quot;</span><span class="p">).</span><span class="nx">animate</span><span class="p">({</span> <span class="nx">scrollTop</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">height</span><span class="p">()</span> <span class="p">},</span> <span class="s2">&quot;slow&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I catch the click on the &ldquo;Play&rdquo; link and create an event source that receives the chunks from the server.
+Each time a chunk is received it is appended in a reserved area with some fancy animations.</p>
+
+<p>Let&rsquo;s test it in the browser:</p>
+
+<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/1lALr-Wulbg "></iframe></div>
+
+
+<p>Cool, ah?</p>
+
+<p>I encourage you to play with both, elixir and dynamo. Is maybe more suitable for concurrency newbies
+(as I am) than stand alone elixir, and allows your to build read things in a snap.</p>
+
+<p>You can find the application in <a href="https://github.com/cibernox/storyteller">my github</a>. Fork it!</p>
+
+
+
+    <footer>
+      
+        <div class="sharing">
+  
+    <a href="//twitter.com/share" class="twitter-share-button" data-url="http://miguelcamba.com/blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/" data-via="miguelcamba" data-counturl="http://miguelcamba.com/blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/">Tweet</a>
+  
+
+  
+    <div class="fb-like" data-href="http://miguelcamba.com/blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/" data-layout="button_count" data-action="recommend" data-show-faces="true" data-share="true"></div>
+  
+</div>
+
+      
+
+      <div class="about-author">
+  <img src="http://www.gravatar.com/avatar/aadced6e13c05d42faaf1be3bbb88b83?s=135" width="135" height="135" alt="Miguel Camba" />
+  <h3><a href="  /about">Miguel Camba</a></h3>
+  
+  <div class="author-description">I&#8217;m a web developer from Spain living in London. I do most of my work in Ruby/Rails and Javascript/Ember.js but I like to experiment with bleeding edge technologies. If you need help building your product, I might be able to help you.</div>
+  
+  <ul class="social-links">
+    <li>
+      <a href="https://github.com/cibernox" target="_blank">
+        <i class="icon-github">GitHub</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/miguelcamba" target="_blank">
+        <i class="icon-linkedin">Facebook</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/miguelcamba" target="_blank">
+        <i class="icon-twitter">Twitter</i>
+      </a>
+    </li>
+    <li>
+      <a href="  /atom.xml" target="_blank">
+        <i class="icon-feed">Feed</i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+      
+        <h4>Also read:</h4>
+        <div class="others-posts">
+          
+            <a class="prev-post" href="  /blog/2013/04/24/git-tip-merge-branches-taking-always-changes-from-one-of-them/" title="Post anterior: Git tip: Merge branches taking always changes from one of them">
+              Git tip: Merge branches taking always changes from one of them
+            </a>
+          
+          
+            <a class="next-post" href="  /blog/2013/05/04/rubytapas-dot-com-downloader-how-to-download-files-from-https-with-authentication/" title="Próximo post: Rubytapas.com downloader. How to download files from https with authentication">
+              Rubytapas.com downloader. How to download files from https with authentication
+            </a>
+          
+        </div>
+      
+    </footer>
+  </article>
+  
+  <section class="post-comments">
+    <header>
+      <h2>Comments:</h2>
+    </header>
+    
+      <div id="disqus_thread"></div>
+    
+  </section>
+
+
+</div>
+
+    </main>
+    <footer id="footer" role="contentinfo">
+  <div class="content">
+    <p class="copyright">Copyright &copy; 2017 - Miguel Camba</p>
+    <p class="powered-by">Powered by <a href="http://octopress.org">Octopress</a></p>
+  </div>
+</footer>
+
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-40004935-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="  /javascripts/libs/jquery.min.js"><\/script>')</script>
+<script src="  /javascripts/application.js"></script>
+
+
+  
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id; js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+
+  
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+  
+    <script type="text/javascript">
+      var disqus_shortname = 'miguelcamba';
+      
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://miguelcamba.com/blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/';
+        var disqus_url = 'http://miguelcamba.com/blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/';
+        var disqus_script = 'embed.js';
+      
+
+      (function () {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }());
+    </script>
+  
+
+
+  </body>
+</html>

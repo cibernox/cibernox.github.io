@@ -1,0 +1,800 @@
+
+<!doctype html>
+<html lang="pt-br">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  
+
+  
+
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=860">
+
+  <meta name="author" content="Miguel Camba" />
+  <link rel="publisher" href="https://plus.google.com/+104848632337303003619" />
+  <meta property="og:title" content="Coder idiosyncrasy - Development and stuff." />
+  <meta property="og:site_name" content="Coder idiosyncrasy" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="pt-BR" />
+  <meta name="description" content="Um blog sobre front-end e outras coisas..." />
+  <meta property="og:description" content="Um blog sobre front-end e outras coisas..." />
+  <meta property="og:url" content="http://miguelcamba.com/posts/2/index.html" />
+  <meta property="og:image" content="http://miguelcamba.com/images/" />
+
+  <meta property="article:author" content="https://www.facebook.com/" />
+  <meta property="article:publisher" content="https://www.facebook.com/" />
+
+  
+
+  <title>Coder idiosyncrasy - Development and stuff.</title>
+
+  <link rel="canonical" href="http://miguelcamba.com/posts/2">
+  <link href="  /favicon.ico" rel="icon">
+  <link href="http://fonts.googleapis.com/css?family=Crete+Round:400" rel="stylesheet" type="text/css">
+  <link href="  /stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Coder idiosyncrasy" type="application/atom+xml">
+</head>
+
+  <body >
+    <div class="cover-image"></div>
+
+<header id="header" role="banner" >
+  <div class="content">
+    <h1><a href="  /">Coder idiosyncrasy</a></h1>
+    <h1 id="second-link"><a href="/talks">Talks</a></h1>
+    <h1 id="third-link"><a href="/about">About</a></h1>
+    
+      <h2>Development and stuff.</h2>
+    
+  </div>
+</header>
+
+    <main role="main">
+      <div id="index" class="content">
+  <div class="about-author">
+  <img src="http://www.gravatar.com/avatar/aadced6e13c05d42faaf1be3bbb88b83?s=135" width="135" height="135" alt="Miguel Camba" />
+  <h3><a href="  /about">Miguel Camba</a></h3>
+  
+  <ul class="social-links">
+    <li>
+      <a href="https://github.com/cibernox" target="_blank">
+        <i class="icon-github">GitHub</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/miguelcamba" target="_blank">
+        <i class="icon-linkedin">Facebook</i>
+      </a>
+    </li>
+    <li>
+      <a href="https://twitter.com/miguelcamba" target="_blank">
+        <i class="icon-twitter">Twitter</i>
+      </a>
+    </li>
+    <li>
+      <a href="  /atom.xml" target="_blank">
+        <i class="icon-feed">Feed</i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/">
+        
+          Benchmarking Ruby 2.1 and Rubinius 2.0
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-10-05T20:33:00+01:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:33 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/ruby/'>ruby</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    <script type="text/javascript">
+  (function(){
+
+    var buildTable = function(data){
+      var header = data.shift();
+
+      var scoreboard = data[0].map(function(){ return 0; });
+      var totalTime = data[0].map(function(){ return 0; });
+
+      html = "";
+
+      html += '<table class="compact benchmark">'
+        html += '<thead>'
+          html += '<tr>'
+            header.forEach(function(e){
+              html += '<th>' + e + '</th>'
+            });
+          html += '</tr>'
+        html += '</thead>'
+        html += '<tbody>'
+          data.forEach(function(row){
+            html += '<tr>'
+              row.forEach(function(cell, index, array){
+                var cellClass = '';
+
+                if (index >= 2){
+                  var parsedValue = parseFloat(cell);
+                  var valuesArray = array.slice(2, array.length)
+                  var parsedArray = valuesArray
+                    .map(function(e){ return parseFloat(e) })
+                    .filter(function(e){ return !!e; })
+                  var allValuesAreCorrect = parsedArray.length == valuesArray.length;
+
+                  cellClass += 'value '
+
+                  if (!parsedValue){
+                    cellClass += 'wrong '
+                  } else {
+                    cell = parsedValue.toFixed(6)
+                    if (allValuesAreCorrect){ totalTime[index] += parsedValue }
+                    var isMaxValue = Math.max.apply(null, parsedArray) == parsedValue;
+                    if (isMaxValue){
+                      cellClass += 'slowest '
+                    } else {
+                      var isMinValue = Math.min.apply(null, parsedArray) == parsedValue;
+                      if (isMinValue){
+                        cellClass += 'fastest '
+                        scoreboard[index] += 1
+                      }
+                    }
+                  }
+                }
+
+                html += '<td class="'+cellClass+'">'
+                html += cell + '</td>'
+                html += '</td>'
+              });
+            html += '</tr>'
+          });
+        html += '</tbody>'
+        html += '<tfoot>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Victories</strong></td>'
+            scoreboard.slice(2,scoreboard.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'fastest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'slowest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e+'</td>'
+            });
+          html += '</tr>'
+          html += '<tr>'
+            html += '<td colspan="2"><strong>Total time</strong></td>'
+            totalTime.slice(2,totalTime.length).forEach(function(e, index, ary){
+              var htmlClass = '';
+              var isMaxValue = Math.max.apply(null, ary) == e;
+              if (isMaxValue){
+                htmlClass += 'slowest'
+              } else {
+                var isMinValue = Math.min.apply(null, ary) == e;
+                if (isMinValue){ htmlClass += 'fastest'}
+              }
+              html += '<td class="'+htmlClass+'">'+e.toFixed(6)+'</td>'
+            });
+          html += '</tr>'
+        html += '</tfoot>'
+      html += '</table>'
+
+      return html;
+    }
+
+    $(function(){
+
+      $.get("/javascripts/mri-rubies.json").success(function(json){
+        $('#table-ruby-mri-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+
+      $.get("/javascripts/all-rubies.json").success(function(json){
+        $('#table-ruby-all-benchmark-placeholder').replaceWith(buildTable(json));
+      });
+
+      $.get("/javascripts/all-rubies-v2.json").success(function(json){
+        $('#table-ruby-all-benchmark-v2-placeholder').replaceWith(buildTable(json));
+      });
+    })
+
+  })();
+</script>
+
+
+A few days ago a the first preview version of ruby 2.1 was released.
+
+It has many interesting improvements in the language, but the key ones are:
+
+<ul>
+<li>Refinements</li>
+<li>Decimal Literals</li>
+<li>Frozen string literals</li>
+<li>Required keyword arguments</li>
+<li>Method definition returns Method Name</li>
+<li>String#scrub</li>
+<li>Named captures in StringScanner</li>
+</ul>
+
+
+Some of this improvements are more exciting than others (thumbs up to frozen string, thumbs down to refinements),
+but as Yukuhiro Matsumoto said in his talk at the <a href="http://baruco.org/">Baruco</a>, which I attended, the main changes in this new release are
+internal, with the new generational garbage collector as the king of the party.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/10/05/benchmarking-the-ruby-2-dot-1-and-rubinius-2-dot-0/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/09/16/quick-tip-show-surrounding-lines-with-grep/">
+        
+          Quick Tip: Show Surrounding Lines With Grep
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-09-16T22:23:00+01:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:23 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/development/'>development</a>, <a class='category' href='  /blog/categories/tip/'>tip</a>, <a class='category' href='  /blog/categories/unix/'>unix</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    A few days ago I made one of these small discoveries that make you smile and at the same time cry for all the time you have lost.
+And one more time I got a reminder that mastering unix tools can make your life easier. God save the <code>man</code> command.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/09/16/quick-tip-show-surrounding-lines-with-grep/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/07/11/sass-placeholders-versus-mixins-and-extends/">
+        
+          SASS Placeholders Versus Mixins and Extends
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-07-11T21:32:00+01:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:32 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/frontend/'>frontend</a>, <a class='category' href='  /blog/categories/sass/'>sass</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    Sass preprocessors have reached critical mass to consider them a mainstream technology.
+Nowadays almost nobody that does some serius frontend still uses plain old css, but some people
+that uses <a href="http://sass-lang.com/">sass</a> (or <a href="http://lesscss.org/">less</a>) are using
+it like if it where just regular css with nesting and some sintax sugar, without squeezing
+all the power that those technologies put in our hands.
+
+This a summary of the main 3 features o SASS, pointing out its differences.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/07/11/sass-placeholders-versus-mixins-and-extends/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/05/04/rubytapas-dot-com-downloader-how-to-download-files-from-https-with-authentication/">
+        
+          Rubytapas.com Downloader. How to Download Files From Https With Authentication
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-05-04T02:14:00+01:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>2:14 am</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/ruby/'>ruby</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    A few days ago I susbcribed to <a href="http://www.rubytapas.com/">Rubytapas</a>, a series of short screencasts about ruby
+by <a href="http://devblog.avdi.org/">Advi Grimm</a>.
+
+First of all, I have to recommend you to give it a try. A constant source of small pills filled with ruby wisdom.
+I&rsquo;ve discovered many usefull tricks. It totally worths the 9$/month.
+
+<h3>The problem</h3>
+
+After my subscription, I wanted to download the old episodes (a few days ago Avdi published the 100th episode)
+but I didn&rsquo;t want to do it manually. I googled for a script but I didn&rsquo;t found any, so I decided to write one.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/05/04/rubytapas-dot-com-downloader-how-to-download-files-from-https-with-authentication/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/">
+        
+          Tutorial: Build a Web App Using Elixir and Dynamo With Streaming and Concurrency
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-04-29T03:38:00+01:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:38 am</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/concurrency/'>concurrency</a>, <a class='category' href='  /blog/categories/elixir/'>elixir</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    Althoug I am mostly a Ruby developer, I like to play with unusual (to me) things from time to time, and
+concurrent programming is one of them. Functional programming is great for that, and elixir puts all the power
+of the Erlang VM in your hands without renounce to a nice and expresive syntax.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/04/29/tutorial-build-a-web-app-using-elixir-and-dynamo-with-streaming-and-concurrency/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/04/24/git-tip-merge-branches-taking-always-changes-from-one-of-them/">
+        
+          Git Tip: Merge Branches Taking Always Changes From One of Them
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-04-24T02:56:00+01:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>2:56 am</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/git/'>git</a>, <a class='category' href='  /blog/categories/tips/'>tips</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    This is a trick I discovered a few days ago and made me cry remembering the time I lost fixing manually
+conflics when I already knew that the changes I wanted were all from same branch.
+
+Never again using merge strategies.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/04/24/git-tip-merge-branches-taking-always-changes-from-one-of-them/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/04/22/tweak-and-improve-your-new-octopress-blog/">
+        
+          Tweak and Improve Your New Octopress Blog
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-04-22T20:28:23+01:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>8:28 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/octopress/'>octopress</a>, <a class='category' href='  /blog/categories/ruby/'>ruby</a>, <a class='category' href='  /blog/categories/seo/'>seo</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    After publish your blog, there is still a few things you can do to improve it. These are some of them:
+
+<h3>Point your own domain to GitHub pages</h3>
+
+This is a must have. Have your own domain is cool. If you don&rsquo;t like the <em>.github.io</em> at the end of the address bar,
+you can point your domain to github.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/04/22/tweak-and-improve-your-new-octopress-blog/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/04/22/tutorial-create-a-blog-with-octopress-and-host-it-in-github-pages/">
+        
+          Tutorial: Create a Blog With Octopress and Host It in Github Pages
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-04-22T20:24:21+01:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>8:24 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/octopress/'>octopress</a>, <a class='category' href='  /blog/categories/ruby/'>ruby</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    I&rsquo;ll start talking about the last thing I started to experiment with, that is this very blog you are
+reading right now, built with Jekyll + Octopress.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/04/22/tutorial-create-a-blog-with-octopress-and-host-it-in-github-pages/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+    
+    <article class="feed-article">
+      
+  <header>
+    <h1>
+    
+      <a href="  /blog/2013/04/22/i-am-back/">
+        
+          I Am Back
+        
+      </a>
+    
+    </h1>
+
+    
+      
+
+
+
+
+
+      <span class="meta">
+        <time class='entry-date' datetime='2013-04-22T20:21:58+01:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>8:21 pm</span></time>,
+        
+
+  <span class="categories">
+    
+      <a class='category' href='  /blog/categories/me/'>me</a>, <a class='category' href='  /blog/categories/meta/'>meta</a>
+    
+  </span>
+
+
+        
+
+
+      </span>
+    
+  </header>
+
+
+
+  <p>
+    Hi. This is my new blog.
+
+Some time ago I had another blog called &ldquo;masquerailes&rdquo;, where I wrote half a docen posts about
+development, specially about ruby, in Spanish. Lots of things happened, now I live in another city
+in the other side of the country and changed my job twice, but at the end my calling remains untouch.
+
+Coding.
+
+..
+    
+    
+      <a rel="full-article" href="  /blog/2013/04/22/i-am-back/">
+        Read on &rarr;
+      </a>
+    
+  </p>
+
+
+    </article>
+  
+
+  
+    <div class="pagination">
+      
+        <a class="prev" href="  /index.html"><</a>
+      
+      
+    </div>
+  
+</div>
+
+    </main>
+    <footer id="footer" role="contentinfo">
+  <div class="content">
+    <p class="copyright">Copyright &copy; 2017 - Miguel Camba</p>
+    <p class="powered-by">Powered by <a href="http://octopress.org">Octopress</a></p>
+  </div>
+</footer>
+
+    
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-40004935-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="  /javascripts/libs/jquery.min.js"><\/script>')</script>
+<script src="  /javascripts/application.js"></script>
+
+
+
+  </body>
+</html>

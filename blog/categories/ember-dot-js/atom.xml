@@ -1,0 +1,1603 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ember.js | Coder idiosyncrasy]]></title>
+  <link href="http://miguelcamba.com/blog/categories/ember-dot-js/atom.xml" rel="self"/>
+  <link href="http://miguelcamba.com/"/>
+  <updated>2017-04-12T00:14:24+01:00</updated>
+  <id>http://miguelcamba.com/</id>
+  <author>
+    <name><![CDATA[Miguel Camba]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[The Future of Ember's Testing and the Beheading of jQuery]]></title>
+    <link href="http://miguelcamba.com/blog/2017/04/11/the-future-of-embers-testing-and-the-beheading-of-jquery/"/>
+    <updated>2017-04-11T23:35:53+01:00</updated>
+    <id>http://miguelcamba.com/blog/2017/04/11/the-future-of-embers-testing-and-the-beheading-of-jquery</id>
+    <content type="html"><![CDATA[<p>For those writing Ember apps, jQuery has been an omnipresent presence from the beginning.
+It is included by default with the framework and seems to be infiltrated everywhere in it
+and the community. Well, that is about to end.</p>
+
+<!-- more -->
+
+
+<p>In reality Ember bundled jQuery with it as one of its &ldquo;opinions&rdquo; but the framework
+itself it not SO dependent on jQuery. There is basically only three features in Ember
+that rely in it:</p>
+
+<ul>
+<li><code>this.$()</code></li>
+<li>The event dispatcher (The thing that makes functions like <code>click() {}</code> in you components
+be called when that event happens)</li>
+<li>Testing. Pretty much everything.</li>
+</ul>
+
+
+<p>But a lot of things hace changed since Ember decided that bundling jQuery was a good idea back in 2011.
+Then jQuery was the thing we all were building things on, mobile web apps were anecdotical at
+best and IE 7/8 was so popular that few people dared to code stuff for them without the
+cross-browser safety net of some library.</p>
+
+<p>Today we build apps that run mostly for evergreen browsers and perhaps IE11, mobile
+accounts for a good 50% of our visits it not more, and making a network request is not longer
+something that requires you to copy-paste some obscure code from stackoverflow, so it&rsquo;s time
+to make jQuery one of those Ember opinions you can disagree with.</p>
+
+<p>Before you start following this post, consider if it&rsquo;s worth the effort for you to do this.</p>
+
+<p><strong>If you have an app that is months or years old, it will take significant effort remove jQuery</strong>.
+It will require refactor ALL your tests, stop using jQuery it in all the places where you did (and I bet
+you did in more places than you&rsquo;re aware of) and for now many of the addons your use won&rsquo;t work, starting
+with some addons as important as <code>ember-data</code>.
+An intermediate step could be to use a lighter version of jQuery with some features removed.
+For you it might make more sense to use the <em>slim</em> version of jQuery, which can save you
+7KB with very little effort.</p>
+
+<p><strong>If you are starting a new app right now and it targets mobile, it might make sense to try</strong>.
+You will save more than 35KB of min+gzip size, with it&rsquo;s associated parse and eval code and
+that can save half a second in a cold boot even with decent device and connection and around
+a second if other of those is bad.</p>
+
+<p><strong>If, on the other hand, your app targets desktop, it is unlikely that a jQuery-less app will bring you a lot of advantages</strong> and it will make your development harder, as a lot of addons need jQuery to work, so you will have to make
+PRs to fix other people&rsquo;s addons as you go. It is important to keep in mind that jQuery
+is not over 100K of random code wrote for the fun of it. It actually fixes tons of browser
+quirks (run <code>curl -L https://code.jquery.com/jquery-git.js | grep -A 5 -n Support:</code> to
+see some). It&rsquo;s a fantastic piece of software that we shouldn&rsquo;t disregard as obsolete.</p>
+
+<p>That said, most of those quirks affect IE9 and 10 or ancient versions of safari and the
+android browser which are legacy today and Ember shields you from almost all of them by
+handing DOM manipulation, so a lot of Ember addons rely on jQuery for very simple tasks
+just because <em>it has always been there</em>, not because it is intrinsic to their goal.
+Usually fixing those addons takes little time.</p>
+
+<p><strong>If you are maintaining an addon, you totally should</strong>. Since the main problem people
+will face building apps without jQuery is that addons break, try to make your addons to not
+be one of those that break.</p>
+
+<p>Now, let&rsquo;s get to the topic</p>
+
+<h2>Disclaimer about Ember version</h2>
+
+<p>At the time of this writing, you need Ember.js >= 2.13.0-beta.2. Soon (a few weeks) the fix
+will be in stable.
+I&rsquo;d also strongly recomend to be on ember-cli 2.13-beta too so you use ember-cli-babel 6. It&rsquo;s
+not <strong>required</strong>, but in this tutorial I&rsquo;m going to do it and explain why it&rsquo;s cool.</p>
+
+<h2>Steps</h2>
+
+<p>Since the main missing point of the transition away from jQuery was testing, this post is
+also going to explain a new way of doing testing that is an experiment towards the <a href="https://github.com/rwjblue/rfcs/blob/42/text/0000-grand-testing-unification.md">Grand
+Testing Unification RFC</a>
+that has been long awaited and today we can almost touch it with the tips of our fingers.</p>
+
+<p>On every step I&rsquo;ll explain you <strong>why</strong> this step is required, because some of them are
+needed today but will probably not be required in the future as tools adapt. If you read
+this post in a few weeks or months in the future, recheck if things have changed and skip
+the step if possible.</p>
+
+<p>The first step is top update your app/addon to use 2.13. Run <code>ember install ember-source@2.13.0-beta.2</code></p>
+
+<p>The reason for that is <a href="https://github.com/emberjs/ember.js/pull/15065">this fix</a> that
+makes Ember only setup <code>ajaxSend</code> and <code>ajaxComplete</code> events <strong>only</strong> if jQuery is present.
+Without it jQuery-less apps where basically untestable.</p>
+
+<p>The second step (entirely optional, feel free to skip): <a href="https://github.com/ember-cli/ember-cli/releases/tag/v2.13.0-beta.3">Update ember-cli to 2.13-beta</a>.
+Go, I&rsquo;ll wait.</p>
+
+<p>One nice feature of this beta version is the new <a href="https://github.com/ember-cli/rfcs/blob/master/complete/0095-standardise-targets.md">targets feature</a>
+In short, this feature allows you to express in what browsers your app is going to run so
+tooling can be smart about it in many ways. The best example of this is that ember-cli-babel 6 will
+only transpile what is necessary for running the app in the given and nothing else, so if
+you target only modern browsers features that now law, like arrow functions, will be untouched.</p>
+
+<p>If you are like me, you will usually develop in the latest chrome. If you do so, you don&rsquo;t need
+most of the transpilation that Babel does by default even if you do for production, so for
+a better debugging experience I use this settings:</p>
+
+<pre><code class="js">let browsers;
+if (process.env.EMBER_ENV === 'development') {
+  browsers = ['last 1 Chrome versions']
+} else {
+  browsers = [
+    'ie 11',
+    'last 1 Chrome versions',
+    'last 1 Firefox versions',
+    'last 1 Safari versions'
+  ]
+}
+module.exports = {
+  browsers
+};
+</code></pre>
+
+<p>Your app will be transpiled in production and when running tests in CI but in development,
+apart from <code>import/export</code>, your code will remain almost untouched. I&rsquo;ve disabled JS sourcemaps
+since I don&rsquo;t find them useful anymore with this settings.</p>
+
+<p>The reason why I recomend following this step even if it&rsquo;s not necessary is because we&rsquo;re going
+to rely a lot in some new features of the language and avoiding transpilation will make
+your debugging experience better.
+I actually recommend those settings regardless of if you plan to remove jQuery or not. It just
+feels like living in a better future.</p>
+
+<p>The third step is to replace the jQuery-based ember dispatcher that lives inside Ember with
+one based in native events. As usual Robert Jackson got you covered and he developed
+<a href="https://github.com/rwjblue/ember-native-dom-event-dispatcher"><code>ember-native-dom-event-dispatcher</code></a>
+a while ago.</p>
+
+<p>Run <code>ember install ember-native-dom-event-dispatcher</code> and your app will not use jQuery events anymore.</p>
+
+<p>This will make components methods named after events (like <code>click(event) {}</code> or <code>mouseEnter(event) {}</code>) work
+as usual with the subtle difference that the received <code>event</code> is no longer a jQuery event but a native one.
+For the most part they are pretty interoperable, but there is some subtle differences in props/methods
+and how <code>event.target</code> works, so pay attention.
+To name the caveat that is most likely to bite you, to check if some code called <code>.preventDefault()</code> on an event,
+in native events you use the <code>e.defaultPrevented</code> property while in jQuery events you use the <code>e.isDefaultPrevented()</code>
+method.</p>
+
+<p>The forth step if to install the last version I published of <a href="https://github.com/cibernox/ember-native-dom-helpers"><code>ember-native-dom-helpers</code></a>.</p>
+
+<p>Run <code>ember install ember-native-dom-helpers</code> and you will be introduced to a new way testing that
+will delight you and I&rsquo;ll cover in a moment. This new way of testing is going to use <code>async/await</code>
+instead of <code>andThen</code>, so any but the very latest browsers you will need the regenerator
+polyfill. Run <code>ember install ember-maybe-import-regenerator</code> to get it. This addon already
+uses the new targets feature so it will not import it if the browsers you target support async/await already.
+I&rsquo;m biased because I created the addon, but regardless of if you plan to remove jQuery, you should try it.
+It&rsquo;s going to make you love your tests again, particularly integration tests.</p>
+
+<p>The next step is to remove <code>ember-ajax</code>. The addon is included by the default blueprint but it is a wrapper around
+<code>$.ajax</code>, so it&rsquo;s evident that we need to find a replacement. I&rsquo;ve switched on my projects to
+<a href="https://github.com/stefanpenner/ember-fetch"><code>ember-fetch</code></a> and it&rsquo;s very nice.
+However at the time of this writing you must use the branch <code>patch-2</code> of my own
+fork of the project (<a href="https://github.com/cibernox/ember-fetch/tree/patch-2">cibernox/ember-fetch#patch-2</a>) while those changes are not
+merged into master.</p>
+
+<p>It is important to note that <strong>you must not use the global <code>window.fetch</code> even if your browser matrix supports it</strong>.
+You must use the <code>import fetch from 'fetch';</code> import path that the addon provides. You might
+wonder why we can&rsquo;t just &ldquo;Use the platform&rdquo;. If you don&rsquo;t care about testing then using <code>window.fetch</code>
+is fine, but in testing you will want to perform some operation that makes a network request
+and then wait for it to finish before asserting that your UI has updated accordingly.
+In order to do that Ember must instrument when a fetch request starts and finishes so it can
+wait for them, and that is what this imported <code>fetch</code> function does. It&rsquo;s just <a href="https://github.com/cibernox/ember-fetch/blob/15c04b029c3eed4b09f9e37d1636194cf95ac725/assets/browser-fetch.js.t#L23-L35">a thin wrapper</a>
+over the global fetch with a polyfill for old browsers.</p>
+
+<p>Another reason to not use the native fetch is that you will want to mock network requests in development/test
+and <a href="http://www.ember-cli-mirage.com/"><code>ember-cli-mirage</code></a> is very popular for that. That addon
+uses a mocking library called <a href="https://github.com/pretenderjs/pretender">Pretender.js</a> which
+at the time of this writing cannot mock requests made with the native <code>fetch</code>, but it can
+however if you use the fetch polyfill that <code>ember-fetch</code> (which uses a regular XHR request underneath) provides you.
+There is some ideas to fix pretender on this regard, so hopefully this will change soon.</p>
+
+<p>BTW, there is caveat about <code>fetch</code> (native or otherwise) that although I am aware of, I keep forgetting.
+Unlike <code>$.ajax('/some-url').then(fn1).catch(fn2)</code> where 2XX and 3XX status codes trigger the <code>then</code> callback
+and 4XX and 5XX statuses are considered failures and trigger the <code>catch</code>, using the <code>fetch</code> the
+only situation that causes a request to fail and the <code>catch</code> handler to be called is a real
+network error, like being offline or a timeout. Any request that was properly sent and
+received, even if its status is a catastrofic 500 will call the <code>then</code> method, so you need to use
+the <code>response.ok</code> flag to disambiguate. E.g:</p>
+
+<pre><code class="js">fetch("/some-endpoint").then((response) =&gt; {
+  if (!response.ok) {
+    throw Error(response.statusText);
+  }
+  return response;
+}).then((response) =&gt; console.log("ok"))
+  .catch((error) =&gt; console.log(error));
+</code></pre>
+
+<p>One last thing you have to remove is <code>ember-data</code>, for similar reasons. There is a plan to
+decouple <code>ember-data</code> from <code>$.ajax</code>, but we&rsquo;re not there yet.</p>
+
+<p>Enough with addons, let&rsquo;s remove jQuery itself. Open your <code>ember-cli-build.js</code> and make
+it look like this:</p>
+
+<pre><code class="js">const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
+
+module.exports = function(defaults) {
+  let app = new EmberAddon(defaults, {
+    vendorFiles: { 'jquery.js': null }
+  });
+
+  return app.toTree();
+};
+</code></pre>
+
+<p>Done, no more jQuery. Now if you are on an empty app or addon you should be able boot it
+and start working on it. If you are on an existing one, chances are some addon will
+break, but the errors messages I&rsquo;ve seen were always pretty evident.</p>
+
+<p>The actual problem until now with jquery-less apps was testing, and this is the problem,
+among others, that <code>ember-native-dom-helpers</code> wants to solve.</p>
+
+<p>This addon provides you with a collection of test helpers that you can use in both acceptance
+and integration tests and those helpers, unlike the ones in Ember.js itself, don&rsquo;t use jQuery internally.
+It even offers a few useful new helpers like <code>tap</code> and <code>waitUntil</code> that will make your life
+easier.</p>
+
+<p>One key feature the interaction helpers of that addon (<code>click</code>, <code>fillIn</code>, <code>tap</code> &hellip;) is
+that they return the promise generated by <code>wait()</code>, which is a promise that resolves once
+the &ldquo;world has settled&rdquo; (No pending waiters, no pending route transitions, no pending ajax requests&hellip;).</p>
+
+<p>This along with the new <code>async/await</code> syntax in ES2017 allows you to make your tests much
+more readable.</p>
+
+<p>Instead of</p>
+
+<pre><code class="js">moduleForAcceptance('Acceptance | Sign up');
+
+test('Usage awaiting the world to settle', async function(assert) {
+  visit('/sign-up');
+
+  andThen(function() {
+    fillIn('.first-name', 'Chuck');
+    fillIn('.last-name', 'Berry');
+    click('.submit-btn');
+  });
+
+  andThen(function() {
+    assert.ok(find('.welcome-msg')[0], 'There is a welcome banner');
+    assert.equal(find('.welcome-msg-name').text().trim(), 'Chuck');
+  });
+});
+</code></pre>
+
+<p>you can write:</p>
+
+<pre><code class="js">import { visit, click, find, fillIn } from 'ember-native-dom-helpers';
+
+moduleForAcceptance('Acceptance | Sign up');
+
+test('Usage awaiting the world to settle', async function(assert) {
+  await visit('/sign-up');
+
+  fillIn('.first-name', 'Chuck');
+  fillIn('.last-name', 'Berry');
+  await click('.submit-btn');
+
+  assert.ok(find('.welcome-msg'), 'There is a welcome banner');
+  assert.equal(find('.welcome-msg-name').textContent.trim(), 'Chuck');
+});
+</code></pre>
+
+<p>With the benefit that you don&rsquo;t need to change your mindset when writing integration tests,
+since the same helpers behave the same way on both kind of tests:</p>
+
+<pre><code class="js">import { click, fillIn, find, findAll, keyEvent, triggerEvent } from 'ember-native-dom-helpers';
+
+moduleForComponent('my-component', 'Integration | Component | my-component', {
+  integration: true
+});
+
+test('I can interact with my component', async function(assert) {
+  this.render(hbs``````);
+
+  await fillIn('.some-input');
+  await click('.main-button');
+  await keyEvent('.other-input', 'keyup', 40); // down arrow
+  await triggerEvent('.some-drop-area', 'mouseenter');
+
+  assert.ok(find('.result-of-event-happened'));
+  assert.equal(findAll('.result-list-item').length, 3);
+})
+</code></pre>
+
+<p>Since those helpers don&rsquo;t use jQuery and now we are making requests with <code>ember-fetch</code>, we
+can write an tests apps nicer than ever!</p>
+
+<p>Note that to prevent ESLint to freak out when using <code>async/await</code>, you must edit your <code>.eslintrc.js</code>
+file and instruct to parse the javascript as the new ES2017 spec:</p>
+
+<pre><code class="js">module.exports = {
+  root: true,
+  parserOptions: {
+    ecmaVersion: 2017, // &lt;--- yeah!
+    sourceType: 'module'
+  },
+  extends: 'eslint:recommended',
+  env: {
+    browser: true
+  },
+  rules: {
+  }
+};
+</code></pre>
+
+<p>If you are starting a new project and since the name of the test helpers provided by
+<code>ember-native-dom-helpers</code> are the same of the global helpers provided by Ember, but you
+really don&rsquo;t want to use those by mistake, I recommend to remove the configuration line
+that explicitly whitelists those helpers as globals, so it will prevent you from using
+the global <code>window.click/fillIn</code> that rely on jQuery by mistake.</p>
+
+<pre><code class="diff">module.exports = {
+-  env: {
+-    embertest: true
+-  },
+  globals: {
+  }
+}
+</code></pre>
+
+<p>This is pretty much all you need to know about the future of testing and removing jQuery
+from your app addons.
+Now it is the turn of the community of steadily but relentlessly make all the addons that
+are not intentionally wrappers around jQuery plugins to work without it, so soon we move
+from making jQuery an opt-out to make it an opt-in, which is part of the broader strategy
+to create an easy path for apps to escalate from a barebone Glimmer.js component to the
+full-featured Ember.js application as they need.</p>
+
+<h2>Is it really any faster?</h2>
+
+<p>Yes, it is. This screen were taking on <a href="www.ember-basic-dropdown.com">www.ember-basic-dropdown.com</a> running locally with CPU throttling set to 5X and networt set to &ldquo;Good 3G&rdquo;. That is more or less like using a high end Android devise on a <em>meh</em> connection. A pretty common situation in the first world.</p>
+
+<p>With jQuery:
+<img src="http://miguelcamba.com/images/with-jquery-small.jpg" alt="with jQuery" style="width: 100%"/></p>
+
+<p>Without jQuery:
+<img src="http://miguelcamba.com/images/without-jquery-small.jpg" alt="without jQuery" style="width: 100%"/></p>
+
+<p>The TTI (time to interactive) is consistently around 0.7 seconds smaller on a cold boot. With a slower devise or a worse connection the difference is a bit over 1s.</p>
+
+<h2>How can I help?</h2>
+
+<p>This is for addon maintainers. If you know that your addon doesn&rsquo;t have any reason to use
+jQuery, what you can do is follow the steps in this tutorial, fix any possible unintended
+usage of jQuery in your addon and then make sure you test without jQuery in CI.</p>
+
+<p>You can use <a href="https://github.com/cibernox/ember-basic-dropdown/pull/260">this PR to ember-basic-dropdown</a>
+as an example of the changes that an addon with a mild usage of jQuery had to do to.
+<a href="https://github.com/cibernox/ember-basic-dropdown/pull/240/files">This</a> and <a href="https://github.com/cibernox/ember-basic-dropdown/pull/253">this</a>
+PRs that slowly introduced <code>ember-native-dom-helpers</code> before chopping jQuery might also
+be helpful to see how to refactor a codebase to the new testing style.</p>
+
+<h2>What is the big picture of things to make this a default.</h2>
+
+<p>This is just what <strong>I think</strong> should be required to the MVP of a jquery-less world that doesn&rsquo;t suck to live in.</p>
+
+<ul>
+<li>Enhance pretender (used by ember-cli-mirage) to reliably mock fetch. In practice it means to create the fetch counterpart of <a href="https://github.com/pretenderjs/FakeXMLHttpRequest">https://github.com/pretenderjs/FakeXMLHttpRequest</a></li>
+<li>Enhance <code>ember-fetch</code> to have some sort of feature-parity with <code>ember-ajax</code>, particularly exposing a service that allows to encapsulate authentication, headers and all that.</li>
+<li>Refactor ember-data internals to use some sort of <code>network</code> service that masks how that actually works inside. It could be implemented in terms of <code>Ember.$</code>, <code>fetch</code> or raw <code>XHR</code>. This service should be provided by the networking libraries (<code>ember-ajax</code>, <code>ember-network</code>, <code>ember-fetch</code>&hellip;). For backwards compatibility reasons probably this service&rsquo;s semantics should mimic <code>$.ajax</code>, but not sure.</li>
+<li>Put a carrot for developers to make their addons jquery-free. One idea I have is giving them one extra point in ember-observer.
+We could detect this checking if <code>ember-native-dom-event-dispatcher</code> is present in some of the ember-try scenarios.</li>
+<li>Ensure that the top 15? 20? 25? addons in popularity work without jQuery. Like with mobile apps&#8217; usage, those top XX addons account would cover a significant percentage of the apps.</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Trick for Build Composable Components - Part 1]]></title>
+    <link href="http://miguelcamba.com/blog/2016/04/13/tricks-for-build-composable-components-part-1/"/>
+    <updated>2016-04-13T10:24:56+01:00</updated>
+    <id>http://miguelcamba.com/blog/2016/04/13/tricks-for-build-composable-components-part-1</id>
+    <content type="html"><![CDATA[<p>Component composition has been my personal area of interest lately when using Ember.
+<a href="https://www.ember-power-select.com">Ember Power Select</a> started like me scratching my own itch and
+trying to fill what I felt like a meaningful gap in the ecosystem but also became my playground to
+try ideas and decide what works and what doesn&rsquo;t.</p>
+
+<p>This posts starts a (probably short) series of post with things I&rsquo;ve learned in the process. Some will
+be concrete tricks, others will be just general advices.</p>
+
+<p>Patronizing bores people, so I&rsquo;ll start with one simple trick.</p>
+
+<!-- more -->
+
+
+<h2>Allow mass assignment of properties</h2>
+
+<p>No, this is not about the well-known old rails security outage.</p>
+
+<p>Imagine you have built a component that, despite of how hard you tried to avoid it, ends up accepting
+quite a few options. You are a good Ember fellow so you decide to leverage convention over configuration
+and make most those option have sensible default values.</p>
+
+<p>Example:</p>
+
+<p>
+<code>js
+// cool-component/compoenent.js
+export default Ember.Component.extend({
+  placeholder: null,
+  disabled: false,
+  role: 'input',
+  autofocus: true,
+  dir: 'ltr'
+});
+</code>
+{% raw %}</p>
+
+<p>Your goal is to allow a user to be able to create their own wrapper components that <em>compose</em> yours,
+so they can reuse some set of configuration options and actions that yield the behavior they want in
+a less verbose manner. That user is also a very good ember citizen and decides that there is value
+on that customized version of your component and it can be published as an addon.</p>
+
+<p>That user will also want to give some degree of freedom to the consumer of his work and allow to, on turn,
+customize the default values.</p>
+
+<p>To allow that, the wrapper component must forward all possible attributes to the inner component, like
+this:</p>
+
+<p>{% raw %}
+<code>html
+// my-wrapper/template.hbs
+{{cool-component
+  disabled=disabled
+  role=role
+  autofocus=autofocus
+  dir=dir
+  value=value
+  placeholder=placeholder
+}}
+</code>
+</p>
+
+<p>So the user just does:</p>
+
+<p>
+<code>html
+{{my-wrapper value=foo dir="rtl"}}
+</code>
+</p>
+
+<p>And here it comes the problem. If the consumer of the wrapper component doesn&rsquo;t specify every single possible
+option those non-specified options being forwarded contain <code>undefined</code> and will override the default
+values of the inner with it.</p>
+
+<p>This is not really easy to fix by the creator of the wrapper component, because to fix that from the outside,
+the wrapper component has to copy the default values for every option accepted by the inner component, like this.</p>
+
+<p>
+<code>js
+// cool-component/compoenent.js
+export default Ember.Component.extend({
+  disabled: false,    // Same default value as the inner component
+  role: 'input',      // Same default value as the inner component
+  autofocus: true,    // Same default value as the inner component
+  dir: 'ltr',         // Same default value as the inner component
+  placeholder: 'Type to search', // This default is different
+});
+</code>
+</p>
+
+<p>This requires a lot of intimate knowledge of the internals of the inner component. You need to know
+all options along with their values and update them if they change.</p>
+
+<p>This can however be addressed in a more robust way by the creator of the inner component by defining
+the default values in a way that don&rsquo;t get overridden by <code>undefined</code> values.</p>
+
+<p>This can be done with a <code>defaultTo</code> computed property macro in a very clean way:</p>
+
+<p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">function</span> <span class="nx">defaultTo</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">computed</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">get</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">value</span><span class="p">;</span> <span class="p">},</span>
+</span><span class='line'>    <span class="nx">set</span><span class="p">(</span><span class="nx">_</span><span class="p">,</span> <span class="nx">newVal</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">newVal</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">?</span> <span class="nx">value</span> <span class="o">:</span> <span class="nx">newVal</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">placeholder</span><span class="o">:</span> <span class="nx">defaultTo</span><span class="p">(</span><span class="kc">null</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">disabled</span><span class="o">:</span> <span class="nx">defaultTo</span><span class="p">(</span><span class="kc">false</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">role</span><span class="o">:</span> <span class="nx">defaultTo</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">input</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;),</span>
+</span><span class='line'>  <span class="nx">autofocus</span><span class="o">:</span> <span class="nx">defaultTo</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">dir</span><span class="o">:</span> <span class="nx">defaultTo</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">ltr</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;)</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+</p>
+
+<p>With this little macro people wrapping your component can carelessly forward all options
+to the it with the peace of mind that default values are safe even if the user doesn&rsquo;t fill
+all the blanks.</p>
+
+<p>There is still two downsides with this idea.</p>
+
+<p>The first one is that this is preventing the user to pass <code>undefined</code> to override a default value. I&rsquo;d
+argue that this is not a big problem because usually <code>null</code> can be used for the same purpose, although I
+imagine there is some edge case where <code>undefined</code> is a perfectly valid value. I just haven&rsquo;t found one yet.</p>
+
+<p>The second is that while it saves the component composing yours from having to know every
+default value, it still requires it to specify forward <em>every</em> option in the template.
+Not yet ideal, but at least you removed one half of the problem.</p>
+
+<p>I hope some new HTMLBars/glimmer construction in the future, like the spread operator mentioned
+in some RFCs will improve the ergonomics of this.</p>
+
+<p>Stay tuned for part 2.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ember Closure Actions in Depth]]></title>
+    <link href="http://miguelcamba.com/blog/2016/01/24/ember-closure-actions-in-depth/"/>
+    <updated>2016-01-24T09:24:56+00:00</updated>
+    <id>http://miguelcamba.com/blog/2016/01/24/ember-closure-actions-in-depth</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve been using Ember&rsquo;s closure actions in all my projects for a while now and I like them so much
+that I almost take for granted that everybody has embraced them too.</p>
+
+<p>While it&rsquo;s true that most ember devs have started using them, I&rsquo;ve seen that many people haven&rsquo;t fully
+grasped all its potential and the new patterns they enable, so I want to explain them a bit more,
+starting from the basics and going towards more advanced patterns.</p>
+
+<!-- more -->
+
+
+<h2>What is a closure action?</h2>
+
+<p>First things first, let&rsquo;s see a few actions in the wild.</p>
+
+<p>Which ones of these are closure actions?</p>
+
+<p>
+<code>html
+&lt;button {{action "sayHi"}}&gt;Salute&lt;/button&gt;
+&lt;button onclick={{action "sayHi"}}&gt;&lt;/button&gt;
+{{my-button action=(action "sayHi")}}
+{{my-button action="sayHi"}}
+</code>
+</p>
+
+<p>If you said 2nd and 3rd you guessed right.</p>
+
+<p>The 4th example is clearly just a regular attribute passing. It is named <code>action</code> but could be named <code>weasel</code>
+and would be exactly the same, just a string.</p>
+
+<p>The 1st line is a bit more fuzzy. That line is telling Ember to invoke the &ldquo;sayHi&rdquo; action when the button
+is clicked. <strong>Why doesn&rsquo;t it qualify as a closure action?</strong></p>
+
+<p>We have to start by explaining that the <code>action</code> helper is overloaded and, depending on which context it is used in,
+it does entirely different things.</p>
+
+<h3><code>action</code> in the &ldquo;element space&rdquo;</h3>
+
+<p>When invoked within the context of an html element (what is known as the <em>&ldquo;element&rsquo;s space&rdquo;</em>),
+the <code>action</code> keyword does a quite a lot of stuff.
+It registers in the global Ember dispatcher one (or some) handlers for events whose target is the element in
+which it was invoked.</p>
+
+<p>In the first line of the previous example, the helper is registering in the event handler for the <code>click</code>
+attached automatically by Ember to the root of your app, a handler that will be invoked when
+the target of the event is that button. It&rsquo;s also doing the same thing for the <code>keypress</code> event when
+the pressed key is <kbd>enter</kbd>. That handler, in turn, will call the <code>sayHi</code> action on the context of that template.</p>
+
+<p>Apart from all that, the action helper will call <code>preventDefault()</code> on that event, hijacking its default
+behavior, like by example submitting the form in which that button lives. However, that will not
+prevent the event from bubbling.</p>
+
+<p>Both behaviors can be tuned from the template with options:</p>
+
+<p>
+<code>html
+&lt;button {{action "sayHi" preventDefault=false bubble=false}}&gt;Salute&lt;/button&gt;
+</code>
+</p>
+
+<p>By default the <code>action</code> helper registers for DOM click events but you can specify a different event name:</p>
+
+<p>
+<code>html
+&lt;button {{action "sayHi" on="double-click"}}&gt;Salute&lt;/button&gt;
+</code>
+</p>
+
+<p>As we see, there is quite a process involved here, but this is not a closure action.</p>
+
+<h3><code>action</code> as a closure creator</h3>
+
+<p>On the other hand, the second usage of this helper is as <em>closure creator</em>. This is the behavior the
+helper has in <strong>any</strong> other situation different than the one described above.</p>
+
+<p>It does something much simpler but also much more powerful. <strong>It creates a function with a closure that invokes another function</strong></p>
+
+<p>That&rsquo;s it. You can think about it almost like this snippet:</p>
+
+<p>
+<code>js
+function createClosureAction(func, ...args) {
+  return func.bind(this, ...args);
+}
+</code>
+
+<em>Note: This is an oversimplification. Closure actions don&rsquo;t even use <code>Function#bind</code> at all, but it&rsquo;s close enough to grasp the basics.</em></p>
+
+<p>It does nothing else. It doesn&rsquo;t register any event handler, doesn&rsquo;t prevent default or stop bubbling. It just
+binds the given function to the current context and arguments. When provided with a string it will assume that
+it&rsquo;s the name of an action and will extract it from the current context.</p>
+
+<p>So, if it is such a simple helper, why is it so cool?</p>
+
+<h3>The good parts of being a function</h3>
+
+<p>Converting your actions to functions you can pass around has many advantages.</p>
+
+<h4><strong>Simpler mental model</strong></h4>
+
+<p>This one is often understated.</p>
+
+<p></p>
+
+<p>A function is a value. <code>{{my-component foo=bar}}</code>
+in a template means that we&rsquo;re passing to the component a property named <code>"foo"</code> whose value is the value in <code>bar</code>. What if <code>bar</code>
+is a function? Nothing: it&rsquo;s the same idea. We&rsquo;re just passing a value.</p>
+
+<p>What if we do <code>{{yield (action &ldquo;submit&rdquo;)</code>? Same thing, we&rsquo;re just yielding a value that happens
+to be a function. That is all.</p>
+
+<p></p>
+
+<h4><strong>Detect errors eagerly</strong></h4>
+
+<p></p>
+
+<p>On this usage, <code>{{action &ldquo;foo&rdquo;}}</code> is a helper and as such, tries to do its work as soon as the
+template is rendered. If the current context doesn&rsquo;t have a function named <code>foo</code> it will fail right away,
+unlike <em>element&rsquo;s space</em> usage where it will fail at runtime when that event is fired and, oh surprise,
+there is no action named <code>foo</code>!!</p>
+
+<p>It still surprises me how many refactoring bugs this simple feature has caught for me.
+</p>
+
+<h4><strong>Return values</strong></h4>
+
+<p>Functions have return values. Closure actions are functions. Therefore <em>modus ponendo ponens</em>, closure actions have
+return values too.</p>
+
+<p>
+If the component calls <code>this.get("foo")("someArg")</code>, it is just invoking a function and will have access
+to its return value, if any. This enables bidirectional communication with the parent context.</p>
+
+<p>As a real world example, an <code>{{async-button action=(action &ldquo;submit&rdquo;)}}</code> will invoke the action and that
+action can return a promise. Thanks to having access to that promise, the button can then change to a &ldquo;loading&rdquo;
+state while that returned promise is pending.
+</p>
+
+<h4><strong>Removes logic from middlemen</strong></h4>
+
+<p>Actions can be passed down/up as many levels as desired.</p>
+
+<p>When passing actions as just strings with their names to be invoked with the <code>sendAction(actionName)</code> in the receiver
+component, each call to <code>sendAction</code> will only reach the closest component in the hierarchy.
+This means that when the logic to be executed lives a few layers up from where the event that triggers it
+is fired, each one of the intermediate components has to define an action to capture and re-thorw the
+call to the next level.</p>
+
+<p>That is a lot of coupling.</p>
+
+<p>Closure actions just being functions bound to a given scope means that they can just be passed as simple
+values from the root to the leaves. Then, the last component in the chain can invoke that action with
+via <code>this.get("functionName")()</code> and it will be executed with the provided arguments in the correct
+scope, releasing intermediate nodes in the chain of the burden of capture-and-rethrow actions by its name.</p>
+
+<h4><strong>Closure actions as event handlers</strong></h4>
+
+<p>When we attach a closure action to an event handler like this:</p>
+
+<p>
+<code>html
+&lt;button onclick={{action "sayHi"}}&gt;&lt;/button&gt;
+</code>
+</p>
+
+<p>Ember.js is just doing</p>
+
+<p>
+<code>js
+button.onclick = wrappedSayHiFunction;
+</code>
+</p>
+
+<p>That means that, as with all event handlers attached to DOM elements, it is invoked with the <code>event</code>
+as first argument. But since the handler function already has one argument bound, the event is received
+as the second argument instead.</p>
+
+<p>There is little-to-no magic happening here, just regular javascript.</p>
+
+<p>That also means that is up to the user to call <em>preventDefault</em> or <em>stopPropagation</em> on the received event.</p>
+
+<h4><strong>Not only actions can be actions</strong></h4>
+
+<p>
+Tipically when using the <code>action</code> helper you will pass a string containing the name of some function
+that lives in the <code>actions</code> property of your component, like this: <code>&lt;button onclick={{action "sayHi"}}&gt;&lt;/button&gt;</code>
+</p>
+
+<p>But did you know that you can extract any function from your component by passed an unquoted reference?</p>
+
+<p><figure class='code'><figcaption><span>template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="na">sayHi</span><span class="err">}}</span><span class="nt">&gt;&lt;/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>component.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">actions</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// empty</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">sayHi</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">Hi</span><span class="o">!&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>This is useful by example if you want a component to execute some arbitrary logic that can be decided
+by its parent, and passed as an argument.</p>
+
+<p><figure class='code'><figcaption><span>my-button/template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="na">clickHandler</span><span class="err">}}</span><span class="nt">&gt;&lt;/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>salutator/template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>{{my-button clickHandler=sayHi}}
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>salutator/component.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">sayHi</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">Hi</span><span class="o">!&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Now that you know that it&rsquo;s possible, <strong>I strongly discourage you to do this.</strong></p>
+
+<p>This enters the personal opinion realm but I feel that <strong>if we start extracting methods of components
+to use them as actions, why do we have the <code>actions</code> hash at all?</strong></p>
+
+<p>Instead, when I want to be able to customize from outside a component what an action will do, I define
+an action inside the component that just delegates all its logic to a method that can be passed in from
+the outside.</p>
+
+<p><figure class='code'><figcaption><span>my-button/template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="err">&quot;</span><span class="na">clickHandler</span><span class="err">&quot;}}</span><span class="nt">&gt;&lt;/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>my-button/component.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">actions</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">clickHandler</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">clickHandler</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">hellip</span><span class="p">;</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">clickHanldler</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">clickHandler</span> <span class="nx">must</span> <span class="nx">be</span> <span class="nx">provided</span><span class="o">!!&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>salutator/template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>{{my-button clickHandler=sayHi}}
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>salutator/component.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Component</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">sayHi</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">Hi</span><span class="o">!&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>The behavior is the same but reading the code of the component is crystal clear that <code>clickHandler</code>
+is intended to be passed from the outside. I find this approach self-documented and more idiomatic.</p>
+
+<h4><strong>Currying</strong></h4>
+
+<p>Taken from the wikipedia:</p>
+
+<p><em>Currying is the technique of translating the evaluation of a function that takes multiple arguments (or a tuple of arguments) into evaluating a sequence of functions</em></p>
+
+<p>Without deep diving into Haskell theory and monad madness, let me only explain how you can apply this
+technique for your own benefit with an example.</p>
+
+<p>Having this declaration in the templates:</p>
+
+<p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>{{my-form onSubmit=(action <span class="ni">&amp;ldquo;</span>submitWithAjax<span class="ni">&amp;rdquo;</span> <span class="ni">&amp;ldquo;</span>/users/registration<span class="ni">&amp;rdquo;</span>)}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">&lt;!-- Within my-form.hbs --&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>{{my-button onUsage=(action onSubmit data)}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">&lt;!-- Within my-button.hbs --&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;&lt;button</span> <span class="na">onclick=</span><span class="s">{{onUsage}}</span><span class="nt">&gt;&lt;/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+</p>
+
+<p>In the <code>sendWithAjax</code> function of the top-most scope:</p>
+
+<p>
+<code>js
+actions: {
+  submitWithAjax(url, data, e) {
+    // how come do I receive 3 arguments?!?!111
+  }
+}
+</code>
+</p>
+
+<p><em>Because currying</em>.</p>
+
+<p>Each invocation of the <code>action</code> helper created a new closure and bound the given
+arguments to the function. The first invocation bound the <code>this</code> to the current context and the
+first arguments to the string <code>"/users/registration"</code>. The second invocation bound the data to the function.
+Since the context and the first argument were already bound, that argument takes the 2nd position.
+Last, but not least, that function is assigned to the <code>onclick</code> property of that DOM element, and when
+it&rsquo;s invoked the event is passed, occupying the last position in the arguments list.</p>
+
+<p>Translated to javascript, it&rsquo;s more or less equivalent to:</p>
+
+<p>
+<code>js
+let funcOne = func.bind(context, "/users/registration");
+// ...
+let funcTwo = funcOne.bind(secondContext.data);
+// ...
+button.onclick = funcTwo;
+</code>
+</p>
+
+<p>Using currying each level can augment the action with some extra arguments, and that frees the last
+level of the chain of the responsibility of holding all the information needed to perform the action.
+Each piece of data can live in the level where it makes more sense, without leaking outside it.</p>
+
+<h4><strong>Extracting values out of the first argument</strong></h4>
+
+<p>The <em>action</em> helper accepts a set of key/value pairs as last argument. One special option you can use
+is the <code>value</code> option. This option holds a path, and the closure action will be invoked with the
+value contained in that path on the first argument instead of the first argument.</p>
+
+<p>The most common example of this is to extract some value out of the event.</p>
+
+<p></p>
+
+<pre><code class="html">&lt;input type="text" onchange={{action "logArgs"}}&gt; &lt;!-- Logs `[event]` --&gt;
+&lt;input type="text" onchange={{action "logArgs" value="target.value"}}&gt; &lt;!-- Logs the value of the input (e.target.input) --&gt;
+</code></pre>
+
+<p></p>
+
+<p>But often people doesn&rsquo;t realize that it works with anything, not only events. Per example:</p>
+
+<p></p>
+
+<pre><code class="html">&lt;button onclick={{action "logArgs" "abcde" value="length"}}&gt; &lt;!-- Logs `[5]` --&gt;
+&lt;button onclick={{action (action "logArgs" "foo" value="length") value="screenX"}}&gt;Press me&lt;/button&gt; &lt;!-- Logs `[3, 741]` --&gt;
+</code></pre>
+
+<p></p>
+
+<p>This is specially useful when combined with the next point.</p>
+
+<h4><strong>DDAU and the <code>mut</code> helper</strong></h4>
+
+<p>The Data Down - Actions Up approach to propagate state changes in an app advices us to not rely on two-way
+bindings for mutating state but on explicit function invocations. Consider the next code example:</p>
+
+<p><figure class='code'><figcaption><span>template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>Select shipment type<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="err">&quot;</span><span class="na">selectShipmentType</span><span class="err">&quot;</span> <span class="err">&quot;</span><span class="na">regularDelivery</span><span class="err">&quot;}}</span><span class="nt">&gt;</span>Standard delivery<span class="nt">&lt;/button&gt;</span>
+</span><span class='line'><span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="err">&quot;</span><span class="na">selectShipmentType</span><span class="err">&quot;</span> <span class="err">&quot;</span><span class="na">urgent</span><span class="err">&quot;}}</span><span class="nt">&gt;</span>48h delivery<span class="nt">&lt;/button&gt;</span>
+</span><span class='line'><span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="err">&quot;</span><span class="na">selectShipmentType</span><span class="err">&quot;</span> <span class="err">&quot;</span><span class="na">next-day</span><span class="err">&quot;}}</span><span class="nt">&gt;</span>Next day delivery<span class="nt">&lt;/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>component.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">actions</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">selectShipmentType</span><span class="p">(</span><span class="nx">type</span> <span class="o">/&lt;</span><span class="nx">em</span><span class="o">&gt;</span><span class="p">,</span> <span class="nx">e</span> <span class="o">&lt;</span><span class="sr">/em&gt;/</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">shipmentType</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="nx">type</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Pretty common. Changing the selection invokes the <code>selectShipmentType</code> action with one value, and that
+action mutates some value. However, setting some state as result of some user interaction is so common
+that there is a built-in way to avoid having to define such simple functions over and over: the <code>mut</code> helper.</p>
+
+<p>This helper creates a function that will set on some property the first argument it receives. The following
+code is equivalent.</p>
+
+<p><figure class='code'><figcaption><span>template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>Select shipment type<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="err">(</span><span class="na">mut</span> <span class="na">shipmentType</span><span class="err">)</span> <span class="err">&quot;</span><span class="na">regularDelivery</span><span class="err">&quot;}}</span><span class="nt">&gt;</span>Standard delivery<span class="nt">&lt;/button&gt;</span>
+</span><span class='line'><span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="err">(</span><span class="na">mut</span> <span class="na">shipmentType</span><span class="err">)</span> <span class="err">&quot;</span><span class="na">urgent</span><span class="err">&quot;}}</span><span class="nt">&gt;</span>48h delivery<span class="nt">&lt;/button&gt;</span>
+</span><span class='line'><span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">{{action</span> <span class="err">(</span><span class="na">mut</span> <span class="na">shipmentType</span><span class="err">)</span> <span class="err">&quot;</span><span class="na">next-day</span><span class="err">&quot;}}</span><span class="nt">&gt;</span>Next day delivery<span class="nt">&lt;/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>This, in combination with the <code>value</code> option, can save you the tedium of defining super simple functions
+to extract some attribute from the first argument.</p>
+
+<p></p>
+
+<p>&#8220;`html</p>
+
+<p>The mouse X position is: {{mouseX}}</p>
+
+
+<div class="draw-canvas" onmousemove={{action (mut mouseX) value="screenX"}}></div>
+
+
+<p>&#8220;`</p>
+
+<p></p>
+
+<p>Remember that you can use this not only with events but with any object.</p>
+
+<p>For example, if you want to have an instance of <a href="http://www.ember-power-select.com">Ember Power Select</a> bound to some
+<em>queryParam</em>, you can do this:</p>
+
+<p><figure class='code'><figcaption><span>controller.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">queryParams</span><span class="o">:</span> <span class="p">[</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">teacherId</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;]</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>route.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">queryParams</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">teacherId</span><span class="o">:</span> <span class="p">{</span> <span class="nx">refreshModel</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nx">model</span><span class="p">({</span> <span class="nx">teacherId</span> <span class="p">})</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">homework</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="p">{</span> <span class="nx">teacherId</span> <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>helpers/find-by.js </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">import</span> <span class="nx">Ember</span> <span class="nx">from</span> <span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">ember</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;;</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="kr">export</span> <span class="k">default</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Helper</span><span class="p">.</span><span class="nx">helper</span><span class="p">(</span><span class="kd">function</span><span class="p">([</span><span class="nx">collection</span><span class="p">,</span> <span class="nx">attrName</span><span class="p">,</span> <span class="nx">attrValue</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">collection</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">el</span> <span class="o">=&gt;</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">el</span><span class="p">,</span> <span class="nx">attrName</span><span class="p">)</span> <span class="o">===</span> <span class="nx">attrValue</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><figure class='code'><figcaption><span>template.hbs </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>Select a teacher to filter homework<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>{{#power-select options=teachers selected=(find-by teachers <span class="ni">&amp;lsquo;</span>id<span class="ni">&amp;rsquo;</span> teacherId) onchange=(action (mut teacherId) value=<span class="ni">&amp;ldquo;</span>id<span class="ni">&amp;rdquo;</span>) as |teacher|}}
+</span><span class='line'>  {{teacher.fullName}} - {{teacher.group.name}}
+</span><span class='line'>{{/power-select}}
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Selecting a teacher will pass that <code>Teacher</code> model to the <code>onchange</code> function. From that teacher
+we extract only the <code>id</code> with <code>value="id"</code> which is passed to <code>(mut teacherId)</code> as its first argument.
+That updates the <code>teacherId</code> property in the controller, that is bound to a <em>queryParam</em> in the URL,
+tehen refreshing the model hook of the route.</p>
+
+<p>Neat.</p>
+
+<h2>Summary</h2>
+
+<p>Going forward the Ember 2.0 path, closure actions are one of the tools in your belt you&rsquo;re going to
+use more often.</p>
+
+<p>Understanding them fully will allow you to squeeze them to your advantage and write simpler and more maintainable
+code.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to Inject the Current User Using Ember-simple-auth in Ember 2.0]]></title>
+    <link href="http://miguelcamba.com/blog/2015/06/18/how-to-inject-the-current-user-using-ember-simple-auth/"/>
+    <updated>2015-06-18T17:59:39+01:00</updated>
+    <id>http://miguelcamba.com/blog/2015/06/18/how-to-inject-the-current-user-using-ember-simple-auth</id>
+    <content type="html"><![CDATA[<p>Earlier this week I was updating a project to the latest version of ember (1.13.2)
+and ember-data (beta.19.2) when everything broke.
+This post is a disection of why it broke, how I blamed an Ember design change decision and the moment
+I realized that the &ldquo;workaround&rdquo; I made was actually a much better solution than the one I had before.</p>
+
+<!-- more -->
+
+
+<p>Let&rsquo;s start with the troublemaker code:</p>
+
+<pre><code class="js">// app/initializers/current-user.js
+import Ember from 'ember';
+
+export default {
+  name: 'current-user',
+  after: 'simple-auth',
+
+  initialize: function(registry, application) {
+    registry.register('service:current-user', null, { instantiate: false, singleton: true });
+    application.inject('route', 'currentUser', 'service:current-user');
+    application.inject('controller', 'currentUser', 'service:current-user');
+    application.inject('component', 'currentUser', 'service:current-user');
+
+    let session = registry.lookup('simple-auth-session:main');
+
+    application.deferReadiness();
+    Ember.run.next(function() {
+      let userId = session.get("user_id");
+      let userType = session.get("user_type");
+      if (userId &amp;&amp; userType) {
+        registry.lookup('store:main').find(userType, userId).then(function(user) {
+          user.get('userPrivateInfo').then(() =&gt; {
+            registry.register('service:current-user', user, { instantiate: false, singleton: true });
+            application.advanceReadiness();
+          });
+        });
+      } else {
+        session.addObserver('user_id', null, function() {
+          let userId = session.get("user_id");
+          let userType = session.get("user_type");
+          if (userId &amp;&amp; userType) {
+            registry.lookup('store:main').find(userType, userId).then(function(user) {
+              registry.register('service:current-user', user, { instantiate: false, singleton: true });
+            });
+          }
+        });
+        application.advanceReadiness();
+      }
+    });
+  }
+};
+</code></pre>
+
+<p>I&rsquo;m not proud if this piece of code, but I took it from a blog post somewhere else that was
+explaining how to inject the current user in controller/routes/whatever using ember-simple-auth.
+If it worked for the author it should work for me and it did after a couple changes.</p>
+
+<p>In a nutshell, that initializer is executed after <em>ember-simple-auth</em> has prepared the session and
+its task is to register a service named <code>current-user</code> (initially null) and inject it everywhere.</p>
+
+<p>The rest of the code is the logic that takes care of updating the injected value service once I got the current user
+from my API.</p>
+
+<p>It stopped the application&rsquo;s boot and tried to retrieve the user from the server before resuming
+the app. If the user was not logged in the boot process continues but it adds an observer in the session
+to fetch and replace the service once the session gets the user id.</p>
+
+<p>I didn&rsquo;t expected to ever lay my eyes on this code again, but life had other plans.</p>
+
+<p>I updated to ember 1.13 successfully, but then I updated ember-data the app suddenly stopped working.</p>
+
+<p>Apart from some deprecation warnings about registering/injecting stuff using the container, the
+problem with this initializer was that <code>lookup('store:main')</code> suddenly was undefined. <strong>WAT?</strong></p>
+
+<p>I dug a bit and I discovered that in recent version of ember-data the initialization of the store
+was moved from a regular initializer to an instance initializer if you&rsquo;re on a version of ember that
+supports them (1.12+). And since instance initializers are executed <em>after</em> regular initializers the
+store wasn&rsquo;t available yet.</p>
+
+<blockquote><p>Ok, not a big deal, I&rsquo;ll convert this into an instance initializer.
+- An naive developer (Me)</p></blockquote>
+
+<p>The new initializers have a different signature. Instead of receiving the container and the application
+they receive an <code>applicationInstance</code> that gives access both to the <em>registry</em> and the <em>container</em>. I
+changed the relevant lines to look like this and refreshed the browser</p>
+
+<pre><code class="js">// app/instance-initializers/current-user.js
+initialize: function(appInstance) {
+  let registry = appInstance.registry;
+  registry.register('service:current-user', null, { instantiate: false, singleton: true });
+  registry.injection('route', 'currentUser', 'service:current-user');
+  registry.injection('controller', 'currentUser', 'service:current-user');
+  registry.injection('component', 'currentUser', 'service:current-user');
+
+  let session = registry.lookup('simple-auth-session:main');
+
+  appInstance.deferReadiness();
+  // ...
+}
+</code></pre>
+
+<blockquote><p>appInstance.deferReadiness is not a function
+- Mr. Chrome</p></blockquote>
+
+<p>I inspected the object and dove into the deep internet to confirm the bitter truth. You can&rsquo;t defer \
+the readiness of the application from an instance initializer.
+<strong>Why would whoever did this remove that feature? Most of my app needs access to the current user in order to work!</strong>
+And that it&rsquo;s not the only problem. You no longer can inject <code>null</code> as a service.</p>
+
+<blockquote><p>Ok, I inject an empty object later my observer will swap them.</p></blockquote>
+
+<p>Again, nope. Ember now doesn&rsquo;t allow to register something under the same name once the application
+has started.</p>
+
+<blockquote><p>Ok, initializers are not useful anymore. Thanks for nothing!</p></blockquote>
+
+<p>I was starting to feel angry. I tried then to create an autonomous service that takes care of all
+the login. I can&rsquo;t show you the exact code because I never commited it but looked similar to this.</p>
+
+<pre><code class="js">export Ember.Service.extend(Ember.PromiseProxyObject, {
+  store: Ember.inject.service(),
+
+  init() {
+    this._super(...arguments);
+    const { user_id, user_type } = this.session.getProperties('user_id', 'user_type');
+    if (user_id &amp;&amp; user_type) {
+      this.set('content', this.get('store').find(user_type, user_id));
+    }
+  }
+})
+</code></pre>
+
+<p>My idea was: If my service is a <code>PromiseProxyObject</code> and its content is also another <code>PromiseProxyObject</code>
+I should be able to access the user though a double proxied interface.
+I thought I had been very clever. It was self contained and clear and it worked! &hellip;.ish.
+It only worked if you already had a session, but not if you try to login.</p>
+
+<p>When you&rsquo;re not logged the content of this PromiseProxyObject is undefined. I was planning to set
+the content to the current user in my login action and remove it when I log out, but what I didn&rsquo;t
+know was that <code>PromiseProxyObject</code>s doesn&rsquo;t support to change content after creation (and makes
+sense, since it has to behave like a promise and promises can&rsquo;t change its status once it&rsquo;s settled).</p>
+
+<p>Time to take a break and look at the problem with a different light. I had a tea while cursing
+stability without stagnation and went to <a href="https://emberlondon.slack.com">Ember London&rsquo;s slack channel</a> to share my dispair.</p>
+
+<p>I exposed the problem in the general and <a href="https://github.com/nikz">@nikz</a> told me that when he faced the same problem he
+ended up creating a service <code>current-user</code> that had an <code>instance</code> property that is populated from
+the application route.</p>
+
+<p>That approach was a bit more manual but I was ok with that, the only thing that I didn&rsquo;t like was that
+the public api of this approach was something like <code>currentUser.instance.isTeacher</code>. It doesn&rsquo;t feel
+natural to have to call <code>.instance</code> and my app already had the assumption than the current user was a user
+all over the place.</p>
+
+<p>The inpiration came in that exact moment from combine my previous failed approach with this one.</p>
+
+<p>What if my service is just an <code>Ember.ObjectProxy</code> that proxies an inner user record? That way
+the service is aways there, I don&rsquo;t have to swap it when the user logs in. Instead I just set its
+content. Ember won&rsquo;t compain and I can continue to use <code>currentUser</code> as if a it was a real user model.</p>
+
+<p>The final code is very short and the public API remained exactly like it wanted.</p>
+
+<pre><code class="js">// app/instance-initializers/current-user.js
+export default {
+  name: "current-user",
+
+  initialize: function({ registry }) {
+
+    /*
+      IMPORTANT. This part of the snipped is outdated. Check the last snipped in the bottom
+      of the article for a Ember 2.2+ version.
+    */
+
+    const service = Ember.ObjectProxy.create({ isServiceFactory: true });
+    registry.register('service:current-user', service, { instantiate: false, singleton: true });
+    registry.injection('route', 'currentUser', 'service:current-user');
+    registry.injection('controller', 'currentUser', 'service:current-user');
+    registry.injection('component', 'currentUser', 'service:current-user');
+  }
+};
+
+// app/routes/application.js
+export default Ember.Route.extend({
+  beforeModel() {
+    if (this.session.isAuthenticated) {
+      return this._populateCurrentUser();
+    }
+  },
+
+  actions: {
+    sessionAuthenticationSucceeded() {
+      this._populateCurrentUser().then(user =&gt; this.transitionTo('dashboard');
+    },
+  },
+
+  _populateCurrentUser() {
+    const { user_id, user_type } = this.get('session.secure');
+    return this.store.find(user_type, user_id)
+      .then(user =&gt; this.get('currentUser').set('content', user) &amp;&amp; user);
+  }
+});
+</code></pre>
+
+<p>When I started this refactor I was annoyed because of ember&rsquo;s design decision, but looking back on the final
+result I find that once more not fighting the frameworks tends to reward you with simpler and better
+abstractions.</p>
+
+<p>I find this new approach less magical (no hidden observers), with less metaprogramming (I not longer
+have to reopen the Session class) while mantaining the same nice public API I had before.</p>
+
+<p>As a final gift for my efforts on this refactor I discovered a very nice advantage of this approach.</p>
+
+<p>Stopping the application&rsquo;s boot process with <code>deferReadiness()</code> until I have the current user before
+continuing did not provide any feedback to the user, just a white screen of death, while with the new
+approach the <code>loading.hbs</code> template renders as is does with any other promise returned from
+<code>beforeModel/model/afterModel</code> hooks.</p>
+
+<p>Even if the start time is the same, the user has the feedback that the app is working as expected faster.</p>
+
+<p>I hope this helps anyone else using ember-simple-auth/torii to update to ride the stable wave and get
+rid of all those deprecation warnings before Ember 2.0 cames out.</p>
+
+<h3>UPDATE Ember 2.2+</h3>
+
+<p>Initializers have changed a bit since this post has been published. Now the instance initializer
+should looks like this:</p>
+
+<pre><code class="js">// app/instance-initializers/current-user.js
+import Ember from 'ember';
+
+export function initialize(appInstance) {
+  const service = Ember.ObjectProxy.create({ isServiceFactory: true });
+  appInstance.register('service:current-user', service, { instantiate: false, singleton: true });
+  appInstance.inject('route', 'currentUser', 'service:current-user');
+  appInstance.inject('controller', 'currentUser', 'service:current-user');
+  appInstance.inject('component', 'currentUser', 'service:current-user');
+  appInstance.inject('serializer', 'currentUser', 'service:current-user');
+}
+
+export default {
+  name: "current-user",
+  initialize
+};
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Optimizing APIs With Ember-data and EmbeddedRecordsMixin]]></title>
+    <link href="http://miguelcamba.com/blog/2015/03/15/optimizing-apis-with-ember-data-and-embeddedrecordsmixin/"/>
+    <updated>2015-03-15T19:42:08+00:00</updated>
+    <id>http://miguelcamba.com/blog/2015/03/15/optimizing-apis-with-ember-data-and-embeddedrecordsmixin</id>
+    <content type="html"><![CDATA[<p>A couple days ago I had an <em>&ldquo;aha!&rdquo;</em> moment where I tipped my hat to Ember Data&rsquo;s design and flexibility.
+This post also distills some tricks of API design I learned from building APIs that scale to millions
+of users and many thousands of requests per minute, and how ember-data is totally aligned with it.</p>
+
+<!-- more -->
+
+
+<p>I had the great luck of have participated in the creation of a some very successful projects that
+made me have some tough moments trying to meet the scalability demands. I am very grateful for that
+because those are the projects that really push your limits forward as a developer.</p>
+
+<p>Nowadays creating a service will almost always mean creating a backend API consumed by one or many
+frontend applications, web or mobile, so scaling a service is all about scaling its API.</p>
+
+<p>If you foreseen tens of millions of users, you need to design your API carefully, and I learned some
+of this things the hard way.</p>
+
+<h3>API scaling is all about caching</h3>
+
+<p>That&rsquo;s the the biggest truth about scaling.</p>
+
+<p>I don&rsquo;t care how much love love you have put in writing that service in Go or how you have optimized
+your database, the most slow and bloated language/framework combination with the proper caching in
+place will outperform your super-efficient implementation by an order of magnitude.</p>
+
+<p>No matter how fast your app works, it will be slower than a slow app not doing anything at all, so
+you must design your API with <em>cacheability</em> in mind.</p>
+
+<h3>API caching is all about homogeneity and slices</h3>
+
+<p>When you design a piece of software you put boundaries around parts of your code that you don&rsquo;t want to pollute
+(logically speaking) other parts of your code, and you name that concept encapsulation. Proper encapsulation
+is the main selling point of that little thing called OOP.</p>
+
+<p>In APIs you do the same, but when performance is a concern, you must take into account that not only the
+elements of your API influence its design. How those elements will be consumed is at least as important
+as the elements itself, and expose them in a scalable way must be another requirement.
+And polluting can also happen between the private/public boundaries.</p>
+
+<p>Imagine that you are designing a system for a car parts provider. Your system will most likely have
+a <code>/parts</code> endpoint. This endpoint is consulted all the time by mechanics to check for compatibility,
+characteristics and <strong>sometimes</strong> price, so you add a <code>price</code> entry to your payload.</p>
+
+<p>But not all clients get the same price because some got from you a better deal. You don&rsquo;t want the
+others to find out this, so that field is calculated by in request based on the user that made the
+request.</p>
+
+<p>Congratulations, you&rsquo;re doomed. No caching for you.</p>
+
+<p>Another common example of this is when an endpoint like <code>/users/123</code> conditionally returns the private
+information of that used depending if you are that user or not.</p>
+
+<p>This is an example of pollution as a consecuence of poor encapsulation. Your otherwise static and easy
+cacheable API has been poisoned by one single dynamic field, and even worse, one you don&rsquo;t even need most of the time.</p>
+
+<p>There is for me <strong>two golden rules in API design</strong>:</p>
+
+<ul>
+<li><p><strong>Make your payloads homogeneous</strong>. Two different users requesting the same resource should get an identical
+representation of it.</p></li>
+<li><p><strong>Minimize the number of moving parts</strong>. A good API is that one that is mostly static and do not
+vary depending on the identity of the consumer. You can call this also objective/subjective. If you
+are mixing static &amp; objective fields with variable &amp; subjective ones in the same endpoint, specially if
+the variable information is not always required, you will have a bad time. Intead you should consider
+<em>slicing</em> your app into two separated static/variable endpoints.</p></li>
+</ul>
+
+
+<h3>The objective/subjective encapsulation pattern.</h3>
+
+<p>The paradigmatic case of this pattern is getting the profile information of a user. Imagine an app where some
+information of the users is public (username, avatar, etc&hellip;) and other fields are private (email,
+facebook, money in the current account&hellip;).</p>
+
+<p>Your <code>/user</code> endpoint will receive millions of requests per day. Searching users, displaying the author
+of a publication, and many more, most of them from people that shouldn&rsquo;t know my personal phone number.
+Only occasionally you want to display the private information to the user itself and maybe it&rsquo;s close friends.</p>
+
+<p>You can be sure that walk the social graph of a user to determine if I can see the private information
+on each request is an absolute performance killer.</p>
+
+<p>I found slicing the <code>user</code> resource into <code>user</code> and <code>user_private_info</code> a pattern that has proven itself
+very useful over and over, and I&rsquo;ve enjoyed how ember-data async relations makes implementing this a breeze.</p>
+
+<pre><code class="js">// models/user.js
+export default DS.Model.extend({
+  username: DS.attr('string'),
+  avatar: DS.attr('string'),
+  userPrivateInfo: DS.belongsTo('user-private-info', { async: true })
+});
+
+// models/user-private-info.js
+export default DS.Model.extend({
+  email: DS.attr('string'),
+  money: DS.attr('number')
+});
+</code></pre>
+
+<p>The encapsulation rule is simple: If you have any reason to consider some field private, it lives
+in the <code>UserPrivateInfo</code> model. Otherwise, it belongs to the <code>User</code> model.
+Now you can fetch it in a dedicated endpoint, but since the relationship is asynchronous the private
+information will only be fetched when its really necessary.</p>
+
+<p>Any user without permission trying to the the private information will get a <em>403</em>. That shouldn&rsquo;t
+occur anyway because your fronted won&rsquo;t try to access the private information if your are not allowed,
+but you&rsquo;re safe if that happens.</p>
+
+<p>Taking this approach, the payloads of the different endpoints will look like this:
+<code>/api/users/123</code>
+<code>js
+{
+  user: {
+    id: 123,
+    username: "Tomster",
+    avatar: "url/to/avatar.jpg",
+    user_private_info_id: 123
+  }
+}
+</code>
+<code>/api/user_private_infos/123</code>
+<code>js
+{
+  user_private_info: {
+    id: 123,
+    email: "el_tomster@ember.js",
+    money: 5000000
+  }
+}
+</code></p>
+
+<p>You might have noticed that the <code>id</code> of the user and its private info are the same, so you might think
+that I don&rsquo;t really need that field, but that would be leaking an implementation detail into your
+business logic. It turns out that I have all the information in the same user table and therefore the ID
+is the same, but I could change my mind and store that info in a different table with different ids,
+and the same API is still valid.</p>
+
+<p>Also, note that now <code>users</code> API is <em>objective</em>. I don&rsquo;t need to perform an any kind of check to see the
+requester and that user are friends. In fact depending on the business logic you might not even need to
+be logged to access this resource. This allows to cache this endpoint at a very high level, using Varnish
+by example, and don&rsquo;t even touch our servers.</p>
+
+<h3>Pitfalls of this approach: How do I save sliced resources?!?!</h3>
+
+<p>Simple answer is: <strong>You don&rsquo;t</strong></p>
+
+<p>If you have been paying attention you have noticed that this API slicing is more based in the usage of
+the API than in the limits of the business logic itself. Conceptually speaking an user has both public
+and private information, but it is still only one business object, so the moment will come when
+you need to perform a save operation that affects information of both the public and private areas.</p>
+
+<p>It would be massively complicated to synchronize save operations to two endpoints at the same time, so
+I take the approach of using <code>user</code> endpoint as single point of entry for write operations on the user
+model, and send the private information embedded in the user data.</p>
+
+<p>A <code>PUT</code> request to update the user&rsquo;s profile has this payload:</p>
+
+<pre><code class="js">{
+  user: {
+    id: 123,
+    username: "Tomster",
+    avatar: "url/to/new_avatar.jpg",
+    user_private_info: {
+      email: "new_email@ember.js",
+      money: 5000000
+    }
+  }
+}
+</code></pre>
+
+<p>The <code>create</code> action in the user endpoint will take care of update both the public and private
+information, return the user and also sideload the private info with it.</p>
+
+<pre><code class="js">{
+  user: {
+    id: 123,
+    username: "Tomster",
+    avatar: "url/to/new_avatar.jpg",
+    user_private_info_id: 123
+  },
+  user_private_infos: [{
+    id: 123,
+    email: "new_email@ember.js",
+    money: 5000000
+  }]
+}
+</code></pre>
+
+<p>Wrapping up this approach, you have:</p>
+
+<ul>
+<li><p>A public <code>/users/:id</code> endpoint highly cacheable, maybe even a candidate to perform HTTP caching.</p></li>
+<li><p>A read-only <code>/user_private_info/:id</code> endpoint to get the the private information of the users. This endpoint
+happens to encapsulate information that is variable, not usually needed, and would otherwise prevent the previous
+endpoint to benefit from caching.</p></li>
+<li><p>A write <code>/users/:id</code> endpoint that accepts to receive both public and private info and updated both
+in a transactional fashion.</p></li>
+</ul>
+
+
+<h3>Ember Data and DS.EmbeddedRecordsMixin to the rescue</h3>
+
+<p>So we have a <code>User</code> model that when it&rsquo;s loaded from the API received the id of its associated private info,
+but when saved carries that record embedded.</p>
+
+<p>I thought I would have to implement some kind of custom serializer myself, but the I discovered that
+<code>DS.EmbeddedRecordsMixin</code> accept a very useful configuration object.</p>
+
+<pre><code class="js">// serializers/user.js
+import DS from 'ember-data';
+
+export default DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  attrs: {
+    userPrivateInfo: {
+      serialize: 'records',
+      deserialize: 'ids'
+    }
+  }
+});
+</code></pre>
+
+<p>That&rsquo;s all I needed to implement this functionality.</p>
+
+<p>When this record is deserialized coming from the server it will contain the only id but when it&rsquo;s
+serialized for being sent to the server the payload will have embedded the user private information,
+just like the previous examples. My hands bled of how much I clapped.</p>
+
+<p>I really think that Ember Data and <a href="http://jsonapi.org">json-api</a> are not only useful tools, but also
+tools that make you a better programmer, and is amazing how much following it&rsquo;s conventions can help
+to get good software design.</p>
+]]></content>
+  </entry>
+  
+</feed>

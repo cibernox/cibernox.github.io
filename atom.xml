@@ -4,7 +4,7 @@
   <title><![CDATA[Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:46:13+01:00</updated>
+  <updated>2017-04-12T00:46:58+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -392,8 +392,6 @@ since the same helpers behave the same way on both kind of tests:</p>
 </span><span class='line'><span class="p">})</span>
 </span></code></pre></td></tr></table></div></figure>
 
-
-<p>{% raw %}</p>
 
 <p>Since those helpers don&rsquo;t use jQuery and now we are making requests with <code>ember-fetch</code>, we
 can write an tests apps nicer than ever!</p>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ember.js | Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/blog/categories/ember-dot-js/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:46:13+01:00</updated>
+  <updated>2017-04-12T00:46:58+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -326,7 +326,7 @@ since the same helpers behave the same way on both kind of tests:
 </span><span class='line'>  <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">findAll</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">result</span><span class="o">-</span><span class="nx">list</span><span class="o">-</span><span class="nx">item</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;).</span><span class="nx">length</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
 </span><span class='line'><span class="p">})</span>
 </span></code></pre></td></tr></table></div></figure>
-{% raw %}</p>
+</p>
 
 <p>Since those helpers don&rsquo;t use jQuery and now we are making requests with <code>ember-fetch</code>, we
 can write an tests apps nicer than ever!</p>
@@ -440,7 +440,7 @@ and make most those option have sensible default values.</p>
 
 <p>Example:</p>
 
-<p>{% raw %}
+<p>
 <code>js
 // cool-component/compoenent.js
 export default Ember.Component.extend({

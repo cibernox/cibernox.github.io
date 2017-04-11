@@ -4,7 +4,7 @@
   <title><![CDATA[Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:49:31+01:00</updated>
+  <updated>2017-04-12T00:54:10+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -493,7 +493,7 @@ be helpful to see how to refactor a codebase to the new testing style.</p>
 <li>Refactor ember-data internals to use some sort of <code>network</code> service that masks how that actually works inside. It could be implemented in terms of <code>Ember.$</code>, <code>fetch</code> or raw <code>XHR</code>. This service should be provided by the networking libraries (<code>ember-ajax</code>, <code>ember-network</code>, <code>ember-fetch</code>&hellip;). For backwards compatibility reasons probably this service&rsquo;s semantics should mimic <code>$.ajax</code>, but not sure.</li>
 <li>Put a carrot for developers to make their addons jquery-free. One idea I have is giving them one extra point in ember-observer.
 We could detect this checking if <code>ember-native-dom-event-dispatcher</code> is present in some of the ember-try scenarios.</li>
-<li>Ensure that the top 15? 20? 25? addons in popularity work without jQuery. Like with mobile apps&#8217; usage, those top XX addons account would cover a significant percentage of the apps.</li>
+<li>Ensure that the top 15? 20? 25? addons in popularity work without jQuery. Like with mobile apps&#8217; usage, those upgrading a few of most popular addons would cover a significant percentage of the apps.</li>
 </ul>
 
 ]]></content>

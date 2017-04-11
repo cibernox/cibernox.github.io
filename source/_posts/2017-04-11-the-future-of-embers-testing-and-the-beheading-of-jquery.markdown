@@ -345,7 +345,7 @@ full-featured Ember.js application as they need.
 
 ## Is it really any faster?
 
-Yes, it is. This screen were taking on [www.ember-basic-dropdown.com](www.ember-basic-dropdown.com) running locally with CPU throttling set to 5X and networt set to "Good 3G". That is more or less like using a high end Android devise on a _meh_ connection. A pretty common situation in the first world.
+Yes, it is. This screen were taking on [www.ember-basic-dropdown.com](http://www.ember-basic-dropdown.com) running locally with CPU throttling set to 5X and networt set to "Good 3G". That is more or less like using a high end Android devise on a _meh_ connection. A pretty common situation in the first world.
 
 
 With jQuery:

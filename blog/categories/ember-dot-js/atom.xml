@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ember.js | Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/blog/categories/ember-dot-js/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:44:30+01:00</updated>
+  <updated>2017-04-12T00:46:01+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -289,26 +289,44 @@ test('Usage awaiting the world to settle', async function(assert) {
 </code></pre>
 
 <p>With the benefit that you don&rsquo;t need to change your mindset when writing integration tests,
-since the same helpers behave the same way on both kind of tests:</p>
+since the same helpers behave the same way on both kind of tests:
 
-<pre><code class="js">import { click, fillIn, find, findAll, keyEvent, triggerEvent } from 'ember-native-dom-helpers';
-
-moduleForComponent('my-component', 'Integration | Component | my-component', {
-  integration: true
-});
-
-test('I can interact with my component', async function(assert) {
-  this.render(hbs```\```);
-
-  await fillIn('.some-input');
-  await click('.main-button');
-  await keyEvent('.other-input', 'keyup', 40); // down arrow
-  await triggerEvent('.some-drop-area', 'mouseenter');
-
-  assert.ok(find('.result-of-event-happened'));
-  assert.equal(findAll('.result-list-item').length, 3);
-})
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">import</span> <span class="p">{</span> <span class="nx">click</span><span class="p">,</span> <span class="nx">fillIn</span><span class="p">,</span> <span class="nx">find</span><span class="p">,</span> <span class="nx">findAll</span><span class="p">,</span> <span class="nx">keyEvent</span><span class="p">,</span> <span class="nx">triggerEvent</span> <span class="p">}</span> <span class="nx">from</span> <span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">ember</span><span class="o">-</span><span class="kr">native</span><span class="o">-</span><span class="nx">dom</span><span class="o">-</span><span class="nx">helpers</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;;</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="nx">moduleForComponent</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">my</span><span class="o">-</span><span class="nx">component</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">Integration</span> <span class="o">|</span> <span class="nx">Component</span> <span class="o">|</span> <span class="nx">my</span><span class="o">-</span><span class="nx">component</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">integration</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'><span class="p">});</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="nx">test</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">I</span> <span class="nx">can</span> <span class="nx">interact</span> <span class="kd">with</span> <span class="nx">my</span> <span class="nx">component</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="nx">async</span> <span class="kd">function</span><span class="p">(</span><span class="nx">assert</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">hbs</span><span class="o">&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="err">\</span><span class="p">{{</span><span class="nx">my</span><span class="o">-</span><span class="nx">component</span><span class="p">}}</span><span class="o">&lt;</span><span class="err">/code&gt;);&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">await</span> <span class="nx">fillIn</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">some</span><span class="o">-</span><span class="nx">input</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>
+</span><span class='line'>  <span class="nx">await</span> <span class="nx">click</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">main</span><span class="o">-</span><span class="nx">button</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;);</span>
+</span><span class='line'>  <span class="nx">await</span> <span class="nx">keyEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">other</span><span class="o">-</span><span class="nx">input</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">keyup</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="mi">40</span><span class="p">);</span> <span class="c1">// down arrow</span>
+</span><span class='line'>  <span class="nx">await</span> <span class="nx">triggerEvent</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">some</span><span class="o">-</span><span class="nx">drop</span><span class="o">-</span><span class="nx">area</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;,</span> <span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;</span><span class="nx">mouseenter</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;);</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">assert</span><span class="p">.</span><span class="nx">ok</span><span class="p">(</span><span class="nx">find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">result</span><span class="o">-</span><span class="nx">of</span><span class="o">-</span><span class="nx">event</span><span class="o">-</span><span class="nx">happened</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;));</span>
+</span><span class='line'>  <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">findAll</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">lsquo</span><span class="p">;.</span><span class="nx">result</span><span class="o">-</span><span class="nx">list</span><span class="o">-</span><span class="nx">item</span><span class="o">&amp;</span><span class="nx">rsquo</span><span class="p">;).</span><span class="nx">length</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+{% raw %}</p>
 
 <p>Since those helpers don&rsquo;t use jQuery and now we are making requests with <code>ember-fetch</code>, we
 can write an tests apps nicer than ever!</p>
@@ -422,7 +440,7 @@ and make most those option have sensible default values.</p>
 
 <p>Example:</p>
 
-<p>
+<p>{% raw %}
 <code>js
 // cool-component/compoenent.js
 export default Ember.Component.extend({

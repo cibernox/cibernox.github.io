@@ -4,7 +4,7 @@
   <title><![CDATA[Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:30:09+01:00</updated>
+  <updated>2017-04-12T00:38:57+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -20,7 +20,7 @@
     <id>http://miguelcamba.com/blog/2017/04/11/the-future-of-embers-testing-and-the-beheading-of-jquery</id>
     <content type="html"><![CDATA[<p>For those writing Ember apps, jQuery has been an omnipresent shadow from the beginning.
 It is included by default with the framework and seems to be infiltrated everywhere in it
-and the community. Well, that is about to end.</p>
+and in the community. Well, that is about to end.</p>
 
 <!-- more -->
 
@@ -37,7 +37,7 @@ be called when that event happens)</li>
 </ul>
 
 
-<p>But a lot of things hace changed since Ember decided that bundling jQuery was a good idea back in 2011.
+<p>But a lot of things have changed since Ember decided that bundling jQuery was a good idea back in 2011.
 Then jQuery was the thing we all were building things on, mobile web apps were anecdotical at
 best and IE 7/8 was so popular that few people dared to code stuff for them without the
 cross-browser safety net of some library.</p>
@@ -64,7 +64,7 @@ a second if other of those is bad.</p>
 
 <p><strong>If, on the other hand, your app targets desktop, it is unlikely that a jQuery-less app will bring you a lot of advantages</strong> and it will make your development harder, as a lot of addons need jQuery to work, so you will have to make
 PRs to fix other people&rsquo;s addons as you go. It is important to keep in mind that jQuery
-is not over 100K of random code wrote for the fun of it. It actually fixes tons of browser
+is not over 100K of random code someone wrote for the fun of it. It actually fixes tons of browser
 quirks (run <code>curl -L https://code.jquery.com/jquery-git.js | grep -A 5 -n Support:</code> to
 see some). It&rsquo;s a fantastic piece of software that we shouldn&rsquo;t disregard as obsolete.</p>
 
@@ -161,7 +161,7 @@ feels like living in a better future.</p>
 
 <p>The third step is to replace the jQuery-based ember dispatcher that lives inside Ember with
 one based in native events. As usual Robert Jackson got you covered and he developed
-<a href="https://github.com/rwjblue/ember-native-dom-event-dispatcher"><code>ember-native-dom-event-dispatcher</code></a>
+<a href="https://github.com/rwjblue/ember-native-dom-event-dispatcher">ember-native-dom-event-dispatcher</a>
 a while ago.</p>
 
 <p>Run <code>ember install ember-native-dom-event-dispatcher</code> and your app will not use jQuery events anymore.</p>
@@ -178,14 +178,18 @@ method.</p>
 
 <p>Run <code>ember install ember-native-dom-helpers</code> and you will be introduced to a new way testing that
 will delight you and I&rsquo;ll cover in a moment. This new way of testing is going to use <code>async/await</code>
-instead of <code>andThen</code>, so any but the very latest browsers you will need the regenerator
-polyfill. Run <code>ember install ember-maybe-import-regenerator</code> to get it. This addon already
+instead of <code>andThen</code>, so any but the very latest browsers will need the regenerator
+polyfill.</p>
+
+<p>Run <code>ember install ember-maybe-import-regenerator</code> to get it. This addon already
 uses the new targets feature so it will not import it if the browsers you target support async/await already.
 I&rsquo;m biased because I created the addon, but regardless of if you plan to remove jQuery, you should try it.
 It&rsquo;s going to make you love your tests again, particularly integration tests.</p>
 
 <p>The next step is to remove <code>ember-ajax</code>. The addon is included by the default blueprint but it is a wrapper around
-<code>$.ajax</code>, so it&rsquo;s evident that we need to find a replacement. I&rsquo;ve switched on my projects to
+<code>$.ajax</code>, so it&rsquo;s evident that we need to find a replacement.</p>
+
+<p>I&rsquo;ve switched on my projects to
 <a href="https://github.com/stefanpenner/ember-fetch"><code>ember-fetch</code></a> and it&rsquo;s very nice.
 However at the time of this writing you must use the branch <code>patch-2</code> of my own
 fork of the project (<a href="https://github.com/cibernox/ember-fetch/tree/patch-2">cibernox/ember-fetch#patch-2</a>) while those changes are not

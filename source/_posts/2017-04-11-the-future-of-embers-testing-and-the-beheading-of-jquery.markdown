@@ -168,8 +168,9 @@ fork of the project ([cibernox/ember-fetch#patch-2](https://github.com/cibernox/
 merged into master.
 
 It is important to note that **you must not use the global `window.fetch` even if your browser matrix supports it**.
-You must use the `import fetch from 'fetch';` import path that the addon provides. You might
-wonder why we can't just "Use the platform". If you don't care about testing then using `window.fetch`
+You must use the `import fetch from 'fetch';` import path that the addon provides.
+
+You might wonder why we can't just "Use the platform". If you don't care about testing then using `window.fetch`
 is fine, but in testing you will want to perform some operation that makes a network request
 and then wait for it to finish before asserting that your UI has updated accordingly.
 In order to do that Ember must instrument when a fetch request starts and finishes so it can
@@ -280,7 +281,7 @@ test('Usage awaiting the world to settle', async function(assert) {
 
 With the benefit that you don't need to change your mindset when writing integration tests,
 since the same helpers behave the same way on both kind of tests:
-
+{% raw %}
 ```js
 import { click, fillIn, find, findAll, keyEvent, triggerEvent } from 'ember-native-dom-helpers';
 
@@ -300,6 +301,7 @@ test('I can interact with my component', async function(assert) {
   assert.equal(findAll('.result-list-item').length, 3);
 })
 ```
+{% endraw %}
 
 Since those helpers don't use jQuery and now we are making requests with `ember-fetch`, we
 can write an tests apps nicer than ever!

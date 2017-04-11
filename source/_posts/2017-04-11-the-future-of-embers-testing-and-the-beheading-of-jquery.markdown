@@ -360,7 +360,7 @@ With jQuery:
 Without jQuery:
 <img src="/images/without-jquery-small.jpg" alt="without jQuery" style="width: 100%"/>
 
-The TTI (time to interactive) is consistently around 0.7 seconds smaller on a cold boot. With a slower devise or a worse connection the difference is a bit over 1s.
+The TTI (time to interactive) is consistently around 0.7 seconds smaller on a cold boot. With a slower device or a worse connection the difference is a bit over one second.
 
 ## How can I help?
 
@@ -383,4 +383,4 @@ This is just what **I think** should be required to the MVP of a jquery-less wor
 - Refactor ember-data internals to use some sort of `network` service that masks how that actually works inside. It could be implemented in terms of `Ember.$`, `fetch` or raw `XHR`. This service should be provided by the networking libraries (`ember-ajax`, `ember-network`, `ember-fetch`...). For backwards compatibility reasons probably this service's semantics should mimic `$.ajax`, but not sure.
 - Put a carrot for developers to make their addons jquery-free. One idea I have is giving them one extra point in ember-observer.
 We could detect this checking if `ember-native-dom-event-dispatcher` is present in some of the ember-try scenarios.
-- Ensure that the top 15? 20? 25? addons in popularity work without jQuery. Like with mobile apps' usage, those top XX addons account would cover a significant percentage of the apps.
+- Ensure that the top 15? 20? 25? addons in popularity work without jQuery. Like with mobile apps' usage, those upgrading a few of most popular addons would cover a significant percentage of the apps.

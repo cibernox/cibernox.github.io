@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ember.js | Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/blog/categories/ember-dot-js/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:40:29+01:00</updated>
+  <updated>2017-04-12T00:44:30+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -298,7 +298,7 @@ moduleForComponent('my-component', 'Integration | Component | my-component', {
 });
 
 test('I can interact with my component', async function(assert) {
-  this.render(hbs``````);
+  this.render(hbs```\```);
 
   await fillIn('.some-input');
   await click('.main-button');

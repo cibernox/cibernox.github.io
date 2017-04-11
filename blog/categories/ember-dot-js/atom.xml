@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ember.js | Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/blog/categories/ember-dot-js/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:23:14+01:00</updated>
+  <updated>2017-04-12T00:30:09+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -18,7 +18,7 @@
     <link href="http://miguelcamba.com/blog/2017/04/11/the-future-of-embers-testing-and-the-beheading-of-jquery/"/>
     <updated>2017-04-11T23:35:53+01:00</updated>
     <id>http://miguelcamba.com/blog/2017/04/11/the-future-of-embers-testing-and-the-beheading-of-jquery</id>
-    <content type="html"><![CDATA[<p>For those writing Ember apps, jQuery has been an omnipresent presence from the beginning.
+    <content type="html"><![CDATA[<p>For those writing Ember apps, jQuery has been an omnipresent shadow from the beginning.
 It is included by default with the framework and seems to be infiltrated everywhere in it
 and the community. Well, that is about to end.</p>
 

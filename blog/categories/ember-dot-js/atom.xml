@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ember.js | Coder idiosyncrasy]]></title>
   <link href="http://miguelcamba.com/blog/categories/ember-dot-js/atom.xml" rel="self"/>
   <link href="http://miguelcamba.com/"/>
-  <updated>2017-04-12T00:17:45+01:00</updated>
+  <updated>2017-04-12T00:23:14+01:00</updated>
   <id>http://miguelcamba.com/</id>
   <author>
     <name><![CDATA[Miguel Camba]]></name>
@@ -351,7 +351,7 @@ full-featured Ember.js application as they need.</p>
 
 <h2>Is it really any faster?</h2>
 
-<p>Yes, it is. This screen were taking on <a href="www.ember-basic-dropdown.com">www.ember-basic-dropdown.com</a> running locally with CPU throttling set to 5X and networt set to &ldquo;Good 3G&rdquo;. That is more or less like using a high end Android devise on a <em>meh</em> connection. A pretty common situation in the first world.</p>
+<p>Yes, it is. This screen were taking on <a href="http://www.ember-basic-dropdown.com">www.ember-basic-dropdown.com</a> running locally with CPU throttling set to 5X and networt set to &ldquo;Good 3G&rdquo;. That is more or less like using a high end Android devise on a <em>meh</em> connection. A pretty common situation in the first world.</p>
 
 <p>With jQuery:
 <img src="http://miguelcamba.com/images/with-jquery-small.jpg" alt="with jQuery" style="width: 100%"/></p>

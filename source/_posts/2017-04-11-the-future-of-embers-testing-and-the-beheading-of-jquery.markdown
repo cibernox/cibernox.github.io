@@ -8,9 +8,9 @@ keywords: Ember, testing, jquery, remove, beheading
 published: true
 ---
 
-For those writing Ember apps, jQuery has been an omnipresent presence from the beginning.
+For those writing Ember apps, jQuery has been an omnipresent shadow from the beginning.
 It is included by default with the framework and seems to be infiltrated everywhere in it
-and the community. Well, that is about to end.
+and in the community. Well, that is about to end.
 
 <!-- more -->
 
@@ -23,7 +23,7 @@ that rely in it:
   be called when that event happens)
 - Testing. Pretty much everything.
 
-But a lot of things hace changed since Ember decided that bundling jQuery was a good idea back in 2011.
+But a lot of things have changed since Ember decided that bundling jQuery was a good idea back in 2011.
 Then jQuery was the thing we all were building things on, mobile web apps were anecdotical at
 best and IE 7/8 was so popular that few people dared to code stuff for them without the
 cross-browser safety net of some library.
@@ -50,7 +50,7 @@ a second if other of those is bad.
 
 **If, on the other hand, your app targets desktop, it is unlikely that a jQuery-less app will bring you a lot of advantages** and it will make your development harder, as a lot of addons need jQuery to work, so you will have to make
 PRs to fix other people's addons as you go. It is important to keep in mind that jQuery
-is not over 100K of random code wrote for the fun of it. It actually fixes tons of browser
+is not over 100K of random code someone wrote for the fun of it. It actually fixes tons of browser
 quirks (run `curl -L https://code.jquery.com/jquery-git.js | grep -A 5 -n Support:` to
 see some). It's a fantastic piece of software that we shouldn't disregard as obsolete.
 
@@ -133,7 +133,7 @@ feels like living in a better future.
 
 The third step is to replace the jQuery-based ember dispatcher that lives inside Ember with
 one based in native events. As usual Robert Jackson got you covered and he developed
-[`ember-native-dom-event-dispatcher`](https://github.com/rwjblue/ember-native-dom-event-dispatcher)
+[ember-native-dom-event-dispatcher](https://github.com/rwjblue/ember-native-dom-event-dispatcher)
 a while ago.
 
 Run `ember install ember-native-dom-event-dispatcher` and your app will not use jQuery events anymore.
@@ -150,14 +150,18 @@ The forth step if to install the last version I published of [`ember-native-dom-
 
 Run `ember install ember-native-dom-helpers` and you will be introduced to a new way testing that
 will delight you and I'll cover in a moment. This new way of testing is going to use `async/await`
-instead of `andThen`, so any but the very latest browsers you will need the regenerator
-polyfill. Run `ember install ember-maybe-import-regenerator` to get it. This addon already
+instead of `andThen`, so any but the very latest browsers will need the regenerator
+polyfill.
+
+Run `ember install ember-maybe-import-regenerator` to get it. This addon already
 uses the new targets feature so it will not import it if the browsers you target support async/await already.
 I'm biased because I created the addon, but regardless of if you plan to remove jQuery, you should try it.
 It's going to make you love your tests again, particularly integration tests.
 
 The next step is to remove `ember-ajax`. The addon is included by the default blueprint but it is a wrapper around
-`$.ajax`, so it's evident that we need to find a replacement. I've switched on my projects to
+`$.ajax`, so it's evident that we need to find a replacement.
+
+I've switched on my projects to
 [`ember-fetch`](https://github.com/stefanpenner/ember-fetch) and it's very nice.
 However at the time of this writing you must use the branch `patch-2` of my own
 fork of the project ([cibernox/ember-fetch#patch-2](https://github.com/cibernox/ember-fetch/tree/patch-2)) while those changes are not

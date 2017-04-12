@@ -19,8 +19,8 @@ itself it not SO dependent on jQuery. There is basically only three features in 
 that rely in it:
 
 - `this.$()`
-- The event dispatcher (The thing that makes functions like `click() {}` in you components
-  be called when that event happens)
+- The event dispatcher (The thing that makes actions work and methods named after events like `click() {}` in you components
+  be called)
 - Testing. Pretty much everything.
 
 But a lot of things have changed since Ember decided that bundling jQuery was a good idea back in 2011.
@@ -29,7 +29,7 @@ best and IE 7/8 was so popular that few people dared to code stuff for them with
 cross-browser safety net of some library.
 
 Today we build apps that run mostly for evergreen browsers and perhaps IE11, mobile
-accounts for a good 50% of our visits it not more, and making a network request is not longer
+accounts for a good 50% of our visits if not more, and making a network request is no longer
 something that requires you to copy-paste some obscure code from stackoverflow, so it's time
 to make jQuery one of those Ember opinions you can disagree with.
 
@@ -146,7 +146,7 @@ To name the caveat that is most likely to bite you, to check if some code called
 in native events you use the `e.defaultPrevented` property while in jQuery events you use the `e.isDefaultPrevented()`
 method.
 
-The forth step if to install the last version I published of [`ember-native-dom-helpers`](https://github.com/cibernox/ember-native-dom-helpers).
+The forth step if to install the last version I published of [ember-native-dom-helpers](https://github.com/cibernox/ember-native-dom-helpers).
 
 Run `ember install ember-native-dom-helpers` and you will be introduced to a new way testing that
 will delight you and I'll cover in a moment. This new way of testing is going to use `async/await`
@@ -155,10 +155,10 @@ polyfill.
 
 Run `ember install ember-maybe-import-regenerator` to get it. This addon already
 uses the new targets feature so it will not import it if the browsers you target support async/await already.
-I'm biased because I created the addon, but regardless of if you plan to remove jQuery, you should try it.
+I'm biased because I started the work on `ember-native-dom-helpers`, but **regardless of if you plan to remove jQuery, you should try it**.
 It's going to make you love your tests again, particularly integration tests.
 
-The next step is to remove `ember-ajax`. The addon is included by the default blueprint but it is a wrapper around
+The next step is to remove `ember-ajax`. The addon is included in the default blueprint but it is a wrapper around
 `$.ajax`, so it's evident that we need to find a replacement.
 
 I've switched on my projects to
@@ -184,7 +184,7 @@ at the time of this writing cannot mock requests made with the native `fetch`, b
 however if you use the fetch polyfill that `ember-fetch` (which uses a regular XHR request underneath) provides you.
 There is some ideas to fix pretender on this regard, so hopefully this will change soon.
 
-BTW, there is caveat about `fetch` (native or otherwise) that although I am aware of, I keep forgetting.
+BTW, there is a caveat about `fetch` (native or otherwise) that although I am aware of, I keep forgetting.
 Unlike `$.ajax('/some-url').then(fn1).catch(fn2)` where 2XX and 3XX status codes trigger the `then` callback
 and 4XX and 5XX statuses are considered failures and trigger the `catch`, using the `fetch` the
 only situation that causes a request to fail and the `catch` handler to be called is a real
@@ -304,7 +304,7 @@ test('I can interact with my component', async function(assert) {
 {% endraw %}
 
 Since those helpers don't use jQuery and now we are making requests with `ember-fetch`, we
-can write an tests apps nicer than ever!
+can write and tests apps nicer than ever!
 
 Note that to prevent ESLint to freak out when using `async/await`, you must edit your `.eslintrc.js`
 file and instruct to parse the javascript as the new ES2017 spec:
@@ -380,7 +380,7 @@ This is just what **I think** should be required to the MVP of a jquery-less wor
 
 - Enhance pretender (used by ember-cli-mirage) to reliably mock fetch. In practice it means to create the fetch counterpart of https://github.com/pretenderjs/FakeXMLHttpRequest
 - Enhance `ember-fetch` to have some sort of feature-parity with `ember-ajax`, particularly exposing a service that allows to encapsulate authentication, headers and all that.
-- Refactor ember-data internals to use some sort of `network` service that masks how that actually works inside. It could be implemented in terms of `Ember.$`, `fetch` or raw `XHR`. This service should be provided by the networking libraries (`ember-ajax`, `ember-network`, `ember-fetch`...). For backwards compatibility reasons probably this service's semantics should mimic `$.ajax`, but not sure.
+- Refactor `ember-data`'s internals to use some sort of `network` service that masks how that actually works inside. It could be implemented in terms of `$.ajax`, `fetch` or raw `XHR`. This service should be provided by the networking libraries (`ember-ajax`, `ember-network`, `ember-fetch`...). For backwards compatibility reasons probably this service's semantics should mimic `$.ajax`, but not sure.
 - Put a carrot for developers to make their addons jquery-free. One idea I have is giving them one extra point in ember-observer.
 We could detect this checking if `ember-native-dom-event-dispatcher` is present in some of the ember-try scenarios.
-- Ensure that the top 15? 20? 25? addons in popularity work without jQuery. Like with mobile apps' usage, those upgrading a few of most popular addons would cover a significant percentage of the apps.
+- Ensure that the top 15? 20? 25? addons in popularity work without jQuery. Like with mobile apps' usage, upgrading a few of most popular addons would cover a significant percentage of the apps.

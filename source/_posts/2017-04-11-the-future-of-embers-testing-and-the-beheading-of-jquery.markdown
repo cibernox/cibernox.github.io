@@ -131,8 +131,11 @@ your debugging experience better.
 I actually recommend those settings regardless of if you plan to remove jQuery or not. It just
 feels like living in a better future.
 
-The third step is to replace the jQuery-based ember dispatcher that lives inside Ember with
-one based in native events. As usual Robert Jackson got you covered and he developed
+The third step is only required if your app is using Ember 2. Starting in Ember
+3.0.0, the default event dispatcher is implemented without a dependency on jQuery.
+For those of you still on Ember 2, replace the jQuery-based Ember dispatcher that
+lives inside Ember with one based in native events. As usual Robert Jackson got
+you covered and he developed
 [ember-native-dom-event-dispatcher](https://github.com/rwjblue/ember-native-dom-event-dispatcher)
 a while ago.
 
@@ -147,6 +150,12 @@ in native events you use the `e.defaultPrevented` property while in jQuery event
 method.
 
 The forth step if to install the last version I published of [ember-native-dom-helpers](https://github.com/cibernox/ember-native-dom-helpers).
+
+The forth step is also only required if your app is on Ember 2, since Ember 3.0.0
+includes jQuery-free DOM helpers in the `@ember/test-helpers` package. For those
+of you still on Ember 2, install the last version I published of
+[ember-native-dom-helpers](https://github.com/cibernox/ember-native-dom-helpers)
+ 
 
 Run `ember install ember-native-dom-helpers` and you will be introduced to a new way testing that
 will delight you and I'll cover in a moment. This new way of testing is going to use `async/await`
@@ -202,8 +211,10 @@ fetch("/some-endpoint").then((response) => {
   .catch((error) => console.log(error));
 ```
 
-One last thing you have to remove is `ember-data`, for similar reasons. There is a plan to
-decouple `ember-data` from `$.ajax`, but we're not there yet.
+One last thing you have to change is `ember-data`, which should
+use `ember-fetch` instead of `$.ajax` for network requests.  The README for
+`ember-fetch` describes [how to extend your Ember Data API adapter to use
+ember-fetch](https://github.com/ember-cli/ember-fetch#use-with-ember-data).
 
 Enough with addons, let's remove jQuery itself. Open your `ember-cli-build.js` and make
 it look like this:
